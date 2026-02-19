@@ -5,7 +5,7 @@ public abstract class Arma {
     protected double tiempoRecuperacion; // En segundos
     
     public Arma(String nombre, int dañoBase, double alcance, double tiempoRecuperacion, String rareza) {
-        this.nombre = nombre;
+        this.nombreArma = nombre;
         this.dañoBase = dañoBase;
         this.alcance = alcance;
         this.tiempoRecuperacion = tiempoRecuperacion;
