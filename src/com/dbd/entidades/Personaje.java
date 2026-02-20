@@ -5,13 +5,13 @@ public abstract class Personaje {
 
     protected int vidaBase;
     protected int defensaBase;
-    protected int puntosSangre;
+    protected int danioBase;
 
-    public Personaje(String nombrePersonaje, int vidaBase, int defensaBase, int puntosSangre) {
+    public Personaje(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
         this.nombrePersonaje = nombrePersonaje;
         this.vidaBase = vidaBase;
         this.defensaBase = defensaBase;
-        this.puntosSangre = puntosSangre;
+        this.danioBase = danioBase;
     }
 
     public String getNombrePersonaje() { return nombrePersonaje; }

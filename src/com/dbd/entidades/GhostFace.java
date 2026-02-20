@@ -1,8 +1,8 @@
 package com.dbd.entidades;
 
-public class Onryo extends Personaje {
-    public Onryo(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
-        super("Onryo", 220, 20, 30);
+public class GhostFace extends Personaje {
+    public GhostFace(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
+        super("Ghost" + " " + "Face", 150, 15, 25);
     }
 
     @Override

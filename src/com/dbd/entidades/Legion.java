@@ -2,8 +2,8 @@ package com.dbd.entidades;
 
 public class Legion extends Personaje {
 
-    public Legion(String nombrePersonaje, int vidaBase, int defensaBase, int puntosSangre) {
-        super(nombrePersonaje, vidaBase, defensaBase, puntosSangre);
+    public Legion(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
+        super("Legion", 180, 25, 35);
 
     }
 

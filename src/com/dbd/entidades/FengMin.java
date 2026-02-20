@@ -1,8 +1,8 @@
 package com.dbd.entidades;
 
-public class GhostFace extends Personaje {
-    public GhostFace(String nombrePersonaje, int vidaBase, int defensaBase, int puntosSangre) {
-        super(nombrePersonaje, vidaBase, defensaBase, puntosSangre);
+public class FengMin extends Personaje {
+    public FengMin(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
+        super("Feng" + " " + "Min", 100, 10, 12);
     }
 
     @Override
