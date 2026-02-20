@@ -1,8 +1,8 @@
 package com.dbd.entidades;
 
-public class FengMin extends Personaje {
-    public FengMin(String nombrePersonaje, int vidaBase, int defensaBase, int puntosSangre) {
-        super(nombrePersonaje, vidaBase, defensaBase, puntosSangre);
+public class SteveHarrington extends Personaje {
+    public SteveHarrington(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
+        super("Steve" + "Harrington", 110, 10, 10);
     }
 
     @Override
