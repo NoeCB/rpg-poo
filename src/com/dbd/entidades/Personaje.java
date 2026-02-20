@@ -14,5 +14,25 @@ public abstract class Personaje {
         this.puntosSangre = puntosSangre;
     }
 
+    public String getNombrePersonaje() { return nombrePersonaje; }
+    public int getVidaActual() { return vidaActual; }
+    public void setVidaActual(int vidaActual) { this.vidaActual = vidaActual; }
+    public ArrayList<Perk> getPerks() { return perks; }
+
+    public void aplicarEstado(Estado nuevoEstado) {
+        this.estados.add(nuevoEstado);
+    }
+
+    public void procesarEstados() {
+        for (int i = estados.size() - 1; i >= 0; i--) {
+            Estado e = estados.get(i);
+            e.aplicarEfecto(this); // Aplica el daño o la cura
+            
+            if (e.getTurnosRestantes() <= 0) {
+                estados.remove(i); // Borra el estado si se acaba el tiempo
+            }
+        }
+    }
+
     public abstract void accion();
 }
