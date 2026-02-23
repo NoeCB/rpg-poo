@@ -1,12 +1,13 @@
+package com.dbd.arma;
+
 public abstract class Arma {
     protected String nombreArma;
-    protected int dañoBase;
+    protected int danioBase;
 
-    public Arma(String nombreArma, int dañoBase) {
+    public Arma(String nombreArma, int danioBase) {
         this.nombreArma = nombreArma;
-        this.dañoBase = dañoBase;
+        this.danioBase = danioBase;
     }
 
     public abstract void usar();
-
 }

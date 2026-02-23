@@ -1,15 +1,12 @@
 package com.dbd.entidades;
 
 public class Legion extends Personaje {
-
-    public Legion(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
-        super("Legion", 180, 25, 35);
-
+    public Legion() {
+        super("Legion", 180, 180, 25, 0);
     }
 
     @Override
     public void accion() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'accion'");
+        System.out.println(this.nombrePersonaje + " entra en frenesí y empieza a correr hacia ti.");
     }
 }
