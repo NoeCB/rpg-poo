@@ -6,7 +6,7 @@ public class Alerta extends Perk {
 
     @Override
     public void lanzar(Personaje caster, Personaje objetivo) {
-        System.out.println("🛠️ " + caster.getNombrePersonaje() + " cura a " + objetivo.getNombrePersonaje() + " al instante.");
+        System.out.println(caster.getNombrePersonaje() + " cura a " + objetivo.getNombrePersonaje() + " al instante.");
         objetivo.setVidaActual(objetivo.getVidaActual() + 20);
     }
 }

@@ -11,7 +11,6 @@ public class LeonKennedy extends Personaje {
 
     @Override
     public void accion() {
-        // Quitamos el error feo de "UnsupportedOperationException" y le ponemos texto chulo
         System.out.println(this.nombrePersonaje + " empuña su linterna y se prepara para el combate.");
     }
 }

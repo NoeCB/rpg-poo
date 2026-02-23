@@ -1,6 +1,6 @@
 package com.dbd.entidades;
 
-// Estos tres imports son vitales para que no dé error, no cambiarlos
+// Estos tres imports son importantes para que no dé error, NO cambiarlos
 import com.dbd.estados.Estado;
 import com.dbd.habilidades.Perk;
 import java.util.ArrayList;
