@@ -50,9 +50,7 @@ public class MotorTrial {
             }
         }
         System.out.println("\n¡EQUIPOS LISTOS PARA LA PRUEBA!");
-    }
-
-}
+    } 
 
     public void iniciarJuego() {
         int ronda = 1;
@@ -78,7 +76,6 @@ public class MotorTrial {
             mostrarEstadoEquipos();
             ronda++;
             
-            // Seguridad para evitar bucles infinitos en pruebas
             if(ronda > 50) {
                 System.out.println("La batalla dura demasiado... ¡Empate técnico!");
                 break;
@@ -95,12 +92,12 @@ public class MotorTrial {
         System.out.println("\n--- ESTADO DE LA PARTIDA ---");
         System.out.print("SURVIS:  ");
         for(Personaje p : supervivientes) {
-            String status = p.getVidaActual() > 0 ? p.getVidaActual() + " HP" : " MUERTO";
+            String status = p.getVidaActual() > 0 ? p.getVidaActual() + " HP" : "MUERTO";
             System.out.print("[" + p.getNombrePersonaje() + ": " + status + "] ");
         }
         System.out.print("\nKILLERS: ");
         for(Personaje p : killers) {
-            String status = p.getVidaActual() > 0 ? p.getVidaActual() + " HP" : " MUERTO";
+            String status = p.getVidaActual() > 0 ? p.getVidaActual() + " HP" : "MUERTO";
             System.out.print("[" + p.getNombrePersonaje() + ": " + status + "] ");
         }
         System.out.println("\n----------------------------");
@@ -109,9 +106,9 @@ public class MotorTrial {
     private void anunciarGanador() {
         System.out.println("\n=========================================");
         if (equipoVivo(supervivientes)) {
-            System.out.println(" ¡LOS SUPERVIVIENTES HAN ESCAPADO!");
+            System.out.println("¡LOS SUPERVIVIENTES HAN ESCAPADO!");
         } else {
-            System.out.println(" SACRIFICIO COMPLETADO. LA ENTIDAD GANA.");
+            System.out.println("SACRIFICIO COMPLETADO. LA ENTIDAD GANA.");
         }
         System.out.println("=========================================");
     }
@@ -119,3 +116,42 @@ public class MotorTrial {
     private void pausaDramatica() {
         try { Thread.sleep(800); } catch (Exception e) {}
     }
+    // --- MÉTODOS PARA EL MENÚ PRINCIPAL ---
+
+    public void mostrarSupervivientes() {
+        System.out.println("\n SUPERVIVIENTES DISPONIBLES:");
+        
+        // Creamos un array temporal con objetos reales para extraer sus datos exactos
+        Personaje[] listaSurvis = {
+            new LeonKennedy(),
+            new SteveHarrington(),
+            new FengMin(),
+            new SableWard()
+        };
+
+        // Recorremos el array y usamos las funciones (getters) de la clase Personaje
+        for (int i = 0; i < listaSurvis.length; i++) {
+            System.out.println(" " + (i + 1) + ". " + listaSurvis[i].getNombrePersonaje() + 
+                               " | Vida Base: " + listaSurvis[i].getVidaActual() + " HP");
+        }
+        System.out.println("-------------------------------------------------");
+    }
+
+    public void mostrarAsesinos() {
+        System.out.println("\n KILLERS DISPONIBLES (LA ENTIDAD):");
+        
+        // Lo mismo para los asesinos
+        Personaje[] listaKillers = {
+            new GhostFace(),
+            new Legion(),
+            new Onryo(),
+            new Animatronico()
+        };
+
+        for (int i = 0; i < listaKillers.length; i++) {
+            System.out.println(" " + (i + 1) + ". " + listaKillers[i].getNombrePersonaje() + 
+                               " | Vida Base: " + listaKillers[i].getVidaActual() + " HP");
+        }
+        System.out.println("-------------------------------------------------");
+    }
+} // Esta es la llave que cierra la clase al final
