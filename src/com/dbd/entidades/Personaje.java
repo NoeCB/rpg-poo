@@ -14,10 +14,6 @@ public abstract class Personaje {
         this.danioBase = danioBase;
     }
 
-<<<<<<< Updated upstream
-    public abstract void accion();
-}
-=======
     public String getNombrePersonaje() {
         return nombrePersonaje;
     }
@@ -60,4 +56,3 @@ public abstract class Personaje {
 
 // public abstract void accion();
 //
->>>>>>> Stashed changes

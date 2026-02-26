@@ -7,11 +7,6 @@ import com.dbd.core.MotorTrial;
 
 public class Main {
     public static void main(String[] args) {
-<<<<<<< Updated upstream
-        MotorTrial juego = new MotorTrial();
-        juego.iniciar();
-    }
-=======
         Scanner sc = new Scanner(System.in);
         MotorTrial prueba = new MotorTrial();
         int opcion = 0;
@@ -38,7 +33,7 @@ public class Main {
                     prueba.mostrarAsesinos();
                     break;
                 case 3:
-                    System.out.println("Iniciando simulación automática...");
+                    System.out.println("Iniciando juego automático...");
                     // prueba.configurarPartida();
                     // prueba.iniciarJuego();
                     break;
@@ -63,5 +58,4 @@ public class Main {
         }
     }
 
->>>>>>> Stashed changes
 }

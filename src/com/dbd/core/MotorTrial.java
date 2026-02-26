@@ -39,10 +39,9 @@ public class MotorTrial {
 
     public void iniciar() {
 
-    }<<<<<<<
+    }
 
-    Updated upstream
-}=======
+}
 
     public void iniciarJuego() {
         System.out.println("=== INICIO DE LA PRUEBA ===");
@@ -68,6 +67,3 @@ public class MotorTrial {
         System.out.println(leon.getNombrePersonaje() + ": " + leon.getVidaActual() + " HP");
         System.out.println(sable.getNombrePersonaje() + ": " + sable.getVidaActual() + " HP");
     }
-}>>>>>>>
-
-Stashed changes
