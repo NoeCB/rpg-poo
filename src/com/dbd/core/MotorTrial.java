@@ -52,6 +52,8 @@ public class MotorTrial {
         System.out.println("\n¡EQUIPOS LISTOS PARA LA PRUEBA!");
     }
 
+}
+
     public void iniciarJuego() {
         int ronda = 1;
         while (equipoVivo(supervivientes) && equipoVivo(killers)) {
@@ -117,4 +119,3 @@ public class MotorTrial {
     private void pausaDramatica() {
         try { Thread.sleep(800); } catch (Exception e) {}
     }
-}
