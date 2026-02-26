@@ -14,25 +14,45 @@ public abstract class Personaje {
         this.danioBase = danioBase;
     }
 
-    public String getNombrePersonaje() { return nombrePersonaje; }
-    public int getVidaActual() { return vidaActual; }
-    public void setVidaActual(int vidaActual) { this.vidaActual = vidaActual; }
-    public ArrayList<Perk> getPerks() { return perks; }
-
-    public void aplicarEstado(Estado nuevoEstado) {
-        this.estados.add(nuevoEstado);
+    public String getNombrePersonaje() {
+        return nombrePersonaje;
     }
 
-    public void procesarEstados() {
-        for (int i = estados.size() - 1; i >= 0; i--) {
-            Estado e = estados.get(i);
-            e.aplicarEfecto(this); // Aplica el daño o la cura
-            
-            if (e.getTurnosRestantes() <= 0) {
-                estados.remove(i); // Borra el estado si se acaba el tiempo
-            }
-        }
+    public int getVidaBase() {
+        return vidaBase;
     }
 
-    public abstract void accion();
+    public void setVidaBase(int vidaBase) {
+        this.vidaBase = vidaBase;
+    }
+
+    public void setDanioBase(int danioBase) {
+        this.danioBase = danioBase;
+    }
+
+    public int getDanioBase() {
+        return danioBase;
+    }
 }
+
+// public ArrayList<Perk> getPerks() {
+// return perks;
+// }
+
+// public void aplicarEstado(Estado nuevoEstado) {
+// this.estados.add(nuevoEstado);
+// }
+
+// public void procesarEstados() {
+// for (int i = estados.size() - 1; i >= 0; i--) {
+// Estado e = estados.get(i);
+// e.aplicarEfecto(this); // Aplica el daño o la cura
+
+// if (e.getTurnosRestantes() <= 0) {
+// estados.remove(i); // Borra el estado si se acaba el tiempo
+// }
+// }
+// }
+
+// public abstract void accion();
+//

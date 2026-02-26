@@ -2,8 +2,8 @@ package com.dbd.entidades;
 
 public class Superviviente extends Personaje {
 
-    public Superviviente(String nombrePersonaje, int vidaActual, int vidaMax, int defensaBase, int puntosSangre) {
-        super(nombrePersonaje, vidaActual, vidaMax, defensaBase, puntosSangre);
+    public Superviviente(String nombrePersonaje, int vidaActual, int vidaMax, int defensaBase) {
+        super(nombrePersonaje, vidaActual, vidaMax, defensaBase);
     }
 
     @Override
