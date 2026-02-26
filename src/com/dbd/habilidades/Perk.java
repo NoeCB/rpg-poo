@@ -3,20 +3,19 @@ package com.dbd.habilidades;
 import com.dbd.entidades.Personaje;
 
 public abstract class Perk {
-
+    
     protected String nombre;
-    protected int costeSangre;  //Coste del recurso para habilidades
-    protected int coolDownMax;  //Turnos de espera para volver a usar habilidades
+    protected int costeSangre; // El recurso que consume 
 
-    public Perk(String nombre, int costeSangre){
+    public Perk(String nombre, int costeSangre) {
         this.nombre = nombre;
         this.costeSangre = costeSangre;
     }
 
-    public boolean puedeLanzarse(Personaje castear){
-        return true;
+    public String getNombre() {
+        return nombre;
     }
 
-    public abstract void lanzar(Personaje castear, Personaje objetivo);
-
+    // El motor llamará a este método sin saber qué perk es (Polimorfismo) 
+    public abstract void lanzar(Personaje caster, Personaje objetivo);
 }
