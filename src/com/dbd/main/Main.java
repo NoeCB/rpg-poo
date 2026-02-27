@@ -26,7 +26,7 @@ public class Main {
             switch (opcion) {
                 case 1:
                     System.out.println("\n--- LISTA DE SUPERVIVIENTES ---");
-                    prueba.mostrarSupervivientes();
+                 
                     break;
                 case 2:
                     System.out.println("\n--- LISTA DE ASESINOS ---");

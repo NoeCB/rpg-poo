@@ -110,4 +110,24 @@ public void decidirAccionIA(ArrayList<Personaje> aliados, ArrayList<Personaje> e
         System.out.println(this.nombrePersonaje + " lanza un ataque básico directo a " + rival.getNombrePersonaje() + "!");
         rival.recibirDanio(danioGenerado);
     }
+
+    public int getDefensaBase() {
+        return this.defensaBase;
+    }
+
+    public void setDefensaBase(int nuevaDefensa) {
+        this.defensaBase = nuevaDefensa;
+    }
+    
+    public void setDefendiendo(boolean defendiendo) {
+        this.defendiendo = defendiendo;
+    }
+
+    public boolean isDefendiendo() {
+        return this.defendiendo;
+    }
+    
+    public int getVidaMax() {
+        return this.vidaMax;
+    }
 }
