@@ -3,19 +3,22 @@ package com.dbd.habilidades;
 import com.dbd.entidades.Personaje;
 
 public abstract class Perk {
-    
     protected String nombre;
-    protected int costeSangre; // El recurso que consume 
+    protected int usos;
 
-    public Perk(String nombre, int costeSangre) {
+    public Perk(String nombre, int usos) {
         this.nombre = nombre;
-        this.costeSangre = costeSangre;
+        this.usos = usos;
     }
 
     public String getNombre() {
-        return nombre;
+        return this.nombre;
     }
 
-    // El motor llamará a este método sin saber qué perk es (Polimorfismo) 
+    public int getUsos() {
+        return this.usos;
+    }
+
+    // El método que todas las habilidades hijas están obligadas a programar
     public abstract void lanzar(Personaje caster, Personaje objetivo);
 }

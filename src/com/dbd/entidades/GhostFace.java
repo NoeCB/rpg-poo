@@ -1,13 +1,12 @@
 package com.dbd.entidades;
 
 public class GhostFace extends Personaje {
-    public GhostFace(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
-        super("Ghost" + " " + "Face", 150, 15, 25);
+    public GhostFace() {
+        super("Ghost Face", 150, 150, 15, 0);
     }
 
     @Override
     public void accion() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'accion'");
+        System.out.println(this.nombrePersonaje + " se asoma por una esquina acechando en silencio...");
     }
 }

@@ -1,13 +1,12 @@
 package com.dbd.entidades;
 
 public class Onryo extends Personaje {
-    public Onryo(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
-        super("Onryo", 220, 20, 30);
+    public Onryo() {
+        super("Onryo", 220, 220, 20, 0);
     }
 
     @Override
     public void accion() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'accion'");
+        System.out.println(this.nombrePersonaje + " sale de un televisor cercano.");
     }
 }

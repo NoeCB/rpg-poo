@@ -1,11 +1,15 @@
 package com.dbd.arma;
 
 public class Conjuro extends Arma {
+    
     public Conjuro() {
-        super("conjuro", 20, 80);
+        // Ahora le pasamos los 3 datos: Nombre, Daño Base y Precisión 
+        super("Conjuro Oscuro", 20, 80);
     }
-    @override
+    
+    @Override
     public void usar() {
-        System.out.println("Lanzando el conjuro " + getNombre() + " con un daño de " + getDaño());
+        // Aprovechamos para mostrar también la precisión en el texto
+        System.out.println("Lanzando " + this.nombreArma + " con un poder de " + this.danioBase + " y una precisión de " + this.precision + "%.");
     }
 }
