@@ -19,5 +19,21 @@ public abstract class Arma {
         this.nombreArma = nombreArma;
     }
 
+    public int getDanioBase() {
+        return danioBase;
+    }
+
+    public void setDanioBase(int danioBase) {
+        this.danioBase = danioBase;
+    }
+
+    public int getPrecision() {
+        return precision;
+    }
+
+    public void setPrecision(int precision) {
+        this.precision = precision;
+    }
+
     public abstract void usar();
 }

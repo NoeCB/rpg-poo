@@ -3,6 +3,23 @@ package com.dbd.habilidades;
 import com.dbd.entidades.Personaje;
 
 public abstract class Perk {
+<<<<<<< HEAD
+    
+    protected String nombrePerk;
+    
+
+
+    public Perk(String nombrePerk) {
+        this.nombrePerk = nombrePerk;
+        
+    }
+
+    public String getNombrePerk() {
+        return nombrePerk;
+    }
+    public void setNombrePerk(String nombrePerk) {
+        this.nombrePerk = nombrePerk;
+=======
     protected String nombre;
     protected int usos;
 
@@ -13,6 +30,7 @@ public abstract class Perk {
 
     public String getNombre() {
         return this.nombre;
+>>>>>>> 1384e92e82f1003fcd6966331097bb08e2b6eb7c
     }
 
     public int getUsos() {

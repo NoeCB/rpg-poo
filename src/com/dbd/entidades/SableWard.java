@@ -1,13 +1,25 @@
 package com.dbd.entidades;
 
+import java.util.Random;
+import com.dbd.arma.Conjuro;
+import com.dbd.arma.Arma;
+
 public class SableWard extends Personaje {
-    public SableWard() {
-        // Nombre, vidaActual, vidaMax, defensaBase, puntosSangre
-        super("Sable Ward", 250, 250, 30, 0);
+    private Conjuro conjuro;
+    public SableWard(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
+        super("Sable" + " " + "Ward", 250, 30, 50);
+        this.conjuro = new Conjuro();
     }
 
     @Override
     public void accion() {
-        System.out.println(this.nombrePersonaje + " se esconde en las sombras preparando un maleficio.");
+       Random rd = new Random();
+        int impacto = rd.nextInt(1,101);
+        if(impacto <= this.conjuro.getPrecision()) {
+            System.out.println("Sable Ward ha atacado con su conjuro.");
+        } else {
+            System.out.println(this.nombrePersonaje + " ha fallado su ataque.");
+        }
     }
-}
+    }
+

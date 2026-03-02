@@ -65,10 +65,23 @@ public abstract class Personaje {
         this.defendiendo = false;
     }
 
-    this.vidaActual -= danioFinal;
-    if (this.vidaActual < 0) this.vidaActual = 0; // Para que no salga -571 HP
+    public void setDanioBase(int danioBase) {
+        this.danioBase = danioBase;
+    }
+
+    public int getDanioBase() {
+        return danioBase;
+    }
+    //recibe daño de un ataque
+    public void recibirDanio(int danio) {
+    this.vidaBase = this.vidaBase - danio; 
+    if (this.vidaBase < 0) {
+        this.vidaBase = 0;
+    }
     
-    System.out.println(this.nombrePersonaje + " recibe " + danioFinal + " de daño. (Vida: " + this.vidaActual + "/" + this.vidaMax + ")");
+    System.out.println(this.nombrePersonaje + " ha recibido " + danio + " puntos de daño. Vida restante: " + this.vidaBase);
+}
+
 }
 
     // --- 2. LA AUTOMATIZACION ---

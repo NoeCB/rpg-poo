@@ -2,7 +2,7 @@ package com.dbd.arma;
 
 public class Hacha extends Arma {
     public Hacha() {
-        super("Vinculo de Condena", 10, 80);
+        super("Hacha", 10, 80);
     }
 
     @Override
