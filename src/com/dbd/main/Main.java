@@ -1,9 +1,8 @@
 package com.dbd.main;
 
+import com.dbd.core.MotorTrial;
 import java.util.InputMismatchException;
 import java.util.Scanner;
-
-import com.dbd.core.MotorTrial;
 
 public class Main {
     public static void main(String[] args) {
@@ -13,11 +12,11 @@ public class Main {
         prueba.configurarPartida();
 
         do {
-            System.out.println("\n--- BIENVENIDO A DEAD BY DAYLIGHT (TRIAL) ---");
+            System.out.println("\n--- BIENVENIDO A DEAD BY DAYLIGHT  ---");
             System.out.println("1. Mirar Personajes (Supervivientes)");
             System.out.println("2. Mirar Asesinos");
             System.out.println("3. Juego Automático (Simulación)");
-            System.out.println("4. Juego Manual (Próximamente)");
+            System.out.println("4. Juego Manual");
             System.out.print("Selecciona una opción: ");
 
             opcion = errorNumero(sc);
@@ -38,7 +37,8 @@ public class Main {
                     // prueba.iniciarJuego();
                     break;
                 case 4:
-                    // aqui iria el modo manual
+                    prueba.iniciarJuegoManual();
+                    
                     break;
                 default:
                     System.out.println("Opción no válida, intenta de nuevo.");

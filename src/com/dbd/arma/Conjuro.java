@@ -1,11 +1,11 @@
 package com.dbd.arma;
 
 public class Conjuro extends Arma {
-    public Conjuro() {
-        super("conjuro", 20, 80);
+    public Conjuro(String nombre, int danio, int precision) {
+        super(nombre, danio, precision);
     }
-    @override
+    @Override
     public void usar() {
-        System.out.println("Lanzando el conjuro " + getNombre() + " con un daño de " + getDaño());
+        System.out.println("Sable ha lanzado un conjuro con daño de " + this.danio);
     }
 }

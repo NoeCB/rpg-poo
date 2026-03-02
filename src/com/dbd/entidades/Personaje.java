@@ -33,6 +33,16 @@ public abstract class Personaje {
     public int getDanioBase() {
         return danioBase;
     }
+    //recibe daño de un ataque
+    public void recibirDanio(int danio) {
+    this.vidaBase = this.vidaBase - danio; 
+    if (this.vidaBase < 0) {
+        this.vidaBase = 0;
+    }
+    
+    System.out.println(this.nombrePersonaje + " ha recibido " + danio + " puntos de daño. Vida restante: " + this.vidaBase);
+}
+
 }
 
 // public ArrayList<Perk> getPerks() {
