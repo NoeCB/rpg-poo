@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "../../../../../../../../../../../cygwin64/home/Nebrija/Nebrija-Primer-Anio/Nebrija-Segundo-Trimestre/claseNormal"
+		},
+		{
+			"path": "../../../../.."
+		},
+		{
+			"path": "../../../../../../../.."
+		}
+	],
+	"settings": {
+		"java.project.sourcePaths": [
+			"src"
+		],
+		"java.project.outputPath": "bin",
+		"java.project.referencedLibraries": [
+			"lib/**/*.jar"
+		],
+		"powershell.cwd": "claseNormal"
+	}
+}
