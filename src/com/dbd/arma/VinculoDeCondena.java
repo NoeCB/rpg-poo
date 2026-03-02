@@ -3,13 +3,13 @@ package com.dbd.arma;
 
 
 public class VinculoDeCondena extends Arma {
-    public VinculoDeCondena(String nombre, int danio, int precision) {
+    public VinculoDeCondena() {
         // Nombre, Daño, Munición, Precisión
-        super(nombre, danio, precision);
+        super("Vinculo de Condena", 10, 80);
     }
 
     @Override
     public void usar() {
-        System.out.println("Onryo ha lanzado un vinculo de condena con daño de " + this.danio);
+        System.out.println("Onryo ha lanzado un vinculo de condena con daño de ");
     }
     }

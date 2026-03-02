@@ -1,8 +1,8 @@
 package com.dbd.arma;
 
 public class Pistola extends Arma {
-    public Pistola(String nombre, int danio, int precision) {
-        super(nombre, danio, precision);
+    public Pistola() {
+        super("Pistola", 30, 80);
     }
 
     @Override

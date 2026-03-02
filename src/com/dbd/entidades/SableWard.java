@@ -8,7 +8,7 @@ public class SableWard extends Personaje {
     private Conjuro conjuro;
     public SableWard(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
         super("Sable" + " " + "Ward", 250, 30, 50);
-        this.conjuro = new Conjuro("Conjuro de Sable", 40, 70);
+        this.conjuro = new Conjuro();
     }
 
     @Override

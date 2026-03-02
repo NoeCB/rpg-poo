@@ -1,8 +1,8 @@
 package com.dbd.arma;
 
 public class Conjuro extends Arma {
-    public Conjuro(String nombre, int danio, int precision) {
-        super(nombre, danio, precision);
+    public Conjuro() {
+        super("Conjuro de Sable", 40, 70);
     }
     @Override
     public void usar() {

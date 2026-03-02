@@ -7,7 +7,7 @@ public class GhostFace extends Personaje {
     private Arma cuchillo;
     public GhostFace(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
         super("Ghost" + " " + "Face", 150, 15, 25);
-this.cuchillo = new com.dbd.arma.Cuchillo("Cuchillo de Caza", 10, 80);
+        this.cuchillo = new Cuchillo();
     }
 
     @Override

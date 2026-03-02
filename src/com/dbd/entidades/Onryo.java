@@ -2,13 +2,13 @@ package com.dbd.entidades;
 import com.dbd.arma.VinculoDeCondena;
 
 import java.util.Random;
-
 import com.dbd.arma.Arma;
+
 public class Onryo extends Personaje {
     private VinculoDeCondena vinculoDeCondena;  
     public Onryo(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
         super("Onryo", 220, 20, 30);
-        this.vinculoDeCondena = new VinculoDeCondena("Vinculo de Condena", 10, 80);
+        this.vinculoDeCondena = new VinculoDeCondena();
     }
 
     @Override

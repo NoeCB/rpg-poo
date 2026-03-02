@@ -1,8 +1,8 @@
 package com.dbd.arma;
 
 public class Cuchillo extends Arma {
-  public Cuchillo(String nombre, int danio, int precision) {
-        super(nombre, danio, precision);
+  public Cuchillo() {
+        super("Cuchillo de Caza", 10, 80);
     }
 
     @Override

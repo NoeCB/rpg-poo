@@ -7,7 +7,7 @@ public class Legion extends Personaje {
 
     public Legion(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
         super("Legion", 180, 25, 35);
-        this.cuchillo = new com.dbd.arma.Cuchillo("Cuchillo de Caza", 10, 80);
+        this.cuchillo = new Cuchillo();
 
     }
 

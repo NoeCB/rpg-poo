@@ -8,7 +8,7 @@ public class Animatronico extends Personaje {
     private Hacha hacha;
     public Animatronico(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
         super("Animatrónico", 220, 20, 30);
-        this.hacha = new Hacha("Hacha", 10, 80);
+        this.hacha = new Hacha();
     }
 
     @Override

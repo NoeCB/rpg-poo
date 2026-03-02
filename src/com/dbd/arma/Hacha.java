@@ -1,8 +1,8 @@
 package com.dbd.arma;
 
 public class Hacha extends Arma {
-    public Hacha(String nombre, int danio, int precision) {
-        super(nombre, danio, precision);
+    public Hacha() {
+        super("Hacha", 10, 80);
     }
 
     @Override
