@@ -1,13 +1,12 @@
 package com.dbd.entidades;
 
 public class SteveHarrington extends Personaje {
-    public SteveHarrington(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
-        super("Steve" + "Harrington", 110, 10, 10);
+    public SteveHarrington() {
+        super("Steve Harrington", 110, 110, 10, 0);
     }
 
     @Override
     public void accion() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'accion'");
+        System.out.println(this.nombrePersonaje + " se arregla el pelo y busca a alguien a quien proteger.");
     }
 }

@@ -23,27 +23,29 @@ public class Main {
 
             switch (opcion) {
                 case 1:
-                    System.out.println("Listando supervivientes...");
-                    prueba.mostrarSupervivientes();
-
+                    System.out.println("\n--- LISTA DE SUPERVIVIENTES ---");
+                 
                     break;
                 case 2:
-                    System.out.println("Listando asesinos...");
+                    System.out.println("\n--- LISTA DE ASESINOS ---");
                     prueba.mostrarAsesinos();
                     break;
                 case 3:
-                    System.out.println("Iniciando juego automático...");
-                    // prueba.configurarPartida();
-                    // prueba.iniciarJuego();
+                    System.out.println("\n--- INICIANDO MODO AUTOMÁTICO ---");
+                    // Aquí es donde DEBE ir el inicio del juego, dentro de la opción 3
+                    prueba.iniciar();       
+                    prueba.iniciarJuego();
                     break;
                 case 4:
                     prueba.iniciarJuegoManual();
                     
                     break;
                 default:
-                    System.out.println("Opción no válida, intenta de nuevo.");
+                    if (opcion != 0) { // Si es 0, el errorNumero ya soltó el mensaje de error
+                        System.out.println("Opción no válida. Por favor, elige un número del 1 al 5.");
+                    }
             }
-        } while (opcion != 4);
+        } while (opcion != 5);
 
         sc.close();
     }
@@ -52,10 +54,9 @@ public class Main {
         try {
             return sc.nextInt();
         } catch (InputMismatchException e) {
-            System.out.println("Error: Introduce un número válido.");
-            sc.nextLine();
+            System.out.println("Error: ¡Debes introducir un número, no letras o símbolos!");
+            sc.nextLine(); // Limpiamos el buffer del escáner para evitar un bucle infinito
             return 0;
         }
     }
-
 }

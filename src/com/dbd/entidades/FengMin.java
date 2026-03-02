@@ -3,10 +3,8 @@ import java.util.Random;
 import com.dbd.arma.Cuchillo;
 import com.dbd.arma.Arma;
 public class FengMin extends Personaje {
-    private Arma cuchillo;
-    public FengMin(String nombrePersonaje, int vidaBase, int defensaBase, int danioBase) {
-        super("Feng" + " " + "Min", 100, 10, 12);
-        this.cuchillo = new Cuchillo("Cuchillo de Caza", 10, 80);
+    public FengMin() {
+        super("Feng Min", 100, 100, 10, 0);
     }
 
     @Override
