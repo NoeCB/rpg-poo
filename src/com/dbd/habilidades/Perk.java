@@ -4,16 +4,20 @@ import com.dbd.entidades.Personaje;
 
 public abstract class Perk {
     
-    protected String nombre;
-    protected int costeSangre; // El recurso que consume 
+    protected String nombrePerk;
+    
 
-    public Perk(String nombre, int costeSangre) {
-        this.nombre = nombre;
-        this.costeSangre = costeSangre;
+
+    public Perk(String nombrePerk) {
+        this.nombrePerk = nombrePerk;
+        
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getNombrePerk() {
+        return nombrePerk;
+    }
+    public void setNombrePerk(String nombrePerk) {
+        this.nombrePerk = nombrePerk;
     }
 
     // El motor llamará a este método sin saber qué perk es (Polimorfismo) 
