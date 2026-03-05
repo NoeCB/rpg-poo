@@ -19,7 +19,7 @@ public class Main {
 
         do {
             System.out.println(ROJO + "\n=============================================" + RESET);
-            System.out.println(AMARILLO + "   --- BIENVENIDO A DEAD BY DAYLIGHT ---" + RESET);
+            System.out.println(ROJO + "   --- BIENVENIDO A DEAD BY DAYLIGHT ---" + RESET);
             System.out.println(ROJO + "=============================================" + RESET);
             System.out.println(CYAN + "[1] Mirar Personajes (Supervivientes)" + RESET);
             System.out.println(ROJO + "[2] Mirar Asesinos (Killers)" + RESET);

@@ -4,6 +4,7 @@ import com.dbd.entidades.*;
 import com.dbd.habilidades.Perk;
 import com.dbd.habilidades.survis.*;
 import com.dbd.habilidades.killers.*;
+import com.dbd.arma.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,7 +58,46 @@ public class MotorTrial {
 
         System.out.println(MORADO + "\n LA ENTIDAD ESTÁ REPARTIENDO LAS HABILIDADES AL AZAR..." + RESET);
         repartirPerks();
+        System.out.println(AMARILLO + "\n LA ENTIDAD ESTÁ OTORGANDO ARMAS A LOS COMBATIENTES..." + RESET);
+        repartirArmas();
         System.out.println(VERDE + "¡EQUIPOS LISTOS PARA LA PRUEBA!" + RESET);
+    }
+
+    private void repartirArmas() {
+        // Armas disponibles para Survis
+        ArrayList<Arma> armasSolamenteSurvis = new ArrayList<>();
+        armasSolamenteSurvis.add(new Pistola());
+        armasSolamenteSurvis.add(new Conjuro());
+
+        // Armas disponibles para Killers
+        ArrayList<Arma> armasSolamenteKillers = new ArrayList<>();
+        armasSolamenteKillers.add(new Hacha());
+        armasSolamenteKillers.add(new Cuchillo());
+        armasSolamenteKillers.add(new VinculoDeCondena());
+
+        // Reparto Supervivientes (Mezcla y agarro la primera)
+        for (Personaje s : supervivientes) {
+            Collections.shuffle(armasSolamenteSurvis);
+            // Instanciar de nuevo el arma elegida es importante para que cada
+            // personaje tenga SU PROPIA ARMA con estadísticas independientes
+            String nom = armasSolamenteSurvis.get(0).getNombreArma();
+            if (nom.equals("Pistola"))
+                s.setArma(new Pistola());
+            else
+                s.setArma(new Conjuro());
+        }
+
+        // Reparto Asesinos
+        for (Personaje k : killers) {
+            Collections.shuffle(armasSolamenteKillers);
+            String nom = armasSolamenteKillers.get(0).getNombreArma();
+            if (nom.equals("Hacha"))
+                k.setArma(new Hacha());
+            else if (nom.equals("Cuchillo"))
+                k.setArma(new Cuchillo());
+            else
+                k.setArma(new VinculoDeCondena());
+        }
     }
 
     private void repartirPerks() {
@@ -115,15 +155,21 @@ public class MotorTrial {
 
             for (Personaje s : supervivientes) {
                 if (s.getVidaActual() > 0 && equipoVivo(killers)) {
-                    s.decidirAccionIA(supervivientes, killers);
-                    pausaDramatica();
+                    s.procesarEstados();
+                    if (s.getVidaActual() > 0) { // Comprobar si no murió por venenos
+                        s.decidirAccionIA(supervivientes, killers);
+                        pausaDramatica();
+                    }
                 }
             }
 
             for (Personaje k : killers) {
                 if (k.getVidaActual() > 0 && equipoVivo(supervivientes)) {
-                    k.decidirAccionIA(killers, supervivientes);
-                    pausaDramatica();
+                    k.procesarEstados();
+                    if (k.getVidaActual() > 0) {
+                        k.decidirAccionIA(killers, supervivientes);
+                        pausaDramatica();
+                    }
                 }
             }
 
@@ -146,13 +192,15 @@ public class MotorTrial {
         System.out.println(AMARILLO + "\n--- ESTADO DE LA PARTIDA ---" + RESET);
         System.out.print(CYAN + "SURVIS:  " + RESET);
         for (Personaje p : supervivientes) {
-            String status = p.getVidaActual() > 0 ? VERDE + p.getVidaActual() + " HP" + RESET
+            String armaTxt = (p.getArma() != null) ? " [" + p.getArma().getNombreArma() + "]" : "";
+            String status = p.getVidaActual() > 0 ? VERDE + p.getVidaActual() + " HP" + armaTxt + RESET
                     : ROJO + " MUERTO" + RESET;
             System.out.print(CYAN + "[" + RESET + p.getNombrePersonaje() + ": " + status + CYAN + "] " + RESET);
         }
         System.out.print(ROJO + "\nKILLERS: " + RESET);
         for (Personaje p : killers) {
-            String status = p.getVidaActual() > 0 ? VERDE + p.getVidaActual() + " HP" + RESET
+            String armaTxt = (p.getArma() != null) ? " [" + p.getArma().getNombreArma() + "]" : "";
+            String status = p.getVidaActual() > 0 ? VERDE + p.getVidaActual() + " HP" + armaTxt + RESET
                     : ROJO + " MUERTO" + RESET;
             System.out.print(ROJO + "[" + RESET + p.getNombrePersonaje() + ": " + status + ROJO + "] " + RESET);
         }
