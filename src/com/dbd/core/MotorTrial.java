@@ -8,6 +8,7 @@ import com.dbd.habilidades.killers.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
+import java.util.Random;
 
 public class MotorTrial {
     // Códigos de color
@@ -169,8 +170,12 @@ public class MotorTrial {
     }
 
     private void pausaDramatica() {
+        // Funcion de pausa dramatica con un random para que no sea estático el tiempo
         try {
-            Thread.sleep(800);
+            // Tiempo aleatorio entre 500 ms (0.5s) y 1000 ms (1s)
+            int tiempoAleatorio = new Random().nextInt(501) + 500;
+            System.out.println(AMARILLO + "..." + RESET);
+            Thread.sleep(tiempoAleatorio);
         } catch (Exception e) {
         }
     }
