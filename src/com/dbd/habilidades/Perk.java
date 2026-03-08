@@ -33,10 +33,17 @@ public abstract class Perk {
 >>>>>>> 1384e92e82f1003fcd6966331097bb08e2b6eb7c
     }
 
+    // El método que todas las habilidades hijas están obligadas a programar
+    public abstract void lanzar(Personaje caster, Personaje objetivo);
+
     public int getUsos() {
         return this.usos;
     }
 
-    // El método que todas las habilidades hijas están obligadas a programar
-    public abstract void lanzar(Personaje caster, Personaje objetivo);
+    // AÑADE ESTE MÉTODO NUEVO:
+    public void consumirUso() {
+        if (this.usos > 0) {
+            this.usos--;
+        }
+    }
 }

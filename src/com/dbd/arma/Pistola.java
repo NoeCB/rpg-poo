@@ -2,7 +2,7 @@ package com.dbd.arma;
 
 public class Pistola extends Arma {
     public Pistola() {
-        super("Pistola", 30, 80);
+        super("Pistola", 20, 70);
     }
 
     @Override
