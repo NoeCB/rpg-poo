@@ -1,15 +1,14 @@
 package com.dbd.core;
 
+import com.dbd.arma.*;
 import com.dbd.entidades.*;
 import com.dbd.habilidades.Perk;
-import com.dbd.habilidades.survis.*;
 import com.dbd.habilidades.killers.*;
-import com.dbd.arma.*;
-
+import com.dbd.habilidades.survis.*;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Scanner;
 import java.util.Random;
+import java.util.Scanner;
 
 public class MotorTrial {
     // Códigos de color
@@ -62,9 +61,86 @@ public class MotorTrial {
         repartirArmas();
         System.out.println(VERDE + "¡EQUIPOS LISTOS PARA LA PRUEBA!" + RESET);
 
-        iniciarJuego();
+        juegoManual(supervivienteElegido, asesinoElegido);
+    }
+private void juegoManual(Personaje survi, Personaje killer) {
+    int ronda = 1;
+    while (survi.getVidaActual() > 0 && killer.getVidaActual() > 0) {
+        System.out.println(AMARILLO + "\n=================== RONDA " + ronda + " ===================" + RESET);
+ 
+        survi.procesarEstados();
+        killer.procesarEstados();
+
+        if (survi.getVidaActual() > 0) {
+            System.out.println(CYAN + "\n---> TURNO DE JUGADOR 1: " + survi.getNombrePersonaje() + RESET);
+            ejecutarTurnoJugador(survi, killer);
+        }
+
+
+        if (killer.getVidaActual() <= 0) break;
+
+        if (killer.getVidaActual() > 0) {
+            System.out.println(ROJO + "\n---> TURNO DE JUGADOR 2: " + killer.getNombrePersonaje() + RESET);
+            ejecutarTurnoJugador(killer, survi);
+        }
+
+        mostrarEstadoEquipos();
+        ronda++;
     }
 
+    anunciarGanador();
+}
+private void ejecutarTurnoJugador(Personaje atacante, Personaje defensor) {
+    boolean turnoCompletado = false;
+    
+    while (!turnoCompletado) {
+        System.out.println("¿Qué deseas hacer?");
+        System.out.println("1. Atacar con " + (atacante.getArma() != null ? atacante.getArma().getNombreArma() : "los puños"));
+        System.out.println("2. Usar Habilidad (Perk)");
+        System.out.println("3. Pasar turno (Defenderse)");
+        System.out.print(">>> Elige una opción: ");
+        
+        int opcion = 0;
+        try {
+            opcion = sc.nextInt();
+        } catch (java.util.InputMismatchException e) {
+            System.out.println(ROJO + "Error: Letras no permitidas." + RESET);
+        }
+        sc.nextLine(); 
+
+        switch (opcion) {
+            case 1:
+
+                System.out.println(atacante.getNombrePersonaje() + " ataca ferozmente con su " + atacante.getArma().getNombreArma() + " a " + defensor.getNombrePersonaje() + "!");
+                
+              
+                int danio = atacante.getArma().getDanioBase(); 
+              
+                int nuevaVida = defensor.getVidaActual() - danio;
+                defensor.setVidaActual(nuevaVida);
+                
+                System.out.println(ROJO + " Ha causado " + danio + " puntos de daño." + RESET);
+                
+                turnoCompletado = true;
+                break;
+            case 2:
+
+                System.out.println(atacante.getNombrePersonaje() + " canaliza el poder de la Entidad...");
+                turnoCompletado = true;
+                break;
+                
+            case 3:
+                System.out.println(atacante.getNombrePersonaje() + " decide adoptar una postura defensiva y pasa su turno.");
+
+                turnoCompletado = true;
+                break;
+                
+            default:
+                System.out.println(ROJO + "Opción inválida. Inténtalo de nuevo." + RESET);
+                break; 
+        }
+    }
+}
     private Personaje elegirPersonaje(ArrayList<Personaje> personaje) {
         System.out.print("Selecciona un personaje: ");
         int opcion = 0;
