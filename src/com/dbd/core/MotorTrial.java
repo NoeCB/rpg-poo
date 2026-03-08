@@ -95,10 +95,10 @@ private void ejecutarTurnoJugador(Personaje atacante, Personaje defensor) {
     
     while (!turnoCompletado) {
         System.out.println("¿Qué deseas hacer?");
-        System.out.println("1. Atacar con " + (atacante.getArma() != null ? atacante.getArma().getNombreArma() : "los puños"));
-        System.out.println("2. Usar Habilidad (Perk)");
-        System.out.println("3. Pasar turno (Defenderse)");
-        System.out.print(">>> Elige una opción: ");
+        System.out.println("1. Atacar" );
+        System.out.println("2. Usar Habilidad");
+        System.out.println("3. Pasar turno");
+        System.out.print("Elige una opción: ");
         
         int opcion = 0;
         try {
@@ -111,7 +111,7 @@ private void ejecutarTurnoJugador(Personaje atacante, Personaje defensor) {
         switch (opcion) {
             case 1:
 
-                System.out.println(atacante.getNombrePersonaje() + " ataca ferozmente con su " + atacante.getArma().getNombreArma() + " a " + defensor.getNombrePersonaje() + "!");
+                System.out.println(atacante.getNombrePersonaje() + " ataca con " + atacante.getArma().getNombreArma() + " a " + defensor.getNombrePersonaje() + "!");
                 
               
                 int danio = atacante.getArma().getDanioBase(); 
