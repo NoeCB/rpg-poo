@@ -12,12 +12,6 @@ public class SableWard extends Personaje {
 
     @Override
     public void accion() {
-        Random rd = new Random();
-        int impacto = rd.nextInt(1, 101);
-        if (impacto <= this.conjuro.getPrecision()) {
-            System.out.println("Sable Ward ha atacado con su conjuro.");
-        } else {
-            System.out.println(this.nombrePersonaje + " ha fallado su ataque.");
-        }
+        System.out.println(this.nombrePersonaje + " murmura un cántico protector.");
     }
 }

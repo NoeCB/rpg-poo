@@ -50,35 +50,8 @@ public abstract class Personaje {
         return nombrePersonaje;
     }
 
-    public void setDanioBase(int danioBase) {
-        this.danioBase = danioBase;
-    }
-
-    public int getDanioBase() {
-        return danioBase;
-    }
-
-    // recibe daño de un ataque
-    public void recibirDanio(int danio) {
-        this.vidaBase = this.vidaBase - danio;
-        if (this.vidaBase < 0) {
-            this.vidaBase = 0;
-        }
-
-        System.out.println(
-                this.nombrePersonaje + " ha recibido " + danio + " puntos de daño. Vida restante: " + this.vidaBase);
-    }
-
-}
-
-    // --- 2. LA AUTOMATIZACION ---
-public void decidirAccionIA(ArrayList<Personaje> aliados, ArrayList<Personaje> enemigos) {
-    this.defendiendo = false;
-    
-    // 1. FILTRAR OBJETIVOS VIVOS (Importante para que no ataquemos a muertos)
-    ArrayList<Personaje> objetivosValidos = new ArrayList<>();
-    for (Personaje e : enemigos) {
-        if (e.getVidaActual() > 0) objetivosValidos.add(e);
+    public int getVidaActual() {
+        return this.vidaActual;
     }
 
     public void setVidaActual(int vidaActual) {

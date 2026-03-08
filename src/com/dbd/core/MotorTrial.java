@@ -25,57 +25,57 @@ public class MotorTrial {
     private Scanner sc = new Scanner(System.in);
     private int modoJuego;
 
-    <<<<<<<HEAD
-
-    // public void iniciarJuego() {
-    // System.out.println("=== INICIO DE LA PRUEBA ===");
-    // Personaje leon = supervivientes.get(0);
-    // Personaje sable = enemigos.get(0);
-
-    // System.out.println("\n>>> FASE DE ACCIONES <<<");
-    // // Turno de Sable
-    // sable.accion();
-    // sable.getPerks().get(0).lanzar(sable, leon); // Sable lanza Maldición a Leon
-
-    // // Turno de Leon
-    // System.out.println();
-    // leon.accion();
-    // leon.getPerks().get(0).lanzar(leon, sable); // Leon lanza Granada a Sable
-
-    // System.out.println("\n>>> FASE DE ESTADOS (Pasa el tiempo) <<<");
-    // // Aquí es donde el veneno quita vida automáticamente
-    // leon.procesarEstados();
-    // sable.procesarEstados();
-
-    // System.out.println("\n>>> RESUMEN FIN DE RONDA <<<");
-    // System.out.println(leon.getNombrePersonaje() + ": " + leon.getVidaActual() +
-    // " HP");
-    // System.out.println(sable.getNombrePersonaje() + ": " + sable.getVidaActual()
-    // + " HP");
-    // }
-
     public void iniciarJuegoManual() {
         System.out.println("Elige tu superviviente:");
-        for (Personaje p : supervivientes) {
-            System.out.println("- " + p.getNombrePersonaje() + " [Vida: " + p.getVidaBase() + "]");
-        }
-        Personaje supervivienteElegido = elegirPersonaje(supervivientes);
-        System.out.println("Has elegido a: " + supervivienteElegido.getNombrePersonaje());
-        System.out.println("Elige tu asesino:");
+        ArrayList<Personaje> survisDisp = new ArrayList<>();
+        survisDisp.add(new LeonKennedy());
+        survisDisp.add(new SteveHarrington());
+        survisDisp.add(new FengMin());
+        survisDisp.add(new SableWard());
 
-        for (Personaje p : enemigos) {
-            System.out.println(p.getNombrePersonaje() + " [Daño: " + p.getDanioBase() + "]");
+        for (int i = 0; i < survisDisp.size(); i++) {
+            System.out.println("- [" + (i + 1) + "] " + survisDisp.get(i).getNombrePersonaje() + " [Vida: "
+                    + survisDisp.get(i).getVidaMax() + "]");
         }
-        Personaje asesinoElegido = elegirPersonaje(enemigos);
+        Personaje supervivienteElegido = elegirPersonaje(survisDisp);
+        supervivientes.add(supervivienteElegido);
+        System.out.println("Has elegido a: " + supervivienteElegido.getNombrePersonaje());
+
+        System.out.println("\nElige tu asesino:");
+        ArrayList<Personaje> killersDisp = new ArrayList<>();
+        killersDisp.add(new GhostFace());
+        killersDisp.add(new Legion());
+        killersDisp.add(new Onryo());
+        killersDisp.add(new Animatronico());
+
+        for (int i = 0; i < killersDisp.size(); i++) {
+            Personaje p = killersDisp.get(i);
+            System.out.println("- [" + (i + 1) + "] " + p.getNombrePersonaje() + " [Vida: " + p.getVidaMax() + "]");
+        }
+        Personaje asesinoElegido = elegirPersonaje(killersDisp);
+        killers.add(asesinoElegido);
         System.out.println("Has elegido a: " + asesinoElegido.getNombrePersonaje());
 
+        System.out.println(MORADO + "\n LA ENTIDAD ESTÁ REPARTIENDO LAS HABILIDADES AL AZAR..." + RESET);
+        repartirPerks();
+        System.out.println(AMARILLO + "\n LA ENTIDAD ESTÁ OTORGANDO ARMAS A LOS COMBATIENTES..." + RESET);
+        repartirArmas();
+        System.out.println(VERDE + "¡EQUIPOS LISTOS PARA LA PRUEBA!" + RESET);
+
+        iniciarJuego();
     }
 
     private Personaje elegirPersonaje(ArrayList<Personaje> personaje) {
-        Scanner sc = new Scanner(System.in);
         System.out.print("Selecciona un personaje: ");
-        int opcion = sc.nextInt();
+        int opcion = 0;
+        try {
+            opcion = sc.nextInt();
+        } catch (java.util.InputMismatchException e) {
+            System.out
+                    .println("\u001B[31m" + " Error: ¡Debes introducir un número, no letras o símbolos!" + "\u001B[0m");
+        }
         sc.nextLine();
+
         if (opcion >= 1 && opcion <= personaje.size()) {
             return personaje.get(opcion - 1);
         } else {
@@ -84,17 +84,20 @@ public class MotorTrial {
         }
     }
 
-}
-
-    =======
-
     public void iniciar() {
         System.out.println(CYAN + "\n--- SELECCIÓN DE SUPERVIVIENTES (Elige 3) ---" + RESET);
         while (supervivientes.size() < 3) {
             System.out.println("Espacios restantes: " + (3 - supervivientes.size()));
             System.out.println(CYAN + "[1] Leon Kennedy  [2] Steve Harrington  [3] Feng Min  [4] Sable Ward" + RESET);
             System.out.print(">>> Elige: ");
-            int op = sc.nextInt();
+            int op = 0;
+            try {
+                op = sc.nextInt();
+            } catch (java.util.InputMismatchException e) {
+                System.out.println(ROJO + "Error: Letras no permitidas." + RESET);
+            }
+            sc.nextLine();
+
             switch (op) {
                 case 1 -> supervivientes.add(new LeonKennedy());
                 case 2 -> supervivientes.add(new SteveHarrington());
@@ -109,7 +112,14 @@ public class MotorTrial {
             System.out.println("Espacios restantes: " + (3 - killers.size()));
             System.out.println(ROJO + "[1] GhostFace  [2] Legion  [3] Onryo  [4] Animatrónico" + RESET);
             System.out.print(">>> Elige: ");
-            int op = sc.nextInt();
+            int op = 0;
+            try {
+                op = sc.nextInt();
+            } catch (java.util.InputMismatchException e) {
+                System.out.println(ROJO + "Error: Letras no permitidas." + RESET);
+            }
+            sc.nextLine();
+
             switch (op) {
                 case 1 -> killers.add(new GhostFace());
                 case 2 -> killers.add(new Legion());
@@ -127,22 +137,17 @@ public class MotorTrial {
     }
 
     private void repartirArmas() {
-        // Armas disponibles para Survis
         ArrayList<Arma> armasSolamenteSurvis = new ArrayList<>();
         armasSolamenteSurvis.add(new Pistola());
         armasSolamenteSurvis.add(new Conjuro());
 
-        // Armas disponibles para Killers
         ArrayList<Arma> armasSolamenteKillers = new ArrayList<>();
         armasSolamenteKillers.add(new Hacha());
         armasSolamenteKillers.add(new Cuchillo());
         armasSolamenteKillers.add(new VinculoDeCondena());
 
-        // Reparto Supervivientes (Mezcla y agarro la primera)
         for (Personaje s : supervivientes) {
             Collections.shuffle(armasSolamenteSurvis);
-            // Instanciar de nuevo el arma elegida es importante para que cada
-            // personaje tenga SU PROPIA ARMA con estadísticas independientes
             String nom = armasSolamenteSurvis.get(0).getNombreArma();
             if (nom.equals("Pistola"))
                 s.setArma(new Pistola());
@@ -150,7 +155,6 @@ public class MotorTrial {
                 s.setArma(new Conjuro());
         }
 
-        // Reparto Asesinos
         for (Personaje k : killers) {
             Collections.shuffle(armasSolamenteKillers);
             String nom = armasSolamenteKillers.get(0).getNombreArma();
@@ -219,7 +223,7 @@ public class MotorTrial {
             for (Personaje s : supervivientes) {
                 if (s.getVidaActual() > 0 && equipoVivo(killers)) {
                     s.procesarEstados();
-                    if (s.getVidaActual() > 0) { // Comprobar si no murió por venenos
+                    if (s.getVidaActual() > 0) {
                         s.decidirAccionIA(supervivientes, killers);
                         pausaDramatica();
                     }
@@ -281,9 +285,7 @@ public class MotorTrial {
     }
 
     private void pausaDramatica() {
-        // Funcion de pausa dramatica con un random para que no sea estático el tiempo
         try {
-            // Tiempo aleatorio entre 500 ms (0.5s) y 1000 ms (1s)
             int tiempoAleatorio = new Random().nextInt(501) + 500;
             System.out.println(AMARILLO + "..." + RESET);
             Thread.sleep(tiempoAleatorio);
@@ -309,6 +311,10 @@ public class MotorTrial {
                     + listaKillers[i].getVidaActual() + " HP" + RESET);
         }
         System.out.println(ROJO + "-------------------------------------------------" + RESET);
-    }<<<<<<<HEAD
-} // Esta es la llave que cierra la clase al final
->>>>>>>1384e92 e82f1003fcd6966331097bb08e2b6eb7c=======}>>>>>>>rama_luis
+    }
+
+    public void configurarPartida() {
+        supervivientes.clear();
+        killers.clear();
+    }
+}
