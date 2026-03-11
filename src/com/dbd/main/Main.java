@@ -1,21 +1,16 @@
 package com.dbd.main;
 
 import com.dbd.core.MotorTrial;
-import java.util.InputMismatchException;
+import static com.dbd.core.Util.*;
 import java.util.Scanner;
 
 public class Main {
-    // Definimos los colores para usarlos en los textos
-    public static final String RESET = "\u001B[0m";
-    public static final String ROJO = "\u001B[31m";
-    public static final String VERDE = "\u001B[32m";
-    public static final String AMARILLO = "\u001B[33m";
-    public static final String CYAN = "\u001B[36m";
+  
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         MotorTrial prueba = new MotorTrial();
-        int opcion = 0;
+            int opcion = 0;
         prueba.configurarPartida();
 
         do {
@@ -63,14 +58,5 @@ public class Main {
         sc.close();
     }
 
-    public static int errorNumero(Scanner sc) {
-        try {
-            return sc.nextInt();
-        } catch (InputMismatchException e) {
-            System.out.println(
-                    "\u001B[31m" + " Error: ¡Debes introducir un número, no letras o símbolos!" + "\u001B[0m");
-            sc.nextLine();
-            return 0;
-        }
-    }
+   
 }

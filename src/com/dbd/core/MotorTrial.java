@@ -1,28 +1,21 @@
 package com.dbd.core;
 
 import com.dbd.arma.*;
+import static com.dbd.core.Util.*;
 import com.dbd.entidades.*;
 import com.dbd.habilidades.Perk;
 import com.dbd.habilidades.killers.*;
 import com.dbd.habilidades.survis.*;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Random;
 import java.util.Scanner;
 
 public class MotorTrial {
-    // Códigos de color
-    public static final String RESET = "\u001B[0m";
-    public static final String ROJO = "\u001B[31m";
-    public static final String VERDE = "\u001B[32m";
-    public static final String AMARILLO = "\u001B[33m";
-    public static final String CYAN = "\u001B[36m";
-    public static final String MORADO = "\u001B[35m";
-
     private ArrayList<Personaje> supervivientes = new ArrayList<>();
     private ArrayList<Personaje> killers = new ArrayList<>();
     private Scanner sc = new Scanner(System.in);
     private int modoJuego;
+    
 
     public void iniciarJuegoManual() {
         System.out.println("Elige tu superviviente:");
@@ -99,14 +92,8 @@ private void ejecutarTurnoJugador(Personaje atacante, Personaje defensor) {
         System.out.println("2. Usar Habilidad");
         System.out.println("3. Pasar turno");
         System.out.print("Elige una opción: ");
-        
-        int opcion = 0;
-        try {
-            opcion = sc.nextInt();
-        } catch (java.util.InputMismatchException e) {
-            System.out.println(ROJO + "Error: Letras no permitidas." + RESET);
-        }
-        sc.nextLine(); 
+
+     int opcion = errorNumero(sc);
 
         switch (opcion) {
             case 1:
@@ -143,14 +130,7 @@ private void ejecutarTurnoJugador(Personaje atacante, Personaje defensor) {
 }
     private Personaje elegirPersonaje(ArrayList<Personaje> personaje) {
         System.out.print("Selecciona un personaje: ");
-        int opcion = 0;
-        try {
-            opcion = sc.nextInt();
-        } catch (java.util.InputMismatchException e) {
-            System.out
-                    .println("\u001B[31m" + " Error: ¡Debes introducir un número, no letras o símbolos!" + "\u001B[0m");
-        }
-        sc.nextLine();
+      int opcion = errorNumero(sc);
 
         if (opcion >= 1 && opcion <= personaje.size()) {
             return personaje.get(opcion - 1);
@@ -166,20 +146,24 @@ private void ejecutarTurnoJugador(Personaje atacante, Personaje defensor) {
             System.out.println("Espacios restantes: " + (3 - supervivientes.size()));
             System.out.println(CYAN + "[1] Leon Kennedy  [2] Steve Harrington  [3] Feng Min  [4] Sable Ward" + RESET);
             System.out.print(">>> Elige: ");
-            int op = 0;
-            try {
-                op = sc.nextInt();
-            } catch (java.util.InputMismatchException e) {
-                System.out.println(ROJO + "Error: Letras no permitidas." + RESET);
-            }
-            sc.nextLine();
+         int op = errorNumero(sc);
 
             switch (op) {
-                case 1 -> supervivientes.add(new LeonKennedy());
-                case 2 -> supervivientes.add(new SteveHarrington());
-                case 3 -> supervivientes.add(new FengMin());
-                case 4 -> supervivientes.add(new SableWard());
-                default -> System.out.println(ROJO + "Opción no válida." + RESET);
+                case 1:
+                    supervivientes.add(new LeonKennedy());
+                    break;
+                case 2:
+                    supervivientes.add(new SteveHarrington());
+                    break;
+                case 3:
+                    supervivientes.add(new FengMin());
+                    break;
+                case 4:
+                    supervivientes.add(new SableWard());
+                    break;
+                default:
+                    System.out.println(ROJO + "Opción no válida." + RESET);
+                    break;
             }
         }
 
@@ -188,20 +172,20 @@ private void ejecutarTurnoJugador(Personaje atacante, Personaje defensor) {
             System.out.println("Espacios restantes: " + (3 - killers.size()));
             System.out.println(ROJO + "[1] GhostFace  [2] Legion  [3] Onryo  [4] Animatrónico" + RESET);
             System.out.print(">>> Elige: ");
-            int op = 0;
-            try {
-                op = sc.nextInt();
-            } catch (java.util.InputMismatchException e) {
-                System.out.println(ROJO + "Error: Letras no permitidas." + RESET);
-            }
-            sc.nextLine();
+
+         int op = errorNumero(sc);
 
             switch (op) {
-                case 1 -> killers.add(new GhostFace());
-                case 2 -> killers.add(new Legion());
-                case 3 -> killers.add(new Onryo());
-                case 4 -> killers.add(new Animatronico());
-                default -> System.out.println(ROJO + "Opción no válida." + RESET);
+                case 1: killers.add(new GhostFace());
+                    break;
+                case 2: killers.add(new Legion());
+                    break;
+                case 3: killers.add(new Onryo());
+                    break;
+                case 4: killers.add(new Animatronico());
+                    break;
+                default: System.out.println(ROJO + "Opción no válida." + RESET);
+                    break;
             }
         }
 
@@ -360,14 +344,7 @@ private void ejecutarTurnoJugador(Personaje atacante, Personaje defensor) {
         System.out.println(AMARILLO + "=========================================" + RESET);
     }
 
-    private void pausaDramatica() {
-        try {
-            int tiempoAleatorio = new Random().nextInt(501) + 500;
-            System.out.println(AMARILLO + "..." + RESET);
-            Thread.sleep(tiempoAleatorio);
-        } catch (Exception e) {
-        }
-    }
+    
 
     public void mostrarSupervivientes() {
         System.out.println(CYAN + "\n SUPERVIVIENTES DISPONIBLES:" + RESET);
