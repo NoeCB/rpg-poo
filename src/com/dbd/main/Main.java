@@ -8,6 +8,7 @@ public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         MotorTrial prueba = new MotorTrial();
+<<<<<<< Updated upstream
         int opcion = 0;
         prueba.configurarPartida();
 
@@ -18,6 +19,21 @@ public class Main {
             System.out.println("3. Juego Automático (Simulación)");
             System.out.println("4. Juego Manual");
             System.out.print("Selecciona una opción: ");
+=======
+            int opcion = 0;
+        
+
+        do {
+            System.out.println(ROJO + "\n=============================================" + RESET);
+            System.out.println(ROJO + "   --- BIENVENIDO A DEAD BY DAYLIGHT ---" + RESET);
+            System.out.println(ROJO + "=============================================" + RESET);
+            System.out.println(CYAN + "[1] Mirar Personajes (Supervivientes)" + RESET);
+            System.out.println(ROJO + "[2] Mirar Asesinos (Killers)" + RESET);
+            System.out.println(VERDE + "[3] Juego Automático (Simulación 3vs3)" + RESET);
+            System.out.println(AMARILLO + "[4] Juego Manual" + RESET);
+            System.out.println("[5] Salir del juego");
+            System.out.print(AMARILLO + ">>> Selecciona una opción: " + RESET);
+>>>>>>> Stashed changes
 
             opcion = errorNumero(sc);
 
@@ -31,12 +47,19 @@ public class Main {
                     prueba.mostrarAsesinos();
                     break;
                 case 3:
+<<<<<<< Updated upstream
                     System.out.println("\n--- INICIANDO MODO AUTOMÁTICO ---");
                     // Aquí es donde DEBE ir el inicio del juego, dentro de la opción 3
                     prueba.iniciar();       
+=======
+                    System.out.println(VERDE + "\n--- INICIANDO MODO AUTOMÁTICO ---" + RESET);
+                    prueba.configurarPartida();
+                    prueba.iniciar();
+>>>>>>> Stashed changes
                     prueba.iniciarJuego();
                     break;
                 case 4:
+                    prueba.configurarPartida();
                     prueba.iniciarJuegoManual();
                     
                     break;
