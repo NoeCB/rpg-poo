@@ -11,6 +11,10 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         MotorTrial prueba = new MotorTrial();
             int opcion = 0;
+        
+
+        do {
+            int opcion = 0;
         prueba.configurarPartida();
 
         do {
@@ -20,9 +24,16 @@ public class Main {
             System.out.println(CYAN + "[1] Mirar Personajes (Supervivientes)" + RESET);
             System.out.println(ROJO + "[2] Mirar Asesinos (Killers)" + RESET);
             System.out.println(VERDE + "[3] Juego Automático (Simulación 3vs3)" + RESET);
+
+            System.out.println(AMARILLO + "[4] Juego Manual" + RESET);
+            System.out.println("[5] Salir del juego");
+            System.out.print(AMARILLO + ">>> Selecciona una opción: " + RESET);
+
+
             System.out.println(AMARILLO + "[4] Juego Manual (Próximamente)" + RESET);
             System.out.println("[5] Salir del juego");
             System.out.print(AMARILLO + ">>> Selecciona una opción: " + RESET);
+
 
             opcion = errorNumero(sc);
 
@@ -35,10 +46,16 @@ public class Main {
                     break;
                 case 3:
                     System.out.println(VERDE + "\n--- INICIANDO MODO AUTOMÁTICO ---" + RESET);
+                    prueba.configurarPartida();
                     prueba.iniciar();
+
+                    System.out.println(VERDE + "\n--- INICIANDO MODO AUTOMÁTICO ---" + RESET);
+                    prueba.iniciar();
+
                     prueba.iniciarJuego();
                     break;
                 case 4:
+                    prueba.configurarPartida();
                     prueba.iniciarJuegoManual();
 
                     System.out.println(AMARILLO + "\n--- INICIANDO MODO MANUAL ---" + RESET);
