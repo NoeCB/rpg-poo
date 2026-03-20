@@ -3,23 +3,6 @@ package com.dbd.habilidades;
 import com.dbd.entidades.Personaje;
 
 public abstract class Perk {
-<<<<<<< HEAD
-    
-    protected String nombrePerk;
-    
-
-
-    public Perk(String nombrePerk) {
-        this.nombrePerk = nombrePerk;
-        
-    }
-
-    public String getNombrePerk() {
-        return nombrePerk;
-    }
-    public void setNombrePerk(String nombrePerk) {
-        this.nombrePerk = nombrePerk;
-=======
     protected String nombre;
     protected int usos;
 
@@ -30,13 +13,19 @@ public abstract class Perk {
 
     public String getNombre() {
         return this.nombre;
->>>>>>> 1384e92e82f1003fcd6966331097bb08e2b6eb7c
     }
+
+    // El método que todas las habilidades hijas están obligadas a programar
+    public abstract void lanzar(Personaje caster, Personaje objetivo);
 
     public int getUsos() {
         return this.usos;
     }
 
-    // El método que todas las habilidades hijas están obligadas a programar
-    public abstract void lanzar(Personaje caster, Personaje objetivo);
+    // AÑADE ESTE MÉTODO NUEVO:
+    public void consumirUso() {
+        if (this.usos > 0) {
+            this.usos--;
+        }
+    }
 }
