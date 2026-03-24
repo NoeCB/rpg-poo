@@ -23,37 +23,22 @@ public class MotorTrial {
         survisDisp.add(new SteveHarrington());
         survisDisp.add(new FengMin());
         survisDisp.add(new SableWard());
-
+        
         for (int i = 0; i < survisDisp.size(); i++) {
             System.out.println("- [" + (i + 1) + "] " + survisDisp.get(i).getNombrePersonaje() + " [Vida: "
                     + survisDisp.get(i).getVidaMax() + "]");
         }
-        Personaje supervivienteElegido = elegirPersonaje(survisDisp);
-        supervivientes.add(supervivienteElegido);
-        System.out.println("Has elegido a: " + supervivienteElegido.getNombrePersonaje());
+       Personaje supervivienteElegido = elegirPersonaje(supervivientes);
+    System.out.println("Has elegido a: " + supervivienteElegido.getNombrePersonaje());
+        System.out.println("Elige tu asesino:");
 
-        System.out.println("\nElige tu asesino:");
-        ArrayList<Personaje> killersDisp = new ArrayList<>();
-        killersDisp.add(new GhostFace());
-        killersDisp.add(new Legion());
-        killersDisp.add(new Onryo());
-        killersDisp.add(new Animatronico());
-
-        for (int i = 0; i < killersDisp.size(); i++) {
-            Personaje p = killersDisp.get(i);
-            System.out.println("- [" + (i + 1) + "] " + p.getNombrePersonaje() + " [Vida: " + p.getVidaMax() + "]");
-        }
-        Personaje asesinoElegido = elegirPersonaje(killersDisp);
-        killers.add(asesinoElegido);
-        System.out.println("Has elegido a: " + asesinoElegido.getNombrePersonaje());
-
-        System.out.println(MORADO + "\n LA ENTIDAD ESTÁ REPARTIENDO LAS HABILIDADES AL AZAR..." + RESET);
-        repartirPerks();
-        System.out.println(AMARILLO + "\n LA ENTIDAD ESTÁ OTORGANDO ARMAS A LOS COMBATIENTES..." + RESET);
-        repartirArmas();
-        System.out.println(VERDE + "¡EQUIPOS LISTOS PARA LA PRUEBA!" + RESET);
-
-        juegoManual(supervivienteElegido, asesinoElegido);
+       for(Personaje p : enemigos) {
+        System.out.println(p.getNombrePersonaje() + " [Daño: " + p.getDanioBase() + "]");
+       }
+       Personaje asesinoElegido = elegirPersonaje(enemigos);
+    System.out.println("Has elegido a: " + asesinoElegido.getNombrePersonaje());
+        
+        
     }
 
     private void juegoManual(Personaje survi, Personaje killer) {
@@ -135,13 +120,94 @@ public class MotorTrial {
         System.out.print("Selecciona un personaje: ");
         int opcion = errorNumero(sc);
 
-        if (opcion >= 1 && opcion <= personaje.size()) {
-            return personaje.get(opcion - 1);
-        } else {
-            System.out.println("Opción no válida, seleccionando el primer personaje por defecto.");
-            return personaje.get(0);
+    while (survi.getVidaActual() > 0 && killer.getVidaActual() > 0) {
+        System.out.println(AMARILLO + "\n=================== RONDA " + ronda + " ===================" + RESET);
+ 
+        primero.procesarEstados();
+        segundo.procesarEstados();
+
+        if (primero.getVidaActual() > 0) {
+            System.out.println(CYAN + "\n---> TURNO DE: " + primero.getNombrePersonaje() + RESET);
+            ejecutarTurnoJugador(primero, segundo);
+        }
+
+        if (segundo.getVidaActual() <= 0) 
+            break;
+
+        if (segundo.getVidaActual() > 0) {
+            System.out.println(ROJO + "\n---> TURNO DE: " + segundo.getNombrePersonaje() + RESET);
+            ejecutarTurnoJugador(segundo, primero);
+        }
+
+        mostrarEstadoEquipos();
+        ronda++;
+    }
+
+    anunciarGanador();
+}
+private void ejecutarTurnoJugador(Personaje atacante, Personaje defensor) {
+    boolean turnoCompletado = false;
+    
+    while (!turnoCompletado) {
+        System.out.println("¿Qué deseas hacer?");
+        System.out.println("1. Atacar" );
+        System.out.println("2. Usar Habilidad");
+        System.out.println("3. Pasar turno");
+        System.out.print("Elige una opción: ");
+
+     int opcion = errorNumero(sc);
+
+        switch (opcion) {
+            case 1:
+
+                System.out.println(atacante.getNombrePersonaje() + " ataca con " + atacante.getArma().getNombreArma() + " a " + defensor.getNombrePersonaje() + "!");
+                
+              
+                int danio = atacante.getArma().getDanioBase(); 
+              
+                int nuevaVida = defensor.getVidaActual() - danio;
+                defensor.setVidaActual(nuevaVida);
+                
+                System.out.println(ROJO + " Ha causado " + danio + " puntos de daño." + RESET);
+                
+                turnoCompletado = true;
+                break;
+            case 2:
+
+                System.out.println(atacante.getNombrePersonaje() + " canaliza el poder de la Entidad...");
+                turnoCompletado = true;
+                break;
+                
+            case 3:
+                System.out.println(atacante.getNombrePersonaje() + " decide adoptar una postura defensiva y pasa su turno.");
+
+                turnoCompletado = true;
+                break;
+                
+            default:
+                System.out.println(ROJO + "Opción inválida. Inténtalo de nuevo." + RESET);
+                break; 
         }
     }
+}
+   private Personaje elegirPersonaje(ArrayList<Personaje> personaje) {
+    while (true) { 
+        System.out.print("Selecciona un personaje: ");
+        int opcion = errorNumero(sc);
+
+
+      int opcion = errorNumero(sc);
+
+
+        if (opcion >= 1 && opcion <= personaje.size()) {
+            return personaje.get(opcion - 1); 
+        } else {
+            System.out.println(ROJO + "Opción no válida. Por favor, elige un número del 1 al " + personaje.size() + "." + RESET);
+        }
+    }
+
+
+
 
     public void iniciar() {
         System.out.println(CYAN + "\n--- SELECCIÓN DE SUPERVIVIENTES (Elige 3) ---" + RESET);
