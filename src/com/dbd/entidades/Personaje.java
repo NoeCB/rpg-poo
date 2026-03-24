@@ -3,16 +3,11 @@ package com.dbd.entidades;
 import com.dbd.estados.Estado;
 import com.dbd.habilidades.Perk;
 import com.dbd.arma.Arma;
+import com.dbd.core.Util;
 import java.util.ArrayList;
 
 public abstract class Personaje {
-    // Códigos de color ANSI
-    public static final String RESET = "\u001B[0m";
-    public static final String ROJO = "\u001B[31m";
-    public static final String CYAN = "\u001B[36m";
-    public static final String MORADO = "\u001B[35m";
-    public static final String AMARILLO = "\u001B[33m";
-    public static final String VERDE = "\u001B[32m";
+
 
     protected String nombrePersonaje;
     protected int vidaActual;
@@ -108,9 +103,12 @@ public abstract class Personaje {
     // --- 1. SISTEMA DE DAÑO REPARADO Y ASIMÉTRICO ---
     public void recibirDanio(int danioBruto) {
         // Evasión: 20% para survis, 5% para killers
-        double probEvasion = esSuperviviente() ? 0.20 : 0.05;
+        double probEvasion = 0.05;
+        if (esSuperviviente()) {
+            probEvasion = 0.20;
+        }
         if (!this.defendiendo && Math.random() < probEvasion) {
-            System.out.println(VERDE + " ¡" + this.nombrePersonaje + " ha ESQUIVADO el ataque por completo!" + RESET);
+            System.out.println(Util.VERDE + " ¡" + this.nombrePersonaje + " ha ESQUIVADO el ataque por completo!" + Util.RESET);
             return;
         }
 
@@ -119,7 +117,7 @@ public abstract class Personaje {
         // La defensa bloquea el 50% (75% era demasiado OP para Ghost Face)
         if (this.defendiendo) {
             danioFinal = danioBruto / 2;
-            System.out.println(CYAN + this.nombrePersonaje + " realiza un bloqueo perfecto." + RESET);
+            System.out.println(Util.CYAN + this.nombrePersonaje + " realiza un bloqueo perfecto." + Util.RESET);
             this.defendiendo = false; // Se gasta al recibir el golpe
         }
 
@@ -134,8 +132,8 @@ public abstract class Personaje {
         if (this.vidaActual < 0)
             this.vidaActual = 0;
 
-        System.out.println(ROJO + this.nombrePersonaje + " recibe " + danioFinal + " de daño. (Vida: "
-                + this.vidaActual + "/" + this.vidaMax + ")" + RESET);
+        System.out.println(Util.ROJO + this.nombrePersonaje + " recibe " + danioFinal + " de daño. (Vida: "
+                + this.vidaActual + "/" + this.vidaMax + ")" + Util.RESET);
     }
 
     // --- 2. IA BALANCEADA ---
@@ -171,18 +169,21 @@ public abstract class Personaje {
         int dado = (int) (Math.random() * 100);
         boolean enPeligro = (this.vidaActual <= this.vidaMax * 0.35);
 
-        int probUsarPerk = enPeligro ? 65 : 25;
+        int probUsarPerk = 25;
+        if (enPeligro) {
+            probUsarPerk = 65;
+        }
 
         if (!perksDisponibles.isEmpty() && dado < probUsarPerk) {
             Perk perkElegida = perksDisponibles.get((int) (Math.random() * perksDisponibles.size()));
-            System.out.println(MORADO + "\n [" + this.nombrePersonaje + "] ejecuta una jugada maestra..." + RESET);
+            System.out.println(Util.MORADO + "\n [" + this.nombrePersonaje + "] ejecuta una jugada maestra..." + Util.RESET);
             perkElegida.lanzar(this, objetivo);
             perkElegida.consumirUso();
         }
         // Se reduce la probabilidad de "Spamear" la defensa para que la partida avance
         else if (enPeligro && dado > 60) {
             System.out.println(
-                    CYAN + this.nombrePersonaje + " adopta una postura defensiva desesperada." + RESET);
+                    Util.CYAN + this.nombrePersonaje + " adopta una postura defensiva desesperada." + Util.RESET);
             this.defendiendo = true;
         } else {
             atacarBasico(objetivo);
@@ -197,8 +198,8 @@ public abstract class Personaje {
             // Ataque usando Arma
             int dadoPrecision = (int) (Math.random() * 100) + 1;
 
-            System.out.println(AMARILLO + this.nombrePersonaje + " se prepara para usar su " + this.arma.getNombreArma()
-                    + " contra " + rival.getNombrePersonaje() + "!" + RESET);
+            System.out.println(Util.AMARILLO + this.nombrePersonaje + " se prepara para usar su " + this.arma.getNombreArma()
+                    + " contra " + rival.getNombrePersonaje() + "!" + Util.RESET);
             this.arma.usar();
 
             if (dadoPrecision <= this.arma.getPrecision()) {
@@ -207,12 +208,12 @@ public abstract class Personaje {
                 int varianza = (int) (Math.random() * 5) - 2;
                 danioGenerado = this.arma.getDanioBase() + varianza;
                 System.out
-                        .println(VERDE + "¡El ataque con " + this.arma.getNombreArma() + " acierta de lleno!" + RESET);
+                        .println(Util.VERDE + "¡El ataque con " + this.arma.getNombreArma() + " acierta de lleno!" + Util.RESET);
                 rival.recibirDanio(danioGenerado);
             } else {
                 // El ataque falla
-                System.out.println(ROJO + "¡El ataque con " + this.arma.getNombreArma() + " ha FALLADO! (Precisión: "
-                        + this.arma.getPrecision() + "%)" + RESET);
+                System.out.println(Util.ROJO + "¡El ataque con " + this.arma.getNombreArma() + " ha FALLADO! (Precisión: "
+                        + this.arma.getPrecision() + "%)" + Util.RESET);
             }
 
         } else {
@@ -227,8 +228,8 @@ public abstract class Personaje {
                 danioGenerado = (int) (Math.random() * 10) + 12;
             }
 
-            System.out.println(AMARILLO + this.nombrePersonaje + " lanza un ataque básico directo a "
-                    + rival.getNombrePersonaje() + "!" + RESET);
+            System.out.println(Util.AMARILLO + this.nombrePersonaje + " lanza un ataque básico directo a "
+                    + rival.getNombrePersonaje() + "!" + Util.RESET);
             rival.recibirDanio(danioGenerado);
         }
     }

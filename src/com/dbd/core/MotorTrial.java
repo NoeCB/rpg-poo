@@ -15,7 +15,6 @@ public class MotorTrial {
     private ArrayList<Personaje> killers = new ArrayList<>();
     private Scanner sc = new Scanner(System.in);
     private int modoJuego;
-    
 
     public void iniciarJuegoManual() {
         System.out.println("Elige tu superviviente:");
@@ -56,81 +55,85 @@ public class MotorTrial {
 
         juegoManual(supervivienteElegido, asesinoElegido);
     }
-private void juegoManual(Personaje survi, Personaje killer) {
-    int ronda = 1;
-    while (survi.getVidaActual() > 0 && killer.getVidaActual() > 0) {
-        System.out.println(AMARILLO + "\n=================== RONDA " + ronda + " ===================" + RESET);
- 
-        survi.procesarEstados();
-        killer.procesarEstados();
 
-        if (survi.getVidaActual() > 0) {
-            System.out.println(CYAN + "\n---> TURNO DE JUGADOR 1: " + survi.getNombrePersonaje() + RESET);
-            ejecutarTurnoJugador(survi, killer);
+    private void juegoManual(Personaje survi, Personaje killer) {
+        int ronda = 1;
+        while (survi.getVidaActual() > 0 && killer.getVidaActual() > 0) {
+            System.out.println(AMARILLO + "\n=================== RONDA " + ronda + " ===================" + RESET);
+
+            survi.procesarEstados();
+            killer.procesarEstados();
+
+            if (survi.getVidaActual() > 0) {
+                System.out.println(CYAN + "\n---> TURNO DE JUGADOR 1: " + survi.getNombrePersonaje() + RESET);
+                ejecutarTurnoJugador(survi, killer);
+            }
+
+            if (killer.getVidaActual() <= 0)
+                break;
+
+            if (killer.getVidaActual() > 0) {
+                System.out.println(ROJO + "\n---> TURNO DE JUGADOR 2: " + killer.getNombrePersonaje() + RESET);
+                ejecutarTurnoJugador(killer, survi);
+            }
+
+            mostrarEstadoEquipos();
+            ronda++;
         }
 
-
-        if (killer.getVidaActual() <= 0) break;
-
-        if (killer.getVidaActual() > 0) {
-            System.out.println(ROJO + "\n---> TURNO DE JUGADOR 2: " + killer.getNombrePersonaje() + RESET);
-            ejecutarTurnoJugador(killer, survi);
-        }
-
-        mostrarEstadoEquipos();
-        ronda++;
+        anunciarGanador();
     }
 
-    anunciarGanador();
-}
-private void ejecutarTurnoJugador(Personaje atacante, Personaje defensor) {
-    boolean turnoCompletado = false;
-    
-    while (!turnoCompletado) {
-        System.out.println("¿Qué deseas hacer?");
-        System.out.println("1. Atacar" );
-        System.out.println("2. Usar Habilidad");
-        System.out.println("3. Pasar turno");
-        System.out.print("Elige una opción: ");
+    private void ejecutarTurnoJugador(Personaje atacante, Personaje defensor) {
+        boolean turnoCompletado = false;
 
-     int opcion = errorNumero(sc);
+        while (!turnoCompletado) {
+            System.out.println("¿Qué deseas hacer?");
+            System.out.println("1. Atacar");
+            System.out.println("2. Usar Habilidad");
+            System.out.println("3. Pasar turno");
+            System.out.print("Elige una opción: ");
 
-        switch (opcion) {
-            case 1:
+            int opcion = errorNumero(sc);
 
-                System.out.println(atacante.getNombrePersonaje() + " ataca con " + atacante.getArma().getNombreArma() + " a " + defensor.getNombrePersonaje() + "!");
-                
-              
-                int danio = atacante.getArma().getDanioBase(); 
-              
-                int nuevaVida = defensor.getVidaActual() - danio;
-                defensor.setVidaActual(nuevaVida);
-                
-                System.out.println(ROJO + " Ha causado " + danio + " puntos de daño." + RESET);
-                
-                turnoCompletado = true;
-                break;
-            case 2:
+            switch (opcion) {
+                case 1:
 
-                System.out.println(atacante.getNombrePersonaje() + " canaliza el poder de la Entidad...");
-                turnoCompletado = true;
-                break;
-                
-            case 3:
-                System.out.println(atacante.getNombrePersonaje() + " decide adoptar una postura defensiva y pasa su turno.");
+                    System.out.println(atacante.getNombrePersonaje() + " ataca con "
+                            + atacante.getArma().getNombreArma() + " a " + defensor.getNombrePersonaje() + "!");
 
-                turnoCompletado = true;
-                break;
-                
-            default:
-                System.out.println(ROJO + "Opción inválida. Inténtalo de nuevo." + RESET);
-                break; 
+                    int danio = atacante.getArma().getDanioBase();
+
+                    int nuevaVida = defensor.getVidaActual() - danio;
+                    defensor.setVidaActual(nuevaVida);
+
+                    System.out.println(ROJO + " Ha causado " + danio + " puntos de daño." + RESET);
+
+                    turnoCompletado = true;
+                    break;
+                case 2:
+
+                    System.out.println(atacante.getNombrePersonaje() + " canaliza el poder de la Entidad...");
+                    turnoCompletado = true;
+                    break;
+
+                case 3:
+                    System.out.println(
+                            atacante.getNombrePersonaje() + " decide adoptar una postura defensiva y pasa su turno.");
+
+                    turnoCompletado = true;
+                    break;
+
+                default:
+                    System.out.println(ROJO + "Opción inválida. Inténtalo de nuevo." + RESET);
+                    break;
+            }
         }
     }
-}
+
     private Personaje elegirPersonaje(ArrayList<Personaje> personaje) {
         System.out.print("Selecciona un personaje: ");
-      int opcion = errorNumero(sc);
+        int opcion = errorNumero(sc);
 
         if (opcion >= 1 && opcion <= personaje.size()) {
             return personaje.get(opcion - 1);
@@ -146,7 +149,7 @@ private void ejecutarTurnoJugador(Personaje atacante, Personaje defensor) {
             System.out.println("Espacios restantes: " + (3 - supervivientes.size()));
             System.out.println(CYAN + "[1] Leon Kennedy  [2] Steve Harrington  [3] Feng Min  [4] Sable Ward" + RESET);
             System.out.print(">>> Elige: ");
-         int op = errorNumero(sc);
+            int op = errorNumero(sc);
 
             switch (op) {
                 case 1:
@@ -173,18 +176,23 @@ private void ejecutarTurnoJugador(Personaje atacante, Personaje defensor) {
             System.out.println(ROJO + "[1] GhostFace  [2] Legion  [3] Onryo  [4] Animatrónico" + RESET);
             System.out.print(">>> Elige: ");
 
-         int op = errorNumero(sc);
+            int op = errorNumero(sc);
 
             switch (op) {
-                case 1: killers.add(new GhostFace());
+                case 1:
+                    killers.add(new GhostFace());
                     break;
-                case 2: killers.add(new Legion());
+                case 2:
+                    killers.add(new Legion());
                     break;
-                case 3: killers.add(new Onryo());
+                case 3:
+                    killers.add(new Onryo());
                     break;
-                case 4: killers.add(new Animatronico());
+                case 4:
+                    killers.add(new Animatronico());
                     break;
-                default: System.out.println(ROJO + "Opción no válida." + RESET);
+                default:
+                    System.out.println(ROJO + "Opción no válida." + RESET);
                     break;
             }
         }
@@ -312,23 +320,44 @@ private void ejecutarTurnoJugador(Personaje atacante, Personaje defensor) {
     }
 
     private boolean equipoVivo(ArrayList<Personaje> equipo) {
-        return equipo.stream().anyMatch(p -> p.getVidaActual() > 0);
+        for (Personaje p : equipo) {
+            if (p.getVidaActual() > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void mostrarEstadoEquipos() {
         System.out.println(AMARILLO + "\n--- ESTADO DE LA PARTIDA ---" + RESET);
         System.out.print(CYAN + "SURVIS:  " + RESET);
         for (Personaje p : supervivientes) {
-            String armaTxt = (p.getArma() != null) ? " [" + p.getArma().getNombreArma() + "]" : "";
-            String status = p.getVidaActual() > 0 ? VERDE + p.getVidaActual() + " HP" + armaTxt + RESET
-                    : ROJO + " MUERTO" + RESET;
+            String armaTxt = "";
+            if (p.getArma() != null) {
+                armaTxt = " [" + p.getArma().getNombreArma() + "]";
+            }
+
+            String status = "";
+            if (p.getVidaActual() > 0) {
+                status = VERDE + p.getVidaActual() + " HP" + armaTxt + RESET;
+            } else {
+                status = ROJO + " MUERTO" + RESET;
+            }
             System.out.print(CYAN + "[" + RESET + p.getNombrePersonaje() + ": " + status + CYAN + "] " + RESET);
         }
         System.out.print(ROJO + "\nKILLERS: " + RESET);
         for (Personaje p : killers) {
-            String armaTxt = (p.getArma() != null) ? " [" + p.getArma().getNombreArma() + "]" : "";
-            String status = p.getVidaActual() > 0 ? VERDE + p.getVidaActual() + " HP" + armaTxt + RESET
-                    : ROJO + " MUERTO" + RESET;
+            String armaTxt = "";
+            if (p.getArma() != null) {
+                armaTxt = " [" + p.getArma().getNombreArma() + "]";
+            }
+
+            String status = "";
+            if (p.getVidaActual() > 0) {
+                status = VERDE + p.getVidaActual() + " HP" + armaTxt + RESET;
+            } else {
+                status = ROJO + " MUERTO" + RESET;
+            }
             System.out.print(ROJO + "[" + RESET + p.getNombrePersonaje() + ": " + status + ROJO + "] " + RESET);
         }
         System.out.println(AMARILLO + "\n----------------------------" + RESET);
@@ -343,8 +372,6 @@ private void ejecutarTurnoJugador(Personaje atacante, Personaje defensor) {
         }
         System.out.println(AMARILLO + "=========================================" + RESET);
     }
-
-    
 
     public void mostrarSupervivientes() {
         System.out.println(CYAN + "\n SUPERVIVIENTES DISPONIBLES:" + RESET);
