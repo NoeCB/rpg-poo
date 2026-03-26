@@ -65,12 +65,32 @@ public class MotorTrial {
             switch (opcion) {
                 case 1:
                     Personaje objetivoAtk = elegirObjetivo(equipoRival);
-                    String armaTxt = (atacante.getArma() != null) ? atacante.getArma().getNombreArma() : "puños desnudos";
-                    System.out.println(atacante.getNombrePersonaje() + " ataca con " + armaTxt + " a " + objetivoAtk.getNombrePersonaje() + "!");
-                    
-                    int danio = (atacante.getArma() != null) ? atacante.getArma().getDanioBase() : 15;
-                    objetivoAtk.recibirDanio(danio); // Nota: el daño base se pasa, y Personaje.recibirDanio comprueba escudos / evasion.
-                    
+
+                    // Comprobamos si el personaje tiene arma equipada o va a puño limpio
+                    String armaTxt;
+                    int danio;
+                    if (atacante.getArma() != null) {
+                        armaTxt = atacante.getArma().getNombreArma();
+                        danio = atacante.getArma().getDanioBase();
+                    } else {
+                        // Si no tiene arma, pues ataca a puñetazos
+                        armaTxt = "puños desnudos";
+                        danio = 15;
+                    }
+
+                    System.out.println(atacante.getNombrePersonaje() + " ataca con " + armaTxt + " a "
+                            + objetivoAtk.getNombrePersonaje() + "!");
+
+                    // Mecánica nueva de Golpe Crítico (20% de probabilidad al azar)
+                    int azarCritico = new java.util.Random().nextInt(100);
+                    if (azarCritico < 20) {
+                        System.out.println(AMARILLO + "¡GOLPE CRÍTICO! ¡El daño se duplica!" + RESET);
+                        danio = danio * 2;
+                    }
+
+                    objetivoAtk.recibirDanio(danio); // Nota: el daño base se pasa, y Personaje.recibirDanio comprueba
+                                                     // escudos / evasion.
+
                     turnoCompletado = true;
                     break;
                 case 2:
@@ -84,11 +104,11 @@ public class MotorTrial {
                         }
                         System.out.println("[" + (atacante.getPerks().size() + 1) + "] Cancelar");
                         int opPerk = errorNumero(sc);
-                        
+
                         if (opPerk >= 1 && opPerk <= atacante.getPerks().size()) {
                             Perk perkElegida = atacante.getPerks().get(opPerk - 1);
                             if (perkElegida.getUsos() > 0) {
-                                Personaje objetivoPerk = elegirObjetivo(equipoRival); 
+                                Personaje objetivoPerk = elegirObjetivo(equipoRival);
                                 perkElegida.lanzar(atacante, objetivoPerk);
                                 perkElegida.consumirUso();
                                 turnoCompletado = true;
@@ -116,11 +136,12 @@ public class MotorTrial {
                 vivos.add(equipoRival.get(i));
             }
         }
-        
+
         while (true) {
             System.out.println("Selecciona un objetivo:");
             for (int i = 0; i < vivos.size(); i++) {
-                System.out.println("[" + (i + 1) + "] " + vivos.get(i).getNombrePersonaje() + " (" + vivos.get(i).getVidaActual() + " HP)");
+                System.out.println("[" + (i + 1) + "] " + vivos.get(i).getNombrePersonaje() + " ("
+                        + vivos.get(i).getVidaActual() + " HP)");
             }
             int op = errorNumero(sc);
             if (op >= 1 && op <= vivos.size()) {
@@ -130,6 +151,7 @@ public class MotorTrial {
             }
         }
     }
+
     public void iniciarManual() {
         System.out.println(CYAN + "\n--- SELECCIÓN DE SUPERVIVIENTES (Elige 3) ---" + RESET);
         while (supervivientes.size() < 3) {
@@ -343,15 +365,31 @@ public class MotorTrial {
     }
 
     private String dibujarBarraVida(int actual, int max) {
-        if (actual < 0) actual = 0;
+        if (actual < 0)
+            actual = 0;
         int maxBarras = 10;
+        // Calculamos cuántas barras pintar basado en el porcentaje
         int barrasLlenas = (int) Math.round((double) actual / max * maxBarras);
-        
+
+        // Decidimos el color según cuánta vida queda (más de 60% verde, más de 30%
+        // amarillo)
+        String colorBarra;
+        double porcentaje = (double) actual / max;
+        if (porcentaje >= 0.6) {
+            colorBarra = VERDE;
+        } else if (porcentaje >= 0.3) {
+            colorBarra = AMARILLO;
+        } else {
+            colorBarra = ROJO; // Poca vida, se pone en rojo
+        }
+
         String barra = "[";
         for (int i = 0; i < maxBarras; i++) {
             if (i < barrasLlenas) {
-                barra += "█";
+                // Pintamos la barrita del color correspondiente y quitamos el color
+                barra += colorBarra + "█" + RESET;
             } else {
+                // Barrita vacía normal en gris
                 barra += "░";
             }
         }
@@ -364,11 +402,17 @@ public class MotorTrial {
         System.out.print(CYAN + "SUPERVIVIENTES:\n" + RESET);
         for (int i = 0; i < supervivientes.size(); i++) {
             Personaje p = supervivientes.get(i);
-            String armaTxt = (p.getArma() != null) ? " [" + p.getArma().getNombreArma() + "]" : "";
-            
+
+            // Sacamos el texto del arma si es que tiene una equipada
+            String armaTxt = "";
+            if (p.getArma() != null) {
+                armaTxt = " [" + p.getArma().getNombreArma() + "]";
+            }
+
             String status = "";
             if (p.getVidaActual() > 0) {
-                status = VERDE + p.getVidaActual() + "/" + p.getVidaMax() + " HP " + dibujarBarraVida(p.getVidaActual(), p.getVidaMax()) + armaTxt + RESET;
+                status = VERDE + p.getVidaActual() + "/" + p.getVidaMax() + " HP "
+                        + dibujarBarraVida(p.getVidaActual(), p.getVidaMax()) + armaTxt + RESET;
             } else {
                 status = ROJO + " MUERTO " + dibujarBarraVida(0, p.getVidaMax()) + RESET;
             }
@@ -377,11 +421,17 @@ public class MotorTrial {
         System.out.print(ROJO + "\nKILLERS (LA ENTIDAD):\n" + RESET);
         for (int i = 0; i < killers.size(); i++) {
             Personaje p = killers.get(i);
-            String armaTxt = (p.getArma() != null) ? " [" + p.getArma().getNombreArma() + "]" : "";
-            
+
+            // Lo mismo de antes, texto del arma si tiene
+            String armaTxt = "";
+            if (p.getArma() != null) {
+                armaTxt = " [" + p.getArma().getNombreArma() + "]";
+            }
+
             String status = "";
             if (p.getVidaActual() > 0) {
-                status = VERDE + p.getVidaActual() + "/" + p.getVidaMax() + " HP " + dibujarBarraVida(p.getVidaActual(), p.getVidaMax()) + armaTxt + RESET;
+                status = VERDE + p.getVidaActual() + "/" + p.getVidaMax() + " HP "
+                        + dibujarBarraVida(p.getVidaActual(), p.getVidaMax()) + armaTxt + RESET;
             } else {
                 status = ROJO + " MUERTO " + dibujarBarraVida(0, p.getVidaMax()) + RESET;
             }
