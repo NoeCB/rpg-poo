@@ -1,13 +1,30 @@
 package com.dbd.main;
 
 import com.dbd.core.MotorTrial;
+import com.dbd.core.Util;
 import static com.dbd.core.Util.*;
 import java.util.Scanner;
 
+/**
+ * Clase principal del juego Dead by Daylight RPG.
+ * Proporciona el menú interactivo principal donde el usuario puede:
+ * - Ver personajes supervivientes
+ * - Ver asesinos (killers)
+ * - Iniciar un juego automático (simulación 3vs3)
+ * - Iniciar un juego manual controlado por el jugador
+ * - Salir del juego
+ */
 public class Main {
-  
-
+    /**
+     * Método principal del programa.
+     * Muestra un menú interactivo donde el jugador puede seleccionar diferentes modos de juego.
+     * El menú incluye opciones para: ver personajes, ver killers, juego automático, juego manual y salir.
+     * El programa continúa mostrando el menú hasta que el usuario seleccione la opción de salir (opción 5).
+     *
+     * @param args Parámetros de línea de comandos (no utilizados)
+     */
     public static void main(String[] args) {
+        Util.iniciarMusica("rpg-poo/resources/musica_dbd.wav");
         Scanner sc = new Scanner(System.in);
         MotorTrial prueba = new MotorTrial();
         int opcion = 0;
@@ -54,6 +71,4 @@ public class Main {
 
         sc.close();
     }
-
-   
 }

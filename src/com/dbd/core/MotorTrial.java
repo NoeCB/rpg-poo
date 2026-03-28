@@ -1,5 +1,4 @@
 package com.dbd.core;
-
 import com.dbd.arma.*;
 import static com.dbd.core.Util.*;
 import com.dbd.entidades.*;
@@ -10,11 +9,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
 
+/**
+ * Clase que gestiona el motor de combate del juego RPG tipo Dead by Daylight.
+ * Controla la lógica de las batallas entre supervivientes y killers,
+ * incluyendo turnos, distribución de armas y habilidades, y determinación del ganador.
+ */
 public class MotorTrial {
     private ArrayList<Personaje> supervivientes = new ArrayList<>();
     private ArrayList<Personaje> killers = new ArrayList<>();
     private Scanner sc = new Scanner(System.in);
 
+    /**
+     * Inicia el juego en modo manual, permitiendo al jugador controlar las acciones
+     * de los personajes supervivientes. Los killers actúan automáticamente con IA.
+     * La batalla continúa hasta que un equipo sea eliminado o se alcance el límite de rondas.
+     */
     public void iniciarJuegoManual() {
         int ronda = 1;
         while (equipoVivo(supervivientes) && equipoVivo(killers)) {
@@ -52,6 +61,13 @@ public class MotorTrial {
         anunciarGanador();
     }
 
+    /**
+     * Ejecuta el turno de un personaje en modo manual, mostrando opciones de acciones:
+     * atacar, usar Perk (habilidad) o adoptar postura defensiva.
+     *
+     * @param atacante El personaje que está realizando el turno
+     * @param equipoRival El equipo enemigo disponible para atacar
+     */
     private void ejecutarTurnoManual(Personaje atacante, ArrayList<Personaje> equipoRival) {
         boolean turnoCompletado = false;
         while (!turnoCompletado) {
@@ -109,6 +125,13 @@ public class MotorTrial {
         }
     }
 
+    /**
+     * Permite al jugador seleccionar un objetivo vivo del equipo rival.
+     * Filtra los personajes muertos y muestra solo los que están vivos.
+     *
+     * @param equipoRival El equipo del cual se seleccionará el objetivo
+     * @return El personaje seleccionado como objetivo
+     */
     private Personaje elegirObjetivo(ArrayList<Personaje> equipoRival) {
         ArrayList<Personaje> vivos = new ArrayList<>();
         for (int i = 0; i < equipoRival.size(); i++) {
@@ -130,6 +153,12 @@ public class MotorTrial {
             }
         }
     }
+    /**
+     * Inicia la configuración manual del juego, permitiendo al jugador:
+     * 1. Seleccionar 3 supervivientes de 4 disponibles
+     * 2. Seleccionar 3 killers de 4 disponibles
+     * 3. Distribuir automáticamente Perks y armas a los personajes
+     */
     public void iniciarManual() {
         System.out.println(CYAN + "\n--- SELECCIÓN DE SUPERVIVIENTES (Elige 3) ---" + RESET);
         while (supervivientes.size() < 3) {
@@ -191,6 +220,12 @@ public class MotorTrial {
         System.out.println(VERDE + "¡EQUIPOS LISTOS PARA LA PRUEBA!" + RESET);
     }
 
+    /**
+     * Inicia la configuración aleatoria del juego, seleccionando automáticamente:
+     * 1. 3 supervivientes al azar de los 4 disponibles
+     * 2. 3 killers al azar de los 4 disponibles
+     * 3. Distribuyendo Perks y armas de forma aleatoria
+     */
     public void iniciarAleatorio() {
         ArrayList<Personaje> survisDisp = new ArrayList<>();
         survisDisp.add(new LeonKennedy());
@@ -218,6 +253,11 @@ public class MotorTrial {
         System.out.println(VERDE + "¡SIMULACIÓN LISTA!" + RESET);
     }
 
+    /**
+     * Reparte armas de forma aleatoria a todos los personajes del juego.
+     * Los supervivientes reciben solo armas de superviviente (Pistola o Conjuro).
+     * Los killers reciben solo armas de killer (Hacha, Cuchillo o VinculoDeCondena).
+     */
     private void repartirArmas() {
         ArrayList<Arma> armasSolamenteSurvis = new ArrayList<>();
         armasSolamenteSurvis.add(new Pistola());
@@ -249,6 +289,12 @@ public class MotorTrial {
         }
     }
 
+    /**
+     * Reparte Perks (habilidades) de forma aleatoria a todos los personajes.
+     * Cada personaje recibe 4 Perks diferentes de su categoría.
+     * Los supervivientes reciben Perks del pool de supervivientes.
+     * Los killers reciben Perks del pool de killers.
+     */
     private void repartirPerks() {
         for (Personaje s : supervivientes) {
             ArrayList<Perk> poolSurvis = new ArrayList<>();
@@ -297,6 +343,11 @@ public class MotorTrial {
         }
     }
 
+    /**
+     * Inicia el juego en modo completamente automatizado con IA.
+     * Los supervivientes y killers toman decisiones automáticamente.
+     * La batalla continúa hasta que un equipo sea eliminado o se alcance el límite de rondas (50).
+     */
     public void iniciarJuego() {
         int ronda = 1;
         while (equipoVivo(supervivientes) && equipoVivo(killers)) {
@@ -333,6 +384,12 @@ public class MotorTrial {
         anunciarGanador();
     }
 
+    /**
+     * Verifica si hay al menos un miembro vivo en un equipo.
+     *
+     * @param equipo El equipo a verificar
+     * @return true si hay al menos un personaje con vida > 0, false en otro caso
+     */
     private boolean equipoVivo(ArrayList<Personaje> equipo) {
         for (Personaje p : equipo) {
             if (p.getVidaActual() > 0) {
@@ -342,6 +399,14 @@ public class MotorTrial {
         return false;
     }
 
+    /**
+     * Crea una representación visual de la barra de vida de un personaje.
+     * Utiliza caracteres Unicode para mostrar una barra de 10 espacios.
+     *
+     * @param actual La vida actual del personaje
+     * @param max La vida máxima del personaje
+     * @return Una cadena con la barra de vida dibujada (ej: [█████░░░░])
+     */
     private String dibujarBarraVida(int actual, int max) {
         if (actual < 0) actual = 0;
         int maxBarras = 10;
@@ -359,6 +424,11 @@ public class MotorTrial {
         return barra;
     }
 
+    /**
+     * Muestra el estado actual de ambos equipos en la batalla.
+     * Presenta nombre, vida actual, vida máxima, barra de vida y arma de cada personaje.
+     * Los supervivientes se muestran en color cian y los killers en color rojo.
+     */
     private void mostrarEstadoEquipos() {
         System.out.println(AMARILLO + "\n--- ESTADO DE LA PARTIDA ---" + RESET);
         System.out.print(CYAN + "SUPERVIVIENTES:\n" + RESET);
@@ -390,6 +460,11 @@ public class MotorTrial {
         System.out.println(AMARILLO + "----------------------------" + RESET);
     }
 
+    /**
+     * Anuncia el resultado final de la batalla.
+     * Si el equipo de supervivientes está vivo, anuncia su victoria.
+     * Si todos los supervivientes están muertos, anuncia la victoria de La Entidad (killers).
+     */
     private void anunciarGanador() {
         System.out.println(AMARILLO + "\n=========================================" + RESET);
         if (equipoVivo(supervivientes)) {
@@ -400,6 +475,10 @@ public class MotorTrial {
         System.out.println(AMARILLO + "=========================================" + RESET);
     }
 
+    /**
+     * Muestra en pantalla la lista de todos los supervivientes disponibles
+     * con su nombre y vida base (vida inicial).
+     */
     public void mostrarSupervivientes() {
         System.out.println(CYAN + "\n SUPERVIVIENTES DISPONIBLES:" + RESET);
         Personaje[] listaSurvis = { new LeonKennedy(), new SteveHarrington(), new FengMin(), new SableWard() };
@@ -410,6 +489,10 @@ public class MotorTrial {
         System.out.println(CYAN + "-------------------------------------------------" + RESET);
     }
 
+    /**
+     * Muestra en pantalla la lista de todos los killers (asesinos) disponibles
+     * con su nombre y vida base (vida inicial).
+     */
     public void mostrarAsesinos() {
         System.out.println(ROJO + "\n KILLERS DISPONIBLES (LA ENTIDAD):" + RESET);
         Personaje[] listaKillers = { new GhostFace(), new Legion(), new Onryo(), new Animatronico() };
@@ -420,6 +503,10 @@ public class MotorTrial {
         System.out.println(ROJO + "-------------------------------------------------" + RESET);
     }
 
+    /**
+     * Realiza la configuración/limpieza de la partida.
+     * Limpia los datos de supervivientes y killers para preparar una nueva partida.
+     */
     public void configurarPartida() {
         supervivientes.clear();
         killers.clear();

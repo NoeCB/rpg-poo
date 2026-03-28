@@ -3,6 +3,19 @@ package com.dbd.habilidades.killers;
 import com.dbd.entidades.Personaje;
 import com.dbd.habilidades.Perk;
 
+/**
+ * Habilidad de asesino: Resistencia
+ * 
+ * Perk de nivel 2 que permite al asesino apretarse los puños y activar
+ * un aumentando de resistencia, mejorando su salud y defensa.
+ * 
+ * Efectos:
+ * - Aprietael puño para aumentar resistencia
+ * - Recupera 25 puntos de vida
+ * - Aumenta la defensa base del asesino en 15 puntos de forma permanente
+ * - Reduce el daño futuro al asesino
+ * - Puede ser utilizado hasta 2 veces
+ */
 public class Resistencia extends Perk {
     
     public Resistencia() {
