@@ -24,7 +24,7 @@ public class Main {
      * @param args Parámetros de línea de comandos (no utilizados)
      */
     public static void main(String[] args) {
-        Util.iniciarMusica("rpg-poo/resources/musica_dbd.wav");
+        Util.iniciarMusica("resources/musica_dbd.wav");
         Scanner sc = new Scanner(System.in);
         MotorTrial prueba = new MotorTrial();
         int opcion = 0;
