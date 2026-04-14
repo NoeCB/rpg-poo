@@ -1,4 +1,5 @@
 package com.dbd.core;
+
 import com.dbd.arma.*;
 import static com.dbd.core.Util.*;
 import com.dbd.entidades.*;
@@ -12,7 +13,8 @@ import java.util.Scanner;
 /**
  * Clase que gestiona el motor de combate del juego RPG tipo Dead by Daylight.
  * Controla la lógica de las batallas entre supervivientes y killers,
- * incluyendo turnos, distribución de armas y habilidades, y determinación del ganador.
+ * incluyendo turnos, distribución de armas y habilidades, y determinación del
+ * ganador.
  */
 public class MotorTrial {
     private ArrayList<Personaje> supervivientes = new ArrayList<>();
@@ -22,7 +24,8 @@ public class MotorTrial {
     /**
      * Inicia el juego en modo manual, permitiendo al jugador controlar las acciones
      * de los personajes supervivientes. Los killers actúan automáticamente con IA.
-     * La batalla continúa hasta que un equipo sea eliminado o se alcance el límite de rondas.
+     * La batalla continúa hasta que un equipo sea eliminado o se alcance el límite
+     * de rondas.
      */
     public void iniciarJuegoManual() {
         int ronda = 1;
@@ -62,10 +65,11 @@ public class MotorTrial {
     }
 
     /**
-     * Ejecuta el turno de un personaje en modo manual, mostrando opciones de acciones:
+     * Ejecuta el turno de un personaje en modo manual, mostrando opciones de
+     * acciones:
      * atacar, usar Perk (habilidad) o adoptar postura defensiva.
      *
-     * @param atacante El personaje que está realizando el turno
+     * @param atacante    El personaje que está realizando el turno
      * @param equipoRival El equipo enemigo disponible para atacar
      */
     private void ejecutarTurnoManual(Personaje atacante, ArrayList<Personaje> equipoRival) {
@@ -81,12 +85,15 @@ public class MotorTrial {
             switch (opcion) {
                 case 1:
                     Personaje objetivoAtk = elegirObjetivo(equipoRival);
-                    String armaTxt = (atacante.getArma() != null) ? atacante.getArma().getNombreArma() : "puños desnudos";
-                    System.out.println(atacante.getNombrePersonaje() + " ataca con " + armaTxt + " a " + objetivoAtk.getNombrePersonaje() + "!");
-                    
+                    String armaTxt = (atacante.getArma() != null) ? atacante.getArma().getNombreArma()
+                            : "puños desnudos";
+                    System.out.println(atacante.getNombrePersonaje() + " ataca con " + armaTxt + " a "
+                            + objetivoAtk.getNombrePersonaje() + "!");
+
                     int danio = (atacante.getArma() != null) ? atacante.getArma().getDanioBase() : 15;
-                    objetivoAtk.recibirDanio(danio); // Nota: el daño base se pasa, y Personaje.recibirDanio comprueba escudos / evasion.
-                    
+                    objetivoAtk.recibirDanio(danio); // Nota: el daño base se pasa, y Personaje.recibirDanio comprueba
+                                                     // escudos / evasion.
+
                     turnoCompletado = true;
                     break;
                 case 2:
@@ -100,11 +107,11 @@ public class MotorTrial {
                         }
                         System.out.println("[" + (atacante.getPerks().size() + 1) + "] Cancelar");
                         int opPerk = errorNumero(sc);
-                        
+
                         if (opPerk >= 1 && opPerk <= atacante.getPerks().size()) {
                             Perk perkElegida = atacante.getPerks().get(opPerk - 1);
                             if (perkElegida.getUsos() > 0) {
-                                Personaje objetivoPerk = elegirObjetivo(equipoRival); 
+                                Personaje objetivoPerk = elegirObjetivo(equipoRival);
                                 perkElegida.lanzar(atacante, objetivoPerk);
                                 perkElegida.consumirUso();
                                 turnoCompletado = true;
@@ -139,11 +146,12 @@ public class MotorTrial {
                 vivos.add(equipoRival.get(i));
             }
         }
-        
+
         while (true) {
             System.out.println("Selecciona un objetivo:");
             for (int i = 0; i < vivos.size(); i++) {
-                System.out.println("[" + (i + 1) + "] " + vivos.get(i).getNombrePersonaje() + " (" + vivos.get(i).getVidaActual() + " HP)");
+                System.out.println("[" + (i + 1) + "] " + vivos.get(i).getNombrePersonaje() + " ("
+                        + vivos.get(i).getVidaActual() + " HP)");
             }
             int op = errorNumero(sc);
             if (op >= 1 && op <= vivos.size()) {
@@ -153,6 +161,7 @@ public class MotorTrial {
             }
         }
     }
+
     /**
      * Inicia la configuración manual del juego, permitiendo al jugador:
      * 1. Seleccionar 3 supervivientes de 4 disponibles
@@ -256,7 +265,8 @@ public class MotorTrial {
     /**
      * Reparte armas de forma aleatoria a todos los personajes del juego.
      * Los supervivientes reciben solo armas de superviviente (Pistola o Conjuro).
-     * Los killers reciben solo armas de killer (Hacha, Cuchillo o VinculoDeCondena).
+     * Los killers reciben solo armas de killer (Hacha, Cuchillo o
+     * VinculoDeCondena).
      */
     private void repartirArmas() {
         ArrayList<Arma> armasSolamenteSurvis = new ArrayList<>();
@@ -319,24 +329,24 @@ public class MotorTrial {
                 s.addPerk(poolSurvis.get(i));
         }
 
-        for (Personaje k : killers) {
-            ArrayList<Perk> poolKillers = new ArrayList<>();
-            poolKillers.add(new AbrazoLugubre());
-            poolKillers.add(new AmigosHastaElFin());
-            poolKillers.add(new BarbacoaYChile());
-            poolKillers.add(new Desconcierto());
-            poolKillers.add(new EnNingunLugarParaEsconderse());
-            poolKillers.add(new FuriaDelEspiritu());
-            poolKillers.add(new IntervencionCorrupta());
-            poolKillers.add(new MaleficioJuguete());
-            poolKillers.add(new NadieEscapaDeLaMuerte());
-            poolKillers.add(new PerseguidorLetal());
-            poolKillers.add(new PimPamPum());
-            poolKillers.add(new PuntoMuerto());
-            poolKillers.add(new Resistencia());
-            poolKillers.add(new ResonanciaDelDolor());
-            poolKillers.add(new Sacudida());
+        ArrayList<Perk> poolKillers = new ArrayList<>();
+        poolKillers.add(new AbrazoLugubre());
+        poolKillers.add(new AmigosHastaElFin());
+        poolKillers.add(new BarbacoaYChile());
+        poolKillers.add(new Desconcierto());
+        poolKillers.add(new EnNingunLugarParaEsconderse());
+        poolKillers.add(new FuriaDelEspiritu());
+        poolKillers.add(new IntervencionCorrupta());
+        poolKillers.add(new MaleficioJuguete());
+        poolKillers.add(new NadieEscapaDeLaMuerte());
+        poolKillers.add(new PerseguidorLetal());
+        poolKillers.add(new PimPamPum());
+        poolKillers.add(new PuntoMuerto());
+        poolKillers.add(new Resistencia());
+        poolKillers.add(new ResonanciaDelDolor());
+        poolKillers.add(new Sacudida());
 
+        for (Personaje k : killers) {
             Collections.shuffle(poolKillers);
             for (int i = 0; i < 4; i++)
                 k.addPerk(poolKillers.get(i));
@@ -346,7 +356,8 @@ public class MotorTrial {
     /**
      * Inicia el juego en modo completamente automatizado con IA.
      * Los supervivientes y killers toman decisiones automáticamente.
-     * La batalla continúa hasta que un equipo sea eliminado o se alcance el límite de rondas (50).
+     * La batalla continúa hasta que un equipo sea eliminado o se alcance el límite
+     * de rondas (50).
      */
     public void iniciarJuego() {
         int ronda = 1;
@@ -404,14 +415,15 @@ public class MotorTrial {
      * Utiliza caracteres Unicode para mostrar una barra de 10 espacios.
      *
      * @param actual La vida actual del personaje
-     * @param max La vida máxima del personaje
+     * @param max    La vida máxima del personaje
      * @return Una cadena con la barra de vida dibujada (ej: [█████░░░░])
      */
     private String dibujarBarraVida(int actual, int max) {
-        if (actual < 0) actual = 0;
+        if (actual < 0)
+            actual = 0;
         int maxBarras = 10;
         int barrasLlenas = (int) Math.round((double) actual / max * maxBarras);
-        
+
         String barra = "[";
         for (int i = 0; i < maxBarras; i++) {
             if (i < barrasLlenas) {
@@ -426,7 +438,8 @@ public class MotorTrial {
 
     /**
      * Muestra el estado actual de ambos equipos en la batalla.
-     * Presenta nombre, vida actual, vida máxima, barra de vida y arma de cada personaje.
+     * Presenta nombre, vida actual, vida máxima, barra de vida y arma de cada
+     * personaje.
      * Los supervivientes se muestran en color cian y los killers en color rojo.
      */
     private void mostrarEstadoEquipos() {
@@ -435,10 +448,11 @@ public class MotorTrial {
         for (int i = 0; i < supervivientes.size(); i++) {
             Personaje p = supervivientes.get(i);
             String armaTxt = (p.getArma() != null) ? " [" + p.getArma().getNombreArma() + "]" : "";
-            
+
             String status = "";
             if (p.getVidaActual() > 0) {
-                status = VERDE + p.getVidaActual() + "/" + p.getVidaMax() + " HP " + dibujarBarraVida(p.getVidaActual(), p.getVidaMax()) + armaTxt + RESET;
+                status = VERDE + p.getVidaActual() + "/" + p.getVidaMax() + " HP "
+                        + dibujarBarraVida(p.getVidaActual(), p.getVidaMax()) + armaTxt + RESET;
             } else {
                 status = ROJO + " MUERTO " + dibujarBarraVida(0, p.getVidaMax()) + RESET;
             }
@@ -448,10 +462,11 @@ public class MotorTrial {
         for (int i = 0; i < killers.size(); i++) {
             Personaje p = killers.get(i);
             String armaTxt = (p.getArma() != null) ? " [" + p.getArma().getNombreArma() + "]" : "";
-            
+
             String status = "";
             if (p.getVidaActual() > 0) {
-                status = VERDE + p.getVidaActual() + "/" + p.getVidaMax() + " HP " + dibujarBarraVida(p.getVidaActual(), p.getVidaMax()) + armaTxt + RESET;
+                status = VERDE + p.getVidaActual() + "/" + p.getVidaMax() + " HP "
+                        + dibujarBarraVida(p.getVidaActual(), p.getVidaMax()) + armaTxt + RESET;
             } else {
                 status = ROJO + " MUERTO " + dibujarBarraVida(0, p.getVidaMax()) + RESET;
             }
@@ -463,7 +478,8 @@ public class MotorTrial {
     /**
      * Anuncia el resultado final de la batalla.
      * Si el equipo de supervivientes está vivo, anuncia su victoria.
-     * Si todos los supervivientes están muertos, anuncia la victoria de La Entidad (killers).
+     * Si todos los supervivientes están muertos, anuncia la victoria de La Entidad
+     * (killers).
      */
     private void anunciarGanador() {
         System.out.println(AMARILLO + "\n=========================================" + RESET);
