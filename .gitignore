@@ -23,4 +23,11 @@
 hs_err_pid*
 replay_pid*
 
+# Archivos de instalación
+instalar_basedatos.bat
+script_bbdd.sql
+
+#Archivos de texto
+*.txt
+
     

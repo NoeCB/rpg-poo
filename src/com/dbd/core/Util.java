@@ -18,6 +18,8 @@ import javax.sound.sampled.Clip;
 public class Util  {
     /** Código ANSI para restablecer el color de la consola. */
     public static final String RESET = "\u001B[0m";
+    /** Código ANSI para color blanco. */
+    public static final String BLANCO = "\u001B[37m";
     /** Código ANSI para color rojo (usado en errores). */
     public static final String ROJO = "\u001B[31m";
     /** Código ANSI para color verde. */

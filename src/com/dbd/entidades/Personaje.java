@@ -188,6 +188,20 @@ public abstract class Personaje {
     }
 
     /**
+     * @return Los puntos de sangre acumulados
+     */
+    public int getPuntosSangre() {
+        return this.puntosSangre;
+    }
+
+    /**
+     * @return La lista de estados alterados del personaje
+     */
+    public ArrayList<Estado> getEstados() {
+        return this.estados;
+    }
+
+    /**
      * Aplica un nuevo estado alterado al personaje (hemorragia, ceguera, etc.).
      * El estado se añade a la lista y sus efectos se procesarán cada turno.
      *
