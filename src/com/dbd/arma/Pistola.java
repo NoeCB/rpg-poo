@@ -1,11 +1,13 @@
 package com.dbd.arma;
+
 /**
  * Representa un arma a distancia.
  * <p>
- * La {@code Pistola} se distingue por su alta fiabilidad (precisión) 
+ * La {@code Pistola} se distingue por su alta fiabilidad (precisión)
  * a cambio de un daño base más reducido comparado con otras armas a distancia.
  * </p>
  * * @author Noelia Cantador y Luis Lázaro.
+ * 
  * @version 1.0
  * @see Arma
  */
@@ -23,11 +25,6 @@ public class Pistola extends Arma {
      */
     public Pistola() {
         super("Pistola", 20, 70);
-    }
-
-    @Override
-    public void usar() {
-       
     }
 
 }

@@ -14,8 +14,4 @@ public class LaraCroft extends Personaje {
         super("Lara Croft", 120, 120, 18, 0);
     }
 
-    @Override
-    public void accion() {
-        System.out.println(this.nombrePersonaje + " analiza su entorno e improvisa una rápida estrategia.");
-    }
 }

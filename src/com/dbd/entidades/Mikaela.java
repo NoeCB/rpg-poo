@@ -14,8 +14,4 @@ public class Mikaela extends Personaje {
         super("Mikaela Reid", 100, 100, 10, 0);
     }
 
-    @Override
-    public void accion() {
-        System.out.println(this.nombrePersonaje + " enciende unas hierbas místicas y susurra un cántico protector.");
-    }
 }
