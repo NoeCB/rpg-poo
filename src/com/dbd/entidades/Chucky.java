@@ -15,8 +15,4 @@ public class Chucky extends Personaje {
         super("Chucky", 140, 140, 10, 0);
     }
 
-    @Override
-    public void accion() {
-        System.out.println(this.nombrePersonaje + " se ríe macabramente mientras correteá esquivando obstáculos.");
-    }
 }

@@ -3,17 +3,18 @@ package com.dbd.arma;
 /**
  * Representa un arma de tipo cuerpo a cuerpo.
  * <p>
- * Esta clase es una implementación concreta de {@link Arma}. 
- * Se caracteriza por ser un arma ágil y rápida, ideal para 
- * combates a corta distancia, sacrificando poder de daño bruto 
+ * Esta clase es una implementación concreta de {@link Arma}.
+ * Se caracteriza por ser un arma ágil y rápida, ideal para
+ * combates a corta distancia, sacrificando poder de daño bruto
  * a cambio de mantener una buena probabilidad de acierto.
  * </p>
  * * @author Noelia Cantador y Luis Lázaro.
+ * 
  * @version 1.0
  * @see Arma
  */
 public class Cuchillo extends Arma {
-    
+
     /**
      * Crea una nueva instancia de Cuchillo con valores predeterminados.
      * <p>
@@ -28,18 +29,6 @@ public class Cuchillo extends Arma {
     public Cuchillo() {
         // Daño bajo (10), precisión alta (80)
         super("Cuchillo de Caza", 10, 80);
-    }
-
-    /**
-     * Ejecuta la acción de ataque con el cuchillo.
-     * <p>
-     * Implementa la lógica específica de daño y cálculo de 
-     * acierto definida por las estadísticas del arma.
-     * </p>
-     */
-    @Override
-    public void usar() {
-        // Lógica de uso del cuchillo
     }
 
 }

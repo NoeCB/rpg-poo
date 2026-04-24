@@ -14,8 +14,4 @@ public class AdaWong extends Personaje {
         super("Ada Wong", 110, 110, 15, 0);
     }
 
-    @Override
-    public void accion() {
-        System.out.println(this.nombrePersonaje + " se desliza entre las sombras con agilidad felina.");
-    }
 }

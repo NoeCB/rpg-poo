@@ -12,8 +12,4 @@ public class GranadaCegadora extends Arma {
         super("Granada Cegadora", 12, 85);
     }
 
-    @Override
-    public void usar() {
-        System.out.println("¡BOOM! Un destello cegador inunda la zona aturdiendo al objetivo.");
-    }
 }

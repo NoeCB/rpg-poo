@@ -1,4 +1,5 @@
 package com.dbd.arma;
+
 /**
  * Representa un arma de naturaleza espectral o maldita.
  * <p>
@@ -7,6 +8,7 @@ package com.dbd.arma;
  * Es ideal para efectos de control o desgaste constante.
  * </p>
  * * @author Noelia Cantador y Luis Lázaro.
+ * 
  * @version 1.0
  * @see Arma
  */
@@ -28,8 +30,4 @@ public class VinculoDeCondena extends Arma {
         super("Vinculo de Condena", 10, 90);
     }
 
-    @Override
-    public void usar() {
-      
-    }
 }
