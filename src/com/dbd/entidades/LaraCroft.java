@@ -11,7 +11,7 @@ package com.dbd.entidades;
 public class LaraCroft extends Personaje {
 
     public LaraCroft() {
-        super("Lara Croft", 120, 120, 18, 0);
+        super("Lara Croft", 120, 120, 18);
     }
 
     @Override

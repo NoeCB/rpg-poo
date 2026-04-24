@@ -94,5 +94,32 @@ public static void pausaDramatica() {
     } catch (Exception e) {
     }
 }
+
+    /**
+     * Espera a que el usuario pulse Enter para continuar.
+     * @param sc El escáner para leer.
+     */
+    public static void pedirEnter(Scanner sc) {
+        System.out.println(CYAN + "\nPulsa ENTER para continuar..." + RESET);
+        sc.nextLine(); // Para consumir salto de línea previo si lo hay
+        sc.nextLine(); // Para esperar el enter
+    }
+
+    /**
+     * Limpia la consola imprimiendo múltiples saltos de línea (simulación simple).
+     */
+    public static void limpiarPantalla() {
+        for (int i = 0; i < 50; ++i) System.out.println();
+    }
+
+    /**
+     * Genera un número aleatorio entre min y max (ambos incluidos).
+     * @param min Valor mínimo
+     * @param max Valor máximo
+     * @return El número generado
+     */
+    public static int numAleatorio(int min, int max) {
+        return (int) (Math.random() * (max - min + 1)) + min;
+    }
     
 }

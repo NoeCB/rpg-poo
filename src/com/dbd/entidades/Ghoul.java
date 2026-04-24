@@ -11,7 +11,7 @@ package com.dbd.entidades;
 public class Ghoul extends Personaje {
 
     public Ghoul() {
-        super("Ghoul", 160, 160, 15, 0);
+        super("Ghoul", 160, 160, 15);
     }
 
     @Override

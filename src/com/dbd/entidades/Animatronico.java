@@ -31,7 +31,7 @@ public class Animatronico extends Personaje {
      * </p>
      */
     public Animatronico() {
-        super("Animatrónico", 220, 220, 20, 0);
+        super("Animatrónico", 220, 220, 20);
     }
 
     /**

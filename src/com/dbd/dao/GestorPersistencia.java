@@ -4,6 +4,7 @@ import com.dbd.entidades.Personaje;
 import com.dbd.arma.Arma;
 import com.dbd.habilidades.Perk;
 import com.dbd.estados.Estado;
+import com.dbd.core.Logro;
 import static com.dbd.core.Util.*;
 
 import java.sql.Connection;
@@ -25,7 +26,7 @@ public class GestorPersistencia {
     public boolean guardarPartida(int idRanura, int ronda, String modoJuego, boolean terminada,
             ArrayList<Personaje> survis, ArrayList<Personaje> killers) {
         String sqlBorrarViejos = "DELETE FROM PERSONAJE_PARTIDA WHERE id_ranura = ?";
-        String sqlUpdatePartida = "UPDATE PARTIDA SET ronda_actual = ?, modo_juego = ?, terminada = ?, vacia = FALSE WHERE id_ranura = ?";
+        String sqlUpdatePartida = "UPDATE RANURA SET ronda_actual = ?, modo_juego = ?, terminada = ?, vacia = FALSE WHERE id_ranura = ?";
 
         try (Connection con = ConexionDB.getConnection()) {
             con.setAutoCommit(false); // Transacción para integridad total (Implementación 4)
@@ -65,7 +66,7 @@ public class GestorPersistencia {
 
     private void insertarPersonajeCompleto(Connection con, int idRanura, Personaje p, String bando)
             throws SQLException {
-        String sqlPers = "INSERT INTO PERSONAJE_PARTIDA (id_ranura, clase_personaje, nombre, vida_actual, vida_max, defensa_base, puntos_sangre, defendiendo, bando) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sqlPers = "INSERT INTO PERSONAJE_PARTIDA (id_ranura, clase_personaje, nombre, vida_actual, vida_max, defensa_base, defendiendo, bando) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         int idPersonaje = -1;
 
         try (PreparedStatement pst = con.prepareStatement(sqlPers, Statement.RETURN_GENERATED_KEYS)) {
@@ -75,9 +76,8 @@ public class GestorPersistencia {
             pst.setInt(4, p.getVidaActual());
             pst.setInt(5, p.getVidaMax());
             pst.setInt(6, p.getDefensaBase());
-            pst.setInt(7, p.getPuntosSangre());
-            pst.setBoolean(8, p.isDefendiendo());
-            pst.setString(9, bando);
+            pst.setBoolean(7, p.isDefendiendo());
+            pst.setString(8, bando);
             pst.executeUpdate();
 
             ResultSet rs = pst.getGeneratedKeys();
@@ -139,7 +139,7 @@ public class GestorPersistencia {
                 +
                 " (SELECT COUNT(*) FROM PERSONAJE_PARTIDA pp WHERE pp.id_ranura = p.id_ranura AND pp.bando='killer' AND pp.vida_actual > 0) as killers_vivos "
                 +
-                " FROM PARTIDA p ORDER BY p.id_ranura ASC";
+                " FROM RANURA p ORDER BY p.id_ranura ASC";
 
         try (Connection con = ConexionDB.getConnection();
                 PreparedStatement pst = con.prepareStatement(sql);
@@ -180,7 +180,7 @@ public class GestorPersistencia {
      */
     public void borrarPartida(int idRanura) {
         String sqlBorrarPers = "DELETE FROM PERSONAJE_PARTIDA WHERE id_ranura = ?";
-        String sqlUpdatePartida = "UPDATE PARTIDA SET ronda_actual = 1, terminada = FALSE, vacia = TRUE WHERE id_ranura = ?";
+        String sqlUpdatePartida = "UPDATE RANURA SET ronda_actual = 1, terminada = FALSE, vacia = TRUE WHERE id_ranura = ?";
 
         try (Connection con = ConexionDB.getConnection()) {
             con.setAutoCommit(false);
@@ -208,7 +208,7 @@ public class GestorPersistencia {
      */
     public Object[] cargarPartidaCompleta(int idRanura, ArrayList<Personaje> survisRef,
             ArrayList<Personaje> killersRef) {
-        String sqlPartida = "SELECT ronda_actual, modo_juego, vacia FROM PARTIDA WHERE id_ranura = ?";
+        String sqlPartida = "SELECT ronda_actual, modo_juego, vacia FROM RANURA WHERE id_ranura = ?";
         try (Connection con = ConexionDB.getConnection()) {
 
             int ronda = 1;
@@ -345,19 +345,146 @@ public class GestorPersistencia {
     }
 
     public void mostrarEstadisticasGlobales() {
-        String sql = "SELECT faccion, victorias FROM ESTADISTICAS_GLOBALES";
-        try (Connection con = ConexionDB.getConnection();
-                PreparedStatement pst = con.prepareStatement(sql);
-                ResultSet rs = pst.executeQuery()) {
-
+        String sqlFaccion = "SELECT faccion, victorias FROM ESTADISTICAS_GLOBALES";
+        String sqlHist = "SELECT COUNT(*) as totales, AVG(rondas_totales) as media_rondas FROM HISTORICO_PARTIDAS";
+        
+        try (Connection con = ConexionDB.getConnection()) {
             System.out.println(AMARILLO + "\n=== HISTORIAL DE LA ENTIDAD (GLOBAL) ===" + RESET);
-            while (rs.next()) {
-                System.out
-                        .println("-> " + rs.getString("faccion") + " han ganado " + rs.getInt("victorias") + " veces.");
+            
+            // Victorias por faccion
+            try (PreparedStatement pst1 = con.prepareStatement(sqlFaccion);
+                 ResultSet rs1 = pst1.executeQuery()) {
+                while (rs1.next()) {
+                    System.out.println("-> " + rs1.getString("faccion") + " han ganado " + rs1.getInt("victorias") + " veces.");
+                }
+            }
+
+            // Estadisticas Avanzadas
+            System.out.println(CYAN + "\n--- ESTADÍSTICAS AVANZADAS ---" + RESET);
+            try (PreparedStatement pst2 = con.prepareStatement(sqlHist);
+                 ResultSet rs2 = pst2.executeQuery()) {
+                if (rs2.next()) {
+                    int totales = rs2.getInt("totales");
+                    double mediaRondas = rs2.getDouble("media_rondas");
+                    System.out.println("-> Total de Partidas Jugadas: " + totales);
+                    System.out.printf("-> Media de rondas por partida: %.2f\n", mediaRondas);
+                }
             }
             System.out.println(AMARILLO + "========================================\n" + RESET);
         } catch (SQLException e) {
-            e.printStackTrace();
+            UtilDAO.imprimirErrorSQL(e);
+        }
+    }
+
+    /**
+     * Guarda los resultados de una partida finalizada en el historial absoluto.
+     */
+    public void guardarEnHistorico(String modoJuego, int rondas, String bandoGanador, ArrayList<Personaje> survis, ArrayList<Personaje> killers) {
+        String sqlHistPartida = "INSERT INTO HISTORICO_PARTIDAS (modo_juego, rondas_totales, bando_ganador) VALUES (?, ?, ?)";
+        String sqlHistPers = "INSERT INTO HISTORICO_PERSONAJES (id_hist_partida, nombre, bando, vida_final) VALUES (?, ?, ?, ?)";
+        
+        try (Connection con = ConexionDB.getConnection()) {
+            con.setAutoCommit(false);
+            int idHist = -1;
+
+            try (PreparedStatement pst1 = con.prepareStatement(sqlHistPartida, Statement.RETURN_GENERATED_KEYS)) {
+                pst1.setString(1, modoJuego);
+                pst1.setInt(2, rondas);
+                pst1.setString(3, bandoGanador);
+                pst1.executeUpdate();
+                ResultSet rs = pst1.getGeneratedKeys();
+                if (rs.next()) idHist = rs.getInt(1);
+            }
+
+            if (idHist != -1) {
+                try (PreparedStatement pst2 = con.prepareStatement(sqlHistPers)) {
+                    for (Personaje p : survis) {
+                        pst2.setInt(1, idHist);
+                        pst2.setString(2, p.getNombrePersonaje());
+                        pst2.setString(3, "superviviente");
+                        pst2.setInt(4, p.getVidaActual());
+                        pst2.addBatch();
+                    }
+                    for (Personaje p : killers) {
+                        pst2.setInt(1, idHist);
+                        pst2.setString(2, p.getNombrePersonaje());
+                        pst2.setString(3, "killer");
+                        pst2.setInt(4, p.getVidaActual());
+                        pst2.addBatch();
+                    }
+                    pst2.executeBatch();
+                }
+            }
+            con.commit();
+            System.out.println(MORADO + "[HISTÓRICO] La partida ha sido archivada por el Ente para toda la eternidad." + RESET);
+            
+            // Comprobación de logros por cantidad de partidas
+            comprobarLogrosDeCantidadPartidas();
+
+        } catch (SQLException e) {
+            System.out.println(ROJO + "Error al guardar en el histórico absoluto." + RESET);
+            UtilDAO.imprimirErrorSQL(e);
+        }
+    }
+
+    /**
+     * Desbloquea un logro en la base de datos si no lo estaba.
+     */
+    public void desbloquearLogro(int idLogro) {
+        String sql = "UPDATE LOGROS SET conseguido = TRUE WHERE id_logro = ? AND conseguido = FALSE";
+        try (Connection con = ConexionDB.getConnection();
+             PreparedStatement pst = con.prepareStatement(sql)) {
+            pst.setInt(1, idLogro);
+            int filas = pst.executeUpdate();
+            if (filas > 0) {
+                // Para saber el nombre y avisar
+                try (PreparedStatement pst2 = con.prepareStatement("SELECT nombre FROM LOGROS WHERE id_logro = ?")) {
+                    pst2.setInt(1, idLogro);
+                    ResultSet rs = pst2.executeQuery();
+                    if (rs.next()) {
+                        System.out.println(AMARILLO + "\n⭐ ¡LOGRO DESBLOQUEADO: " + rs.getString("nombre") + "! ⭐" + RESET);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            UtilDAO.imprimirErrorSQL(e);
+        }
+    }
+
+    /**
+     * Carga todos los logros.
+     */
+    public ArrayList<Logro> cargarLogros() {
+        ArrayList<Logro> lista = new ArrayList<>();
+        String sql = "SELECT * FROM LOGROS";
+        try (Connection con = ConexionDB.getConnection();
+             PreparedStatement pst = con.prepareStatement(sql);
+             ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                lista.add(new Logro(rs.getInt("id_logro"), rs.getString("nombre"), rs.getString("descripcion"), rs.getBoolean("conseguido")));
+            }
+        } catch (SQLException e) {
+            UtilDAO.imprimirErrorSQL(e);
+        }
+        return lista;
+    }
+
+    /**
+     * Comprueba si se ha llegado a 1, 5 o 10 partidas.
+     */
+    private void comprobarLogrosDeCantidadPartidas() {
+        String sql = "SELECT COUNT(*) as totales FROM HISTORICO_PARTIDAS";
+        try (Connection con = ConexionDB.getConnection();
+             PreparedStatement pst = con.prepareStatement(sql);
+             ResultSet rs = pst.executeQuery()) {
+            if (rs.next()) {
+                int totales = rs.getInt("totales");
+                if (totales >= 1) desbloquearLogro(13); // El Ente Despierta
+                if (totales >= 5) desbloquearLogro(19); // Veterano
+                if (totales >= 10) desbloquearLogro(20); // Maestro del Terror
+            }
+        } catch (SQLException e) {
+            UtilDAO.imprimirErrorSQL(e);
         }
     }
 }

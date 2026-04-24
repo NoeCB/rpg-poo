@@ -40,7 +40,7 @@ public class SableWard extends Personaje {
      */
     public SableWard() {
         // Nombre, vidaActual, vidaMax, defensaBase, puntosSangre
-        super("Sable Ward", 110, 110, 30, 0);
+        super("Sable Ward", 110, 110, 30);
     }
 
     /**

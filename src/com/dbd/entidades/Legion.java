@@ -32,7 +32,7 @@ public class Legion extends Personaje {
      * </p>
      */
     public Legion() {
-        super("Legion", 180, 180, 25, 0);
+        super("Legion", 180, 180, 25);
     }
 
     /**

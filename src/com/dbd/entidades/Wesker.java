@@ -11,7 +11,7 @@ package com.dbd.entidades;
 public class Wesker extends Personaje {
 
     public Wesker() {
-        super("Albert Wesker", 150, 150, 20, 0);
+        super("Albert Wesker", 150, 150, 20);
     }
 
     @Override

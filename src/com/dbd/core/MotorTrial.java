@@ -99,7 +99,7 @@ public class MotorTrial {
                 break;
             }
         }
-        if (!abandonar) anunciarGanador();
+        if (!abandonar) anunciarGanador(ronda);
     }
 
     /**
@@ -156,6 +156,7 @@ public class MotorTrial {
                                 Personaje objetivoPerk = elegirObjetivo(equipoRival);
                                 perkElegida.lanzar(atacante, objetivoPerk);
                                 perkElegida.consumirUso();
+                                new com.dbd.dao.GestorPersistencia().desbloquearLogro(7); // Estratega
                                 turnoCompletado = true;
                             } else {
                                 System.out.println(ROJO + "No quedan usos de esta Perk." + RESET);
@@ -420,7 +421,7 @@ public class MotorTrial {
                 break;
             }
         }
-        anunciarGanador();
+        anunciarGanador(ronda);
     }
 
     private boolean equipoVivo(ArrayList<Personaje> equipo) {
@@ -470,18 +471,48 @@ public class MotorTrial {
         System.out.println(AMARILLO + "----------------------------" + RESET);
     }
 
-    private void anunciarGanador() {
+    private void anunciarGanador(int rondasTotales) {
         System.out.println(AMARILLO + "\n=========================================" + RESET);
         com.dbd.dao.GestorPersistencia gestor = new com.dbd.dao.GestorPersistencia();
 
+        String bandoGanador = "";
         if (equipoVivo(supervivientes)) {
             System.out.println(CYAN + "  ¡LOS SUPERVIVIENTES HAN ESCAPADO!" + RESET);
             gestor.registrarVictoriaGlobal("Supervivientes");
+            bandoGanador = "superviviente";
+            gestor.desbloquearLogro(4); // Superviviente Nato
+            
+            // Verificar Trabajo en Equipo (todos vivos)
+            boolean todosVivos = true;
+            for (Personaje p : supervivientes) {
+                if (p.getVidaActual() <= 0) todosVivos = false;
+            }
+            if (todosVivos) gestor.desbloquearLogro(5);
+            
+            // Sobrevivir al Límite (alguno con 1 de vida)
+            for (Personaje p : supervivientes) {
+                if (p.getVidaActual() == 1) gestor.desbloquearLogro(15);
+                if (p.getVidaActual() == p.getVidaMax()) gestor.desbloquearLogro(2); // Intocable
+            }
         } else {
             System.out.println(ROJO + "  SACRIFICIO COMPLETADO. LA ENTIDAD GANA." + RESET);
             gestor.registrarVictoriaGlobal("Killers");
+            bandoGanador = "killer";
+            gestor.desbloquearLogro(3); // Carnicero
+            
+            for (Personaje k : killers) {
+                if (k.getVidaActual() == k.getVidaMax()) gestor.desbloquearLogro(2); // Intocable
+            }
         }
         System.out.println(AMARILLO + "=========================================" + RESET);
+
+        // Otros Logros Generales
+        if (modoActual.equals("automatico")) gestor.desbloquearLogro(11); // Jugador Automático
+        if (modoActual.equals("manual")) gestor.desbloquearLogro(12); // Jugador Manual
+        if (rondasTotales >= 10) gestor.desbloquearLogro(18); // Resistencia Férrea
+
+        // Guardar en Histórico
+        gestor.guardarEnHistorico(modoActual, rondasTotales, bandoGanador, supervivientes, killers);
 
         if (idRanuraActual != -1) {
             // Eliminar la ranura porque la partida terminó

@@ -30,7 +30,7 @@ public class Onryo extends Personaje {
      * </p>
      */
     public Onryo() {
-        super("Onryo", 220, 220, 20, 0);
+        super("Onryo", 220, 220, 20);
     }
 
     /**

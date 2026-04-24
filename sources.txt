@@ -14,11 +14,13 @@ C:\cygwin64\home\rpg-poo\src\com\dbd\arma\Motosierra.java
 C:\cygwin64\home\rpg-poo\src\com\dbd\arma\Pistola.java
 C:\cygwin64\home\rpg-poo\src\com\dbd\arma\TentaculoUroboros.java
 C:\cygwin64\home\rpg-poo\src\com\dbd\arma\VinculoDeCondena.java
+C:\cygwin64\home\rpg-poo\src\com\dbd\core\Logro.java
 C:\cygwin64\home\rpg-poo\src\com\dbd\core\MotorTrial.java
 C:\cygwin64\home\rpg-poo\src\com\dbd\core\Util.java
 C:\cygwin64\home\rpg-poo\src\com\dbd\core\UtilEstados.java
 C:\cygwin64\home\rpg-poo\src\com\dbd\dao\ConexionDB.java
 C:\cygwin64\home\rpg-poo\src\com\dbd\dao\GestorPersistencia.java
+C:\cygwin64\home\rpg-poo\src\com\dbd\dao\UtilDAO.java
 C:\cygwin64\home\rpg-poo\src\com\dbd\entidades\AdaWong.java
 C:\cygwin64\home\rpg-poo\src\com\dbd\entidades\Animatronico.java
 C:\cygwin64\home\rpg-poo\src\com\dbd\entidades\Chucky.java
