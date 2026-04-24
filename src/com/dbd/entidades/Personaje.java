@@ -21,7 +21,6 @@ import java.util.ArrayList;
  * @version 1.1
  */
 public abstract class Personaje {
-    /** Nombre identificativo único del personaje. */
     protected String nombrePersonaje;
     
     /** Puntos de vida actuales del personaje. Se reduce cuando recibe daño. */
@@ -189,6 +188,20 @@ public abstract class Personaje {
     }
 
     /**
+     * @return Los puntos de sangre acumulados
+     */
+    public int getPuntosSangre() {
+        return this.puntosSangre;
+    }
+
+    /**
+     * @return La lista de estados alterados del personaje
+     */
+    public ArrayList<Estado> getEstados() {
+        return this.estados;
+    }
+
+    /**
      * Aplica un nuevo estado alterado al personaje (hemorragia, ceguera, etc.).
      * El estado se añade a la lista y sus efectos se procesarán cada turno.
      *
@@ -239,14 +252,18 @@ public abstract class Personaje {
         if (esSuperviviente()) {
             probEvasion = 0.20;
         }
+
+        // Si no se está defendiendo y salta la evasión
         if (!this.defendiendo && Math.random() < probEvasion) {
-            System.out.println(Util.VERDE + " ¡" + this.nombrePersonaje + " ha ESQUIVADO el ataque por completo!" + Util.RESET);
+            System.out.println(
+                    Util.VERDE + " ¡" + this.nombrePersonaje + " ha ESQUIVADO el ataque por completo!" + Util.RESET);
             return;
         }
 
         int danioFinal = danioBruto;
 
-        // La defensa bloquea el 50% (75% era demasiado OP para Ghost Face)
+        // La defensa bloquea el 50% (75% era demasiado OP para Ghost Face --> Puesto en
+        // versiones anteriores)
         if (this.defendiendo) {
             danioFinal = danioBruto / 2;
             System.out.println(Util.CYAN + this.nombrePersonaje + " realiza un bloqueo perfecto." + Util.RESET);
@@ -256,7 +273,7 @@ public abstract class Personaje {
         // Armadura
         danioFinal -= (this.defensaBase / 5);
 
-        // ¡SOLUCIÓN AL BUG DE LA TORTUGA! El daño NUNCA puede ser menor de 5
+        // El daño NUNCA puede ser menor de 5
         if (danioFinal < 5)
             danioFinal = 5;
 
@@ -296,7 +313,8 @@ public abstract class Personaje {
         if (enemigosVivos.isEmpty())
             return;
 
-        // Selección de objetivo (50/50 de ir al más débil o al azar)
+        // Selección de objetivo (50/50 de ir al más débil o al azar, si no siempre
+        // atacará al más débil)
         Personaje objetivo;
         if (Math.random() < 0.50) {
             objetivo = enemigosVivos.get(0);
@@ -324,11 +342,12 @@ public abstract class Personaje {
 
         if (!perksDisponibles.isEmpty() && dado < probUsarPerk) {
             Perk perkElegida = perksDisponibles.get((int) (Math.random() * perksDisponibles.size()));
-            System.out.println(Util.MORADO + "\n [" + this.nombrePersonaje + "] ejecuta una jugada maestra..." + Util.RESET);
+            System.out.println(
+                    Util.MORADO + "\n [" + this.nombrePersonaje + "] ejecuta una jugada maestra..." + Util.RESET);
             perkElegida.lanzar(this, objetivo);
             perkElegida.consumirUso();
         }
-        // Se reduce la probabilidad de "Spamear" la defensa para que la partida avance
+        // Se reduce la probabilidad de spamear la defensa para que la partida avance
         else if (enPeligro && dado > 60) {
             System.out.println(
                     Util.CYAN + this.nombrePersonaje + " adopta una postura defensiva desesperada." + Util.RESET);
@@ -361,22 +380,33 @@ public abstract class Personaje {
             // Ataque usando Arma
             int dadoPrecision = (int) (Math.random() * 100) + 1;
 
-            System.out.println(Util.AMARILLO + this.nombrePersonaje + " se prepara para usar su " + this.arma.getNombreArma()
-                    + " contra " + rival.getNombrePersonaje() + "!" + Util.RESET);
+            System.out.println(
+                    Util.AMARILLO + this.nombrePersonaje + " se prepara para usar su " + this.arma.getNombreArma()
+                            + " contra " + rival.getNombrePersonaje() + "!" + Util.RESET);
             this.arma.usar();
 
             if (dadoPrecision <= this.arma.getPrecision()) {
                 // El ataque acierta
                 // Añadimos una ligera varianza al daño del arma para que no sea estático (+- 2)
+                // Generar un número aleatorio entre -2 y 2
                 int varianza = (int) (Math.random() * 5) - 2;
                 danioGenerado = this.arma.getDanioBase() + varianza;
                 System.out
-                        .println(Util.VERDE + "¡El ataque con " + this.arma.getNombreArma() + " acierta de lleno!" + Util.RESET);
+                        .println(Util.VERDE + "¡El ataque con " + this.arma.getNombreArma() + " acierta de lleno!"
+                                + Util.RESET);
+
+                // Golpe crítico (20% de probabilidad)
+                if (Math.random() < 0.20) {
+                    System.out.println(Util.AMARILLO + "¡GOLPE CRÍTICO! ¡El daño se duplica!" + Util.RESET);
+                    danioGenerado = danioGenerado * 2;
+                }
+
                 rival.recibirDanio(danioGenerado);
             } else {
                 // El ataque falla
-                System.out.println(Util.ROJO + "¡El ataque con " + this.arma.getNombreArma() + " ha FALLADO! (Precisión: "
-                        + this.arma.getPrecision() + "%)" + Util.RESET);
+                System.out
+                        .println(Util.ROJO + "¡El ataque con " + this.arma.getNombreArma() + " ha FALLADO! (Precisión: "
+                                + this.arma.getPrecision() + "%)" + Util.RESET);
             }
 
         } else {
@@ -393,6 +423,14 @@ public abstract class Personaje {
 
             System.out.println(Util.AMARILLO + this.nombrePersonaje + " lanza un ataque básico directo a "
                     + rival.getNombrePersonaje() + "!" + Util.RESET);
+
+            // Golpe crítico también para los puñetazos (20% de probabilidad)
+            if (Math.random() < 0.20) {
+                System.out.println(
+                        Util.AMARILLO + "¡GOLPE CRÍTICO! ¡El daño base se duplica con este golpazo!" + Util.RESET);
+                danioGenerado = danioGenerado * 2;
+            }
+
             rival.recibirDanio(danioGenerado);
         }
     }
