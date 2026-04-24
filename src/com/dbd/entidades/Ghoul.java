@@ -14,8 +14,4 @@ public class Ghoul extends Personaje {
         super("Ghoul", 160, 160, 15);
     }
 
-    @Override
-    public void accion() {
-        System.out.println(this.nombrePersonaje + " emite un rugido desgarrador mientras gotea toxinas letales de sus fauces.");
-    }
 }

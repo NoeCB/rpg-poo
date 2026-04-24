@@ -14,8 +14,4 @@ public class Wesker extends Personaje {
         super("Albert Wesker", 150, 150, 20);
     }
 
-    @Override
-    public void accion() {
-        System.out.println(this.nombrePersonaje + " se acomoda las gafas oscuras y dice: \"Siete minutos... Es todo el tiempo que puedo dedicarte.\"");
-    }
 }
