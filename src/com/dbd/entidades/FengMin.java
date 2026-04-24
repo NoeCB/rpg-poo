@@ -45,7 +45,7 @@ public class FengMin extends Personaje {
      * </p>
      */
     public FengMin() {
-        super("Feng Min", 100, 100, 10, 0);
+        super("Feng Min", 100, 100, 10);
     }
 
     /**

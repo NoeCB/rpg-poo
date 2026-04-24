@@ -103,12 +103,23 @@ public class Main {
                         System.out.println(CYAN + "\n--- EXTRAS ---" + RESET);
                         System.out.println("[1] Mirar Personajes (Supervivientes)");
                         System.out.println("[2] Mirar Asesinos (Killers)");
+                        System.out.println("[3] Ver Logros Desbloqueados");
                         System.out.println("[0] Volver al menú principal");
                         System.out.print(">>> Opción: ");
                         opExtra = errorNumero(sc);
                         
                         if (opExtra == 1) prueba.mostrarSupervivientes();
                         else if (opExtra == 2) prueba.mostrarAsesinos();
+                        else if (opExtra == 3) {
+                            System.out.println(AMARILLO + "\n=== SALÓN DE LOS LOGROS ===" + RESET);
+                            ArrayList<com.dbd.core.Logro> logros = gestor.cargarLogros();
+                            for (com.dbd.core.Logro l : logros) {
+                                String estado = l.isConseguido() ? VERDE + "[DESBLOQUEADO]" + RESET : ROJO + "[BLOQUEADO]" + RESET;
+                                System.out.println(estado + " " + CYAN + l.getNombre() + RESET + " - " + l.getDescripcion());
+                            }
+                            System.out.println(AMARILLO + "===========================\n" + RESET);
+                            Util.pedirEnter(sc);
+                        }
                         
                     } while (opExtra != 0);
                     break;

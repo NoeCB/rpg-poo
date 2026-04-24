@@ -11,7 +11,7 @@ package com.dbd.entidades;
 public class Mikaela extends Personaje {
 
     public Mikaela() {
-        super("Mikaela Reid", 100, 100, 10, 0);
+        super("Mikaela Reid", 100, 100, 10);
     }
 
 }

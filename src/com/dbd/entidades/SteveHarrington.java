@@ -50,7 +50,7 @@ public class SteveHarrington extends Personaje {
      * </p>
      */
     public SteveHarrington() {
-        super("Steve Harrington", 110, 110, 10, 0);
+        super("Steve Harrington", 110, 110, 10);
     }
 
     /**

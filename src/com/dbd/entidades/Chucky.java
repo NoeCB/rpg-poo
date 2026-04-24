@@ -12,7 +12,7 @@ package com.dbd.entidades;
 public class Chucky extends Personaje {
 
     public Chucky() {
-        super("Chucky", 140, 140, 10, 0);
+        super("Chucky", 140, 140, 10);
     }
 
 }

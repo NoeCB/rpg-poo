@@ -11,7 +11,7 @@ package com.dbd.entidades;
 public class AdaWong extends Personaje {
 
     public AdaWong() {
-        super("Ada Wong", 110, 110, 15, 0);
+        super("Ada Wong", 110, 110, 15);
     }
 
 }

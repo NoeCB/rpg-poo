@@ -48,7 +48,7 @@ public class GhostFace extends Personaje {
      * </p>
      */
     public GhostFace() {
-        super("Ghost Face", 150, 150, 15, 0);
+        super("Ghost Face", 150, 150, 15);
     }
 
     /**

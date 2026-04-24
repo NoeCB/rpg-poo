@@ -11,7 +11,7 @@ package com.dbd.entidades;
 public class LaCerda extends Personaje {
 
     public LaCerda() {
-        super("La Cerda", 145, 145, 18, 0);
+        super("La Cerda", 145, 145, 18);
     }
 
 }

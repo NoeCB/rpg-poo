@@ -41,9 +41,6 @@ public abstract class Personaje {
      */
     protected int defensaBase;
 
-    /** Puntos de sangre del personaje (atributo adicional del sistema). */
-    protected int puntosSangre;
-
     /**
      * Lista de estados alterados aplicados al personaje (hemorragia, ceguera,
      * etc.).
@@ -68,19 +65,15 @@ public abstract class Personaje {
      * null.
      *
      * @param nombrePersonaje Nombre único del personaje
-     * @param vidaActual      Vida inicial (generalmente igual a vidaMax)
-     * @param vidaMax         Vida máxima del personaje. Determina si es
-     *                        superviviente (≤130) o asesino (>130)
-     * @param defensaBase     Valor de defensa que reduce daño (mitiga defensaBase/5
-     *                        puntos de daño)
-     * @param puntosSangre    Puntos de sangre del personaje (atributo del sistema)
+     * @param vidaActual Vida inicial (generalmente igual a vidaMax)
+     * @param vidaMax Vida máxima del personaje. Determina si es superviviente (≤130) o asesino (>130)
+     * @param defensaBase Valor de defensa que reduce daño (mitiga defensaBase/5 puntos de daño)
      */
-    public Personaje(String nombrePersonaje, int vidaActual, int vidaMax, int defensaBase, int puntosSangre) {
+    public Personaje(String nombrePersonaje, int vidaActual, int vidaMax, int defensaBase) {
         this.nombrePersonaje = nombrePersonaje;
         this.vidaActual = vidaActual;
         this.vidaMax = vidaMax;
         this.defensaBase = defensaBase;
-        this.puntosSangre = puntosSangre;
         this.estados = new ArrayList<>();
         this.perks = new ArrayList<>();
     }
@@ -212,13 +205,6 @@ public abstract class Personaje {
     }
 
     /**
-     * @return Los puntos de sangre acumulados
-     */
-    public int getPuntosSangre() {
-        return this.puntosSangre;
-    }
-
-    /**
      * @return La lista de estados alterados del personaje
      */
     public ArrayList<Estado> getEstados() {
@@ -280,6 +266,7 @@ public abstract class Personaje {
         if (!this.defendiendo && Math.random() < probEvasion) {
             System.out.println(
                     Util.VERDE + " ¡" + this.nombrePersonaje + " ha ESQUIVADO el ataque por completo!" + Util.RESET);
+            new com.dbd.dao.GestorPersistencia().desbloquearLogro(9); // Esquiva Matrix
             return;
         }
 
@@ -290,6 +277,7 @@ public abstract class Personaje {
         if (this.defendiendo) {
             danioFinal = danioBruto / 2;
             System.out.println(Util.CYAN + this.nombrePersonaje + " realiza un bloqueo perfecto." + Util.RESET);
+            new com.dbd.dao.GestorPersistencia().desbloquearLogro(8); // Tanque
             this.defendiendo = false; // Se gasta al recibir el golpe
         }
 
@@ -306,6 +294,12 @@ public abstract class Personaje {
 
         System.out.println(Util.ROJO + this.nombrePersonaje + " recibe " + danioFinal + " de daño. (Vida: "
                 + this.vidaActual + "/" + this.vidaMax + ")" + Util.RESET);
+                
+        com.dbd.dao.GestorPersistencia gestor = new com.dbd.dao.GestorPersistencia();
+        gestor.desbloquearLogro(1); // Primera Sangre
+        if (danioFinal >= 40) {
+            gestor.desbloquearLogro(10); // Ataque Letal
+        }
     }
 
     /**
@@ -434,8 +428,10 @@ public abstract class Personaje {
                 if (Math.random() < 0.20) {
                     System.out.println(Util.AMARILLO + "¡GOLPE CRÍTICO! ¡El daño se duplica!" + Util.RESET);
                     danioGenerado = danioGenerado * 2;
+                    new com.dbd.dao.GestorPersistencia().desbloquearLogro(6); // Golpe Crítico
                 }
 
+                new com.dbd.dao.GestorPersistencia().desbloquearLogro(16); // Armado y Peligroso
                 rival.recibirDanio(danioGenerado);
             } else {
                 // El ataque falla
@@ -464,9 +460,13 @@ public abstract class Personaje {
                 System.out.println(
                         Util.AMARILLO + "¡GOLPE CRÍTICO! ¡El daño base se duplica con este golpazo!" + Util.RESET);
                 danioGenerado = danioGenerado * 2;
+                new com.dbd.dao.GestorPersistencia().desbloquearLogro(6); // Golpe Crítico
             }
 
             rival.recibirDanio(danioGenerado);
+            if (rival.getVidaActual() <= 0) {
+                new com.dbd.dao.GestorPersistencia().desbloquearLogro(17); // Mano Limpia
+            }
         }
     }
 }

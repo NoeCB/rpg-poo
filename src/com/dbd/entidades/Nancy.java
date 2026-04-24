@@ -12,7 +12,7 @@ package com.dbd.entidades;
 public class Nancy extends Personaje {
 
     public Nancy() {
-        super("Nancy Wheeler", 105, 105, 12, 0);
+        super("Nancy Wheeler", 105, 105, 12);
     }
 
 }

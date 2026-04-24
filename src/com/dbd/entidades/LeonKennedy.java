@@ -45,7 +45,7 @@ public class LeonKennedy extends Personaje {
      * </p>
      */
     public LeonKennedy() {
-        super("Leon Kennedy", 105, 105, 15, 0);
+        super("Leon Kennedy", 105, 105, 15);
     }
 
     /**
