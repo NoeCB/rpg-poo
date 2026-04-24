@@ -3,14 +3,15 @@ package com.dbd.arma;
 /**
  * Representa un arma de tipo melee.
  * <p>
- * Esta clase es una implementación concreta de {@link Arma}. 
- * Se caracteriza por realizar un cameo al juego ya que los supervivientes usan las linternas para cegar al killer.
+ * Esta clase es una implementación concreta de {@link Arma}.
+ * Se caracteriza por realizar un cameo al juego ya que los supervivientes usan
+ * las linternas para cegar al killer.
  * </p>
  * * @author Noelia Cantador y Luis Lázaro.
+ * 
  * @version 1.0
  * @see Arma
  */
-
 
 public class Motosierra extends Arma {
     /**
@@ -25,12 +26,8 @@ public class Motosierra extends Arma {
      * </p>
      */
     public Motosierra() {
-       
+
         super("Motosierra", 40, 50);
     }
 
-    @Override
-    public void usar() {
-      
-    }
 }

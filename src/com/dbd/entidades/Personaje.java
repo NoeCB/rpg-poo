@@ -7,14 +7,20 @@ import com.dbd.habilidades.Perk;
 import java.util.ArrayList;
 
 /**
- * Clase abstracta que define la estructura y el comportamiento base de cualquier personaje en el juego.
+ * Clase abstracta que define la estructura y el comportamiento base de
+ * cualquier personaje en el juego.
  * <p>
- * Gestiona los atributos de combate (vida, defensa), el sistema de estados alterados,
- * el inventario de habilidades (perks) y la lógica de inteligencia artificial para las acciones.
+ * Gestiona los atributos de combate (vida, defensa), el sistema de estados
+ * alterados,
+ * el inventario de habilidades (perks) y la lógica de inteligencia artificial
+ * para las acciones.
  * </p>
- * Esta clase implementa un sistema de combate asimétrico donde supervivientes y asesinos tienen
- * mecánicas diferentes para mantener el equilibrio del juego. Por ejemplo, los supervivientes
- * tienen mayor probabilidad de evasión pero menos vida, mientras que los asesinos son más resistentes.
+ * Esta clase implementa un sistema de combate asimétrico donde supervivientes y
+ * asesinos tienen
+ * mecánicas diferentes para mantener el equilibrio del juego. Por ejemplo, los
+ * supervivientes
+ * tienen mayor probabilidad de evasión pero menos vida, mientras que los
+ * asesinos son más resistentes.
  * </p>
  *
  * @author Noelia Cantador y Luis Lázaro
@@ -22,31 +28,41 @@ import java.util.ArrayList;
  */
 public abstract class Personaje {
     protected String nombrePersonaje;
-    
+
     /** Puntos de vida actuales del personaje. Se reduce cuando recibe daño. */
     protected int vidaActual;
-    
+
     /** Cantidad máxima de puntos de vida que puede tener el personaje. */
     protected int vidaMax;
-    
-    /** Valor de defensa base que reduce el daño recibido. Se calcula como defensaBase / 5. */
+
+    /**
+     * Valor de defensa base que reduce el daño recibido. Se calcula como
+     * defensaBase / 5.
+     */
     protected int defensaBase;
 
-    /** Lista de estados alterados aplicados al personaje (hemorragia, ceguera, etc.). */
+    /**
+     * Lista de estados alterados aplicados al personaje (hemorragia, ceguera,
+     * etc.).
+     */
     protected ArrayList<Estado> estados;
-    
+
     /** Lista de habilidades especiales (Perks) equipadas del personaje. */
     protected ArrayList<Perk> perks;
-    
+
     /** Arma equipada actualmente. Puede ser null si el personaje está desarmado. */
     protected Arma arma;
 
-    /** Bandera que indica si el personaje está en postura defensiva, reduciendo daño recibido. */
+    /**
+     * Bandera que indica si el personaje está en postura defensiva, reduciendo daño
+     * recibido.
+     */
     protected boolean defendiendo = false;
 
     /**
      * Constructor que inicializa un personaje con sus atributos base.
-     * Crea las listas vacías de estados y perks, así como establece el arma en null.
+     * Crea las listas vacías de estados y perks, así como establece el arma en
+     * null.
      *
      * @param nombrePersonaje Nombre único del personaje
      * @param vidaActual Vida inicial (generalmente igual a vidaMax)
@@ -61,20 +77,25 @@ public abstract class Personaje {
         this.estados = new ArrayList<>();
         this.perks = new ArrayList<>();
     }
+
     /**
      * Determina el bando del personaje basándose en su salud máxima.
-     * Los supervivientes se identifican por tener una vida máxima igual o inferior a 130.
+     * Los supervivientes se identifican por tener una vida máxima igual o inferior
+     * a 130.
      * Esta diferencia es crucial para el sistema asimétrico: proporciona diferentes
      * probabilidades de evasión, daño base sin arma, etc.
      *
-     * @return {@code true} si es superviviente, {@code false} si es asesino (killer)
+     * @return {@code true} si es superviviente, {@code false} si es asesino
+     *         (killer)
      */
     private boolean esSuperviviente() {
         return this.vidaMax <= 130;
     }
-        /**
+
+    /**
      * Añade una nueva habilidad (Perk) al repertorio del personaje.
-     * Las habilidades pueden ser usadas durante el combate para obtener ventajas tácticas.
+     * Las habilidades pueden ser usadas durante el combate para obtener ventajas
+     * tácticas.
      *
      * @param p La habilidad a equipar. Debe ser una instancia de Perk válida
      */
@@ -165,7 +186,8 @@ public abstract class Personaje {
 
     /**
      * Establece si el personaje está en postura defensiva.
-     * Una postura defensiva reduce el daño recibido a la mitad en el siguiente ataque.
+     * Una postura defensiva reduce el daño recibido a la mitad en el siguiente
+     * ataque.
      *
      * @param defendiendo true si adopta postura defensiva, false en caso contrario
      */
@@ -214,21 +236,20 @@ public abstract class Personaje {
     }
 
     /**
-     * Método abstracto que define la acción específica del personaje.
-     * Debe ser implementado por cada subclase (superviviente o killer).
-     */
-    public abstract void accion();
-
-    /**
      * Gestiona la recepción de daño aplicando mitigaciones y lógica asimétrica.
      * <p>
      * El proceso de cálculo sigue este orden:
      * <ol>
-     * <li><strong>Evasión</strong>: 20% para supervivientes, 5% para asesinos. Si se esquiva, no se recibe daño.</li>
-     * <li><strong>Bloqueo Activo</strong>: Si está defendiendo, reduce el daño a la mitad (50% de mitigación).</li>
-     * <li><strong>Armadura Pasiva</strong>: Reduce daño en defensaBase / 5 puntos.</li>
-     * <li><strong>Daño Mínimo</strong>: El daño final siempre es mínimo de 5 puntos (previene OP turtle).</li>
-     * <li><strong>Cálculo Final</strong>: vidaActual se reduce por daño final, con mínimo de 0.</li>
+     * <li><strong>Evasión</strong>: 20% para supervivientes, 5% para asesinos. Si
+     * se esquiva, no se recibe daño.</li>
+     * <li><strong>Bloqueo Activo</strong>: Si está defendiendo, reduce el daño a la
+     * mitad (50% de mitigación).</li>
+     * <li><strong>Armadura Pasiva</strong>: Reduce daño en defensaBase / 5
+     * puntos.</li>
+     * <li><strong>Daño Mínimo</strong>: El daño final siempre es mínimo de 5 puntos
+     * (previene OP turtle).</li>
+     * <li><strong>Cálculo Final</strong>: vidaActual se reduce por daño final, con
+     * mínimo de 0.</li>
      * </ol>
      * </p>
      *
@@ -282,21 +303,30 @@ public abstract class Personaje {
     }
 
     /**
-     * Lógica de toma de decisiones para personajes controlados por la inteligencia artificial.
+     * Lógica de toma de decisiones para personajes controlados por la inteligencia
+     * artificial.
      * <p>
      * La IA evalúa múltiples factores para decidir la acción más estratégica:
      * <ul>
-     * <li><strong>Estado de Salud</strong>: Si la vida es menor al 35% del máximo, el personaje entra en "Peligro".</li>
-     * <li><strong>Selección de Objetivo</strong>: 50% de probabilidad de atacar al enemigo más débil, 50% al azar.</li>
-     * <li><strong>Perks Disponibles</strong>: Se usan solo si tienen usos restantes (no están agotadas).</li>
-     * <li><strong>Probabilidad de Usar Perk</strong>: 25% en combate normal, 65% si está en peligro.</li>
-     * <li><strong>Defensa Desesperada</strong>: Si está en peligro y el dado indica >60, se defiende.</li>
-     * <li><strong>Ataque por Defecto</strong>: Si no usa Perk ni se defiende, ejecuta un ataque básico.</li>
+     * <li><strong>Estado de Salud</strong>: Si la vida es menor al 35% del máximo,
+     * el personaje entra en "Peligro".</li>
+     * <li><strong>Selección de Objetivo</strong>: 50% de probabilidad de atacar al
+     * enemigo más débil, 50% al azar.</li>
+     * <li><strong>Perks Disponibles</strong>: Se usan solo si tienen usos restantes
+     * (no están agotadas).</li>
+     * <li><strong>Probabilidad de Usar Perk</strong>: 25% en combate normal, 65% si
+     * está en peligro.</li>
+     * <li><strong>Defensa Desesperada</strong>: Si está en peligro y el dado indica
+     * >60, se defiende.</li>
+     * <li><strong>Ataque por Defecto</strong>: Si no usa Perk ni se defiende,
+     * ejecuta un ataque básico.</li>
      * </ul>
      * </p>
      *
-     * @param aliados Lista de personajes del mismo bando (se usa para contexto futuro)
-     * @param enemigos Lista de personajes del bando contrario, de los cuales se selecciona objetivo
+     * @param aliados  Lista de personajes del mismo bando (se usa para contexto
+     *                 futuro)
+     * @param enemigos Lista de personajes del bando contrario, de los cuales se
+     *                 selecciona objetivo
      */
     public void decidirAccionIA(ArrayList<Personaje> aliados, ArrayList<Personaje> enemigos) {
         this.defendiendo = false;
@@ -358,15 +388,19 @@ public abstract class Personaje {
      * <p>
      * El ataque puede ser:
      * <ul>
-     * <li><strong>Con Arma</strong>: Usa precisión, daño base y añade varianza (±2). Si falla por precisión, se anuncia.</li>
+     * <li><strong>Con Arma</strong>: Usa precisión, daño base y añade varianza
+     * (±2). Si falla por precisión, se anuncia.</li>
      * <li><strong>Sin Arma (Desarmado)</strong>: Daño asimétrico según bando:
-     *   <ul>
-     *   <li>Supervivientes: 20-34 daño (compensan baja salud con daño alto en grupo)</li>
-     *   <li>Asesinos: 12-21 daño (tienen mucha vida, menos necesidad de daño puro)</li>
-     *   </ul>
+     * <ul>
+     * <li>Supervivientes: 20-34 daño (compensan baja salud con daño alto en
+     * grupo)</li>
+     * <li>Asesinos: 12-21 daño (tienen mucha vida, menos necesidad de daño
+     * puro)</li>
+     * </ul>
      * </li>
      * </ul>
      * </p>
+     * 
      * @param rival El personaje rival que recibirá el impacto
      */
     private void atacarBasico(Personaje rival) {
@@ -379,7 +413,6 @@ public abstract class Personaje {
             System.out.println(
                     Util.AMARILLO + this.nombrePersonaje + " se prepara para usar su " + this.arma.getNombreArma()
                             + " contra " + rival.getNombrePersonaje() + "!" + Util.RESET);
-            this.arma.usar();
 
             if (dadoPrecision <= this.arma.getPrecision()) {
                 // El ataque acierta

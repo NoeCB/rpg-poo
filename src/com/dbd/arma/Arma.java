@@ -1,22 +1,26 @@
 package com.dbd.arma;
+
 /**
- * Representa la base (superclase)  para cualquier tipo de armamento en el juego.
+ * Representa la base (superclase) para cualquier tipo de armamento en el juego.
  * Al ser una clase abstracta, no se pueden crear instancias directas de ella.
  * * @author Noelia Cantador y Luis Lázaro
+ * 
  * @version 1.0
  */
 public abstract class Arma {
-    /** Nombre  del arma. */
+    /** Nombre del arma. */
     protected String nombreArma;
     /** Cantidad de daño que inflige el arma */
     protected int danioBase;
     /** Probabilidad de acierto del 0-100 */
     protected int precision;
+
     /**
      * Constructor principal para inicializar un arma.
      * * @param nombreArma El nombre que recibirá el arma.
-     * @param danioBase  El valor de daño base.
-     * @param precision  El porcentaje de eficacia en el golpe.
+     * 
+     * @param danioBase El valor de daño base.
+     * @param precision El porcentaje de eficacia en el golpe.
      */
 
     public Arma(String nombreArma, int danioBase, int precision) {
@@ -24,6 +28,7 @@ public abstract class Arma {
         this.danioBase = danioBase;
         this.precision = precision;
     }
+
     /**
      * Getters y setters de esta clase con sus atributos correspondientes
      * 
@@ -52,9 +57,5 @@ public abstract class Arma {
     public void setPrecision(int precision) {
         this.precision = precision;
     }
-/**
-     * Método abstracto que define la acción principal al utilizar el arma.
-     * Cada subclase debe implementar su propia lógica de ataque o uso.
-     */
-    public abstract void usar();
+
 }

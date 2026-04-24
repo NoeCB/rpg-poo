@@ -12,8 +12,4 @@ public class CuchillaOculta extends Arma {
         super("Cuchilla Oculta", 16, 95);
     }
 
-    @Override
-    public void usar() {
-        System.out.println("SNAP! La cuchilla emerge y penetra la carne antes de que la víctima reaccione.");
-    }
 }

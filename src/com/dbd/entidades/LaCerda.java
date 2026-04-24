@@ -14,8 +14,4 @@ public class LaCerda extends Personaje {
         super("La Cerda", 145, 145, 18);
     }
 
-    @Override
-    public void accion() {
-        System.out.println(this.nombrePersonaje + " prepara una de sus macabras trampas para osos invertidas en silencio.");
-    }
 }

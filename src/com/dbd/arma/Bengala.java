@@ -13,8 +13,4 @@ public class Bengala extends Arma {
         super("Bengala", 8, 95);
     }
 
-    @Override
-    public void usar() {
-        System.out.println("¡Una luz roja intensa ilumina el campo de batalla, deslumbrando y quemando!");
-    }
 }

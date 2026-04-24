@@ -12,8 +12,5 @@ public class CuchilloDeCarnicero extends Arma {
         super("Cuchillo de Carnicero", 22, 80);
     }
 
-    @Override
-    public void usar() {
-        System.out.println("Un tajo brutal desciende trazando un arco mortal.");
-    }
+
 }
