@@ -306,6 +306,15 @@ public class MotorTrial {
         System.out.println(VERDE + "¡SIMULACIÓN LISTA!" + RESET);
     }
 
+    public void iniciarPersonalizado(ArrayList<Personaje> survis, ArrayList<Personaje> kills) {
+        this.supervivientes = survis;
+        this.killers = kills;
+        System.out.println(MORADO + "\n LA ENTIDAD HA ACEPTADO LA SELECCIÓN PERSONALIZADA..." + RESET);
+        repartirPerks();
+        repartirArmas();
+        System.out.println(VERDE + "¡SIMULACIÓN LISTA!" + RESET);
+    }
+
     private void repartirArmas() {
         ArrayList<Arma> armasSolamenteSurvis = new ArrayList<>();
         armasSolamenteSurvis.add(new Pistola()); armasSolamenteSurvis.add(new Conjuro());

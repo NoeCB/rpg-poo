@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBD RPG - La Prueba de la Entidad</title>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="overlay" class="overlay">
+        <div class="hero-content">
+            <div class="rpg-header">
+
+                <span class="rpg-text">Dead by Daylight</span>
+
+            </div>
+
+            <p class="hero-subtitle">¿Podrás protegerte? RPG basado en el universo de Dead by Daylight</p>
+            <div class="hero-buttons">
+                <button id="btn-enter" class="btn-primary">ENTRA AL JUEGO</button>
+                <button id="btn-fame" class="btn-secondary">SALÓN DE LA FAMA</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA: SALÓN DE LA FAMA -->
+    <div id="hall-of-fame-container" class="hall-of-fame-container hidden">
+        <header class="roster-header">
+            <div class="roster-title-area">
+                <span class=""></span>
+                <h2>SALÓN DE LA FAMA</h2>
+            </div>
+            <p class="roster-subtitle">Tus logros y estadísticas desde la Base de Datos</p>
+        </header>
+
+        <div id="stats-grid" class="roster-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        </div>
+
+        <div class="roster-footer">
+            <button id="btn-back-home" class="btn-primary">VOLVER AL INICIO</button>
+        </div>
+    </div>
+
+    <div id="roster-container" class="roster-container hidden">
+        <header class="roster-header">
+            <div class="roster-title-area">
+                <h2>SELECCIÓN DE PERSONAJES</h2>
+            </div>
+            <p class="roster-subtitle">Selecciona tus personajes y empieza a jugar</p>
+            <div class="role-tabs">
+                <button id="tab-killers" class="role-tab active" onclick="switchTab('killers')"> KILLERS</button>
+                <button id="tab-survivors" class="role-tab" onclick="switchTab('survivors')">SURVIVORS</button>
+            </div>
+        </header>
+
+        <div id="roster-grid" class="roster-grid">
+        </div>
+
+        <div class="roster-footer">
+            <button id="btn-start-match" class="btn-primary">CONFIRMAR Y EMPEZAR PARTIDA</button>
+        </div>
+    </div>
+
+    <main class="game-container hidden" id="game-container">
+        <section class="team-panel survi-panel">
+            <h2>SUPERVIVIENTES</h2>
+            <div id="survi-list" class="character-list"></div>
+        </section>
+
+        <section class="center-panel">
+            <div class="combat-log" id="combat-log">
+                <p class="system-msg">Esperando a que empiece la partida...</p>
+            </div>
+
+            <div class="controls" id="controls">
+                <h3>ACCIONES</h3>
+                <div class="action-grid">
+                    <button class="btn-action btn-attack" onclick="setMode('ATACAR')"> ATACAR</button>
+                    <button class="btn-action btn-defend" onclick="ejecutarDefensa()"> DEFENDER</button>
+                    <button class="btn-action btn-perk" onclick="setMode('PERK')"> USAR PERK</button>
+                </div>
+
+                <div id="target-selection" class="target-selection hidden">
+                    <p id="target-prompt">Selecciona tu objetivo:</p>
+                    <div id="target-list" class="target-buttons"></div>
+                    <button class="btn-cancel" onclick="cancelMode()">Cancelar</button>
+                </div>
+
+                <div id="perk-selection" class="perk-selection hidden">
+                    <p>Selecciona la Perk a utilizar:</p>
+                    <div id="perk-list" class="perk-buttons"></div>
+                    <button class="btn-cancel" onclick="cancelMode()">Cancelar</button>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 10px;">
+                <button class="btn-secondary" onclick="location.reload()">VOLVER AL INICIO</button>
+            </div>
+        </section>
+
+        <section class="team-panel killer-panel">
+            <h2>KILLERS</h2>
+            <div id="killer-list" class="character-list"></div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

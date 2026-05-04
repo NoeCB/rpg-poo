@@ -357,7 +357,161 @@ public class GestorPersistencia {
             }
             System.out.println(AMARILLO + "========================================\n" + RESET);
         } catch (SQLException e) {
+<<<<<<< Updated upstream:src/com/dbd/dao/GestorPersistencia.java
             e.printStackTrace();
+=======
+            UtilDAO.imprimirErrorSQL(e);
+        }
+    }
+
+    public com.dbd.dto.StatsResponse obtenerEstadisticasGlobales() {
+        com.dbd.dto.StatsResponse response = new com.dbd.dto.StatsResponse();
+        String sqlFaccion = "SELECT faccion, victorias FROM ESTADISTICAS_GLOBALES";
+        String sqlHist = "SELECT COUNT(*) as totales, AVG(rondas_totales) as media_rondas FROM HISTORICO_PARTIDAS";
+
+        try (Connection con = dataSource.getConnection()) {
+            try (PreparedStatement pst1 = con.prepareStatement(sqlFaccion);
+                 ResultSet rs1 = pst1.executeQuery()) {
+                while (rs1.next()) {
+                    String faccion = rs1.getString("faccion");
+                    int victorias = rs1.getInt("victorias");
+                    if ("Killers".equalsIgnoreCase(faccion)) {
+                        response.setVictoriasKillers(victorias);
+                    } else if ("Supervivientes".equalsIgnoreCase(faccion)) {
+                        response.setVictoriasSurvis(victorias);
+                    }
+                }
+            }
+            try (PreparedStatement pst2 = con.prepareStatement(sqlHist);
+                 ResultSet rs2 = pst2.executeQuery()) {
+                if (rs2.next()) {
+                    response.setPartidasTotales(rs2.getInt("totales"));
+                    response.setMediaRondas(rs2.getDouble("media_rondas"));
+                }
+            }
+        } catch (SQLException e) {
+            UtilDAO.imprimirErrorSQL(e);
+        }
+        return response;
+    }
+
+    /**
+     * Guarda los resultados de una partida finalizada en el historial absoluto.
+     */
+    public void guardarEnHistorico(String modoJuego, int rondas, String bandoGanador, ArrayList<Personaje> survis,
+            ArrayList<Personaje> killers) {
+        String sqlHistPartida = "INSERT INTO HISTORICO_PARTIDAS (modo_juego, rondas_totales, bando_ganador) VALUES (?, ?, ?)";
+        String sqlHistPers = "INSERT INTO HISTORICO_PERSONAJES (id_hist_partida, nombre, bando, vida_final) VALUES (?, ?, ?, ?)";
+
+        try (Connection con = dataSource.getConnection()) {
+            con.setAutoCommit(false);
+            int idHist = -1;
+
+            try (PreparedStatement pst1 = con.prepareStatement(sqlHistPartida, Statement.RETURN_GENERATED_KEYS)) {
+                pst1.setString(1, modoJuego);
+                pst1.setInt(2, rondas);
+                pst1.setString(3, bandoGanador);
+                pst1.executeUpdate();
+                ResultSet rs = pst1.getGeneratedKeys();
+                if (rs.next())
+                    idHist = rs.getInt(1);
+            }
+
+            if (idHist != -1) {
+                try (PreparedStatement pst2 = con.prepareStatement(sqlHistPers)) {
+                    for (Personaje p : survis) {
+                        pst2.setInt(1, idHist);
+                        pst2.setString(2, p.getNombrePersonaje());
+                        pst2.setString(3, "superviviente");
+                        pst2.setInt(4, p.getVidaActual());
+                        pst2.addBatch();
+                    }
+                    for (Personaje p : killers) {
+                        pst2.setInt(1, idHist);
+                        pst2.setString(2, p.getNombrePersonaje());
+                        pst2.setString(3, "killer");
+                        pst2.setInt(4, p.getVidaActual());
+                        pst2.addBatch();
+                    }
+                    pst2.executeBatch();
+                }
+            }
+            con.commit();
+            System.out.println(
+                    MORADO + "[HISTÓRICO] La partida ha sido archivada por el Ente para toda la eternidad." + RESET);
+
+            // Comprobación de logros por cantidad de partidas
+            comprobarLogrosDeCantidadPartidas();
+
+        } catch (SQLException e) {
+            System.out.println(ROJO + "Error al guardar en el histórico absoluto." + RESET);
+            UtilDAO.imprimirErrorSQL(e);
+        }
+    }
+
+    /**
+     * Desbloquea un logro en la base de datos si no lo estaba.
+     */
+    public void desbloquearLogro(int idLogro) {
+        String sql = "UPDATE LOGROS SET conseguido = TRUE WHERE id_logro = ? AND conseguido = FALSE";
+        try (Connection con = dataSource.getConnection();
+                PreparedStatement pst = con.prepareStatement(sql)) {
+            pst.setInt(1, idLogro);
+            int filas = pst.executeUpdate();
+            if (filas > 0) {
+                // Para saber el nombre y avisar
+                try (PreparedStatement pst2 = con.prepareStatement("SELECT nombre FROM LOGROS WHERE id_logro = ?")) {
+                    pst2.setInt(1, idLogro);
+                    ResultSet rs = pst2.executeQuery();
+                    if (rs.next()) {
+                        System.out.println(AMARILLO + "\n¡LOGRO DESBLOQUEADO: " + rs.getString("nombre") + "!" + RESET);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            UtilDAO.imprimirErrorSQL(e);
+        }
+    }
+
+    /**
+     * Carga todos los logros.
+     */
+    public ArrayList<Logro> cargarLogros() {
+        ArrayList<Logro> lista = new ArrayList<>();
+        String sql = "SELECT * FROM LOGROS";
+        try (Connection con = dataSource.getConnection();
+                PreparedStatement pst = con.prepareStatement(sql);
+                ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                lista.add(new Logro(rs.getInt("id_logro"), rs.getString("nombre"), rs.getString("descripcion"),
+                        rs.getBoolean("conseguido")));
+            }
+        } catch (SQLException e) {
+            UtilDAO.imprimirErrorSQL(e);
+        }
+        return lista;
+    }
+
+    /**
+     * Comprueba si se ha llegado a 1, 5 o 10 partidas.
+     */
+    private void comprobarLogrosDeCantidadPartidas() {
+        String sql = "SELECT COUNT(*) as totales FROM HISTORICO_PARTIDAS";
+        try (Connection con = dataSource.getConnection();
+                PreparedStatement pst = con.prepareStatement(sql);
+                ResultSet rs = pst.executeQuery()) {
+            if (rs.next()) {
+                int totales = rs.getInt("totales");
+                if (totales >= 1)
+                    desbloquearLogro(13); // El ente despierta
+                if (totales >= 5)
+                    desbloquearLogro(19); // Veterano
+                if (totales >= 10)
+                    desbloquearLogro(20); // Maestro del terror
+            }
+        } catch (SQLException e) {
+            UtilDAO.imprimirErrorSQL(e);
+>>>>>>> Stashed changes:src/main/java/com/dbd/dao/GestorPersistencia.java
         }
     }
 }
