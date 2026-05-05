@@ -35,6 +35,14 @@ public class MotorTrial {
         this.killers = k;
     }
 
+    public ArrayList<Personaje> getSupervivientes() {
+        return supervivientes;
+    }
+
+    public ArrayList<Personaje> getKillers() {
+        return killers;
+    }
+
     /**
      * Muestra un Resumen Táctico después de cargar exitosamente de la base de datos.
      */

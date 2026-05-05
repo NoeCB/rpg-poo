@@ -1,6 +1,7 @@
 package com.dbd.dao;
 
 import com.dbd.entidades.Personaje;
+import com.dbd.entidades.Logro;
 import com.dbd.arma.Arma;
 import com.dbd.habilidades.Perk;
 import com.dbd.estados.Estado;
@@ -12,10 +13,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import org.springframework.stereotype.Repository;
 
 /**
  * Gestor Data Access Object (DAO) para persistir la partida en Slots fijos.
  */
+@Repository
 public class GestorPersistencia {
 
     /**
@@ -357,10 +360,7 @@ public class GestorPersistencia {
             }
             System.out.println(AMARILLO + "========================================\n" + RESET);
         } catch (SQLException e) {
-<<<<<<< Updated upstream:src/com/dbd/dao/GestorPersistencia.java
             e.printStackTrace();
-=======
-            UtilDAO.imprimirErrorSQL(e);
         }
     }
 
@@ -369,7 +369,7 @@ public class GestorPersistencia {
         String sqlFaccion = "SELECT faccion, victorias FROM ESTADISTICAS_GLOBALES";
         String sqlHist = "SELECT COUNT(*) as totales, AVG(rondas_totales) as media_rondas FROM HISTORICO_PARTIDAS";
 
-        try (Connection con = dataSource.getConnection()) {
+        try (Connection con = ConexionDB.getConnection()) {
             try (PreparedStatement pst1 = con.prepareStatement(sqlFaccion);
                  ResultSet rs1 = pst1.executeQuery()) {
                 while (rs1.next()) {
@@ -390,7 +390,7 @@ public class GestorPersistencia {
                 }
             }
         } catch (SQLException e) {
-            UtilDAO.imprimirErrorSQL(e);
+            e.printStackTrace();
         }
         return response;
     }
@@ -403,7 +403,7 @@ public class GestorPersistencia {
         String sqlHistPartida = "INSERT INTO HISTORICO_PARTIDAS (modo_juego, rondas_totales, bando_ganador) VALUES (?, ?, ?)";
         String sqlHistPers = "INSERT INTO HISTORICO_PERSONAJES (id_hist_partida, nombre, bando, vida_final) VALUES (?, ?, ?, ?)";
 
-        try (Connection con = dataSource.getConnection()) {
+        try (Connection con = ConexionDB.getConnection()) {
             con.setAutoCommit(false);
             int idHist = -1;
 
@@ -445,7 +445,7 @@ public class GestorPersistencia {
 
         } catch (SQLException e) {
             System.out.println(ROJO + "Error al guardar en el histórico absoluto." + RESET);
-            UtilDAO.imprimirErrorSQL(e);
+            e.printStackTrace();
         }
     }
 
@@ -454,7 +454,7 @@ public class GestorPersistencia {
      */
     public void desbloquearLogro(int idLogro) {
         String sql = "UPDATE LOGROS SET conseguido = TRUE WHERE id_logro = ? AND conseguido = FALSE";
-        try (Connection con = dataSource.getConnection();
+        try (Connection con = ConexionDB.getConnection();
                 PreparedStatement pst = con.prepareStatement(sql)) {
             pst.setInt(1, idLogro);
             int filas = pst.executeUpdate();
@@ -469,7 +469,7 @@ public class GestorPersistencia {
                 }
             }
         } catch (SQLException e) {
-            UtilDAO.imprimirErrorSQL(e);
+            e.printStackTrace();
         }
     }
 
@@ -479,7 +479,7 @@ public class GestorPersistencia {
     public ArrayList<Logro> cargarLogros() {
         ArrayList<Logro> lista = new ArrayList<>();
         String sql = "SELECT * FROM LOGROS";
-        try (Connection con = dataSource.getConnection();
+        try (Connection con = ConexionDB.getConnection();
                 PreparedStatement pst = con.prepareStatement(sql);
                 ResultSet rs = pst.executeQuery()) {
             while (rs.next()) {
@@ -487,7 +487,7 @@ public class GestorPersistencia {
                         rs.getBoolean("conseguido")));
             }
         } catch (SQLException e) {
-            UtilDAO.imprimirErrorSQL(e);
+            e.printStackTrace();
         }
         return lista;
     }
@@ -497,7 +497,7 @@ public class GestorPersistencia {
      */
     private void comprobarLogrosDeCantidadPartidas() {
         String sql = "SELECT COUNT(*) as totales FROM HISTORICO_PARTIDAS";
-        try (Connection con = dataSource.getConnection();
+        try (Connection con = ConexionDB.getConnection();
                 PreparedStatement pst = con.prepareStatement(sql);
                 ResultSet rs = pst.executeQuery()) {
             if (rs.next()) {
@@ -510,8 +510,7 @@ public class GestorPersistencia {
                     desbloquearLogro(20); // Maestro del terror
             }
         } catch (SQLException e) {
-            UtilDAO.imprimirErrorSQL(e);
->>>>>>> Stashed changes:src/main/java/com/dbd/dao/GestorPersistencia.java
+            e.printStackTrace();
         }
     }
 }

@@ -10,8 +10,9 @@ import java.util.ArrayList;
 
 @Service
 public class TrialService {
-    
-    // Instancia única temporal para la Fase 1. (En el futuro esto irá a BBDD/Sesión).
+
+    // Instancia única temporal para la Fase 1. (En el futuro esto irá a
+    // BBDD/Sesión).
     private MotorTrial motor;
 
     public GameStateResponse iniciarPartidaAleatoria() {
@@ -24,7 +25,7 @@ public class TrialService {
     public GameStateResponse iniciarPartidaPersonalizada(com.dbd.dto.CustomStartRequest request) {
         motor = new MotorTrial();
         motor.configurarPartida();
-        
+
         ArrayList<Personaje> survis = new ArrayList<>();
         ArrayList<Personaje> killers = new ArrayList<>();
 
@@ -46,29 +47,47 @@ public class TrialService {
 
     private Personaje mapSurvivor(String id) {
         switch (id) {
-            case "s1": return new com.dbd.entidades.AdaWong();
-            case "s2": return new com.dbd.entidades.FengMin();
-            case "s3": return new com.dbd.entidades.Mikaela();
-            case "s4": return new com.dbd.entidades.Nancy();
-            case "s5": return new com.dbd.entidades.LeonKennedy();
-            case "s6": return new com.dbd.entidades.SableWard();
-            case "s7": return new com.dbd.entidades.LaraCroft();
-            case "s8": return new com.dbd.entidades.SteveHarrington();
-            default: return new com.dbd.entidades.LeonKennedy(); // fallback
+            case "s1":
+                return new com.dbd.entidades.AdaWong();
+            case "s2":
+                return new com.dbd.entidades.FengMin();
+            case "s3":
+                return new com.dbd.entidades.Mikaela();
+            case "s4":
+                return new com.dbd.entidades.Nancy();
+            case "s5":
+                return new com.dbd.entidades.LeonKennedy();
+            case "s6":
+                return new com.dbd.entidades.SableWard();
+            case "s7":
+                return new com.dbd.entidades.LaraCroft();
+            case "s8":
+                return new com.dbd.entidades.SteveHarrington();
+            default:
+                return new com.dbd.entidades.LeonKennedy(); // fallback
         }
     }
 
     private Personaje mapKiller(String id) {
         switch (id) {
-            case "k1": return new com.dbd.entidades.GhostFace();
-            case "k2": return new com.dbd.entidades.Legion();
-            case "k3": return new com.dbd.entidades.Animatronico();
-            case "k4": return new com.dbd.entidades.LaCerda();
-            case "k5": return new com.dbd.entidades.Onryo();
-            case "k6": return new com.dbd.entidades.Wesker();
-            case "k7": return new com.dbd.entidades.Ghoul();
-            case "k8": return new com.dbd.entidades.Chucky();
-            default: return new com.dbd.entidades.GhostFace(); // fallback
+            case "k1":
+                return new com.dbd.entidades.GhostFace();
+            case "k2":
+                return new com.dbd.entidades.Legion();
+            case "k3":
+                return new com.dbd.entidades.Animatronico();
+            case "k4":
+                return new com.dbd.entidades.LaCerda();
+            case "k5":
+                return new com.dbd.entidades.Onryo();
+            case "k6":
+                return new com.dbd.entidades.Wesker();
+            case "k7":
+                return new com.dbd.entidades.Ghoul();
+            case "k8":
+                return new com.dbd.entidades.Chucky();
+            default:
+                return new com.dbd.entidades.GhostFace(); // fallback
         }
     }
 
@@ -81,7 +100,8 @@ public class TrialService {
         ArrayList<Personaje> rivales;
 
         // Por simplicidad, asumimos que "ATACAR" indica que es el turno actual
-        // En una implementación real, tendríamos que saber si el atacante es Survi o Killer
+        // En una implementación real, tendríamos que saber si el atacante es Survi o
+        // Killer
         // Vamos a deducirlo buscando el personaje en las listas
         Personaje actor = null;
         Personaje objetivo = null;
@@ -125,7 +145,8 @@ public class TrialService {
                     var perk = actor.getPerks().get(request.getPerkIndex());
                     perk.lanzar(actor, objetivo);
                     perk.consumirUso();
-                    logAction = actor.getNombrePersonaje() + " usó " + perk.getNombre() + " en " + objetivo.getNombrePersonaje();
+                    logAction = actor.getNombrePersonaje() + " usó " + perk.getNombre() + " en "
+                            + objetivo.getNombrePersonaje();
                 }
                 break;
         }

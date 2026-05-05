@@ -60,14 +60,35 @@ async function cargarLogros() {
         const pctKillers = Math.round((stats.victoriasKillers / total) * 100);
         const pctSurvis = Math.round((stats.victoriasSurvis / total) * 100);
 
+        // Lógica de logros dinámicos
+        const logros = [];
+        if (stats.partidasTotales >= 1) logros.push({ nombre: 'Primera Sangre', desc: 'Juega tu primera partida', icono: '🩸' });
+        if (stats.partidasTotales >= 10) logros.push({ nombre: 'Veterano de la Niebla', desc: 'Juega 10 partidas totales', icono: '🌫️' });
+        if (stats.victoriasKillers >= 5) logros.push({ nombre: 'Asesino Despiadado', desc: 'Alcanza 5 victorias como Killer', icono: '🔪' });
+        if (stats.victoriasSurvis >= 5) logros.push({ nombre: 'Superviviente Nato', desc: 'Alcanza 5 victorias como Survi', icono: '🏃' });
+        if (stats.mediaRondas >= 5) logros.push({ nombre: 'Resistencia', desc: 'Mantén una media de 5 rondas', icono: '⏳' });
+
+        if (logros.length === 0) {
+            logros.push({ nombre: 'Aún no hay logros', desc: 'Sigue jugando para desbloquear tu primer logro', icono: '🔒' });
+        }
+
+        let logrosHTML = '<div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-top: 15px;">';
+        logros.forEach(l => {
+            logrosHTML += `
+                <div style="background: rgba(0,0,0,0.6); border: 1px solid #444; border-radius: 8px; padding: 15px; width: 180px; text-align: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+                    <div style="font-size: 2.5rem;">${l.icono}</div>
+                    <div style="font-weight: bold; color: #ffd700; margin: 10px 0 5px 0;">${l.nombre}</div>
+                    <div style="font-size: 0.85rem; color: #bbb;">${l.desc}</div>
+                </div>
+            `;
+        });
+        logrosHTML += '</div>';
+
         grid.innerHTML = `
-            <div class="roster-card" style="grid-column: 1 / -1; cursor: default;">
+            <div class="roster-card" style="grid-column: 1 / -1; cursor: default; background: rgba(20,20,20,0.8);">
                 <div class="roster-info" style="text-align: center;">
-                    <h3 class="roster-name" style="margin-bottom: 15px; font-size: 1.5rem;">DOMINIO DE FACCIÓN</h3>
-                    <div style="display: flex; height: 35px; border-radius: 8px; overflow: hidden; font-weight: bold; font-size: 1.1rem; line-height: 35px; box-shadow: 0 0 10px rgba(0,0,0,0.8);">
-                        <div style="width: ${pctSurvis}%; background: rgba(0, 210, 255, 0.8); text-align: left; padding-left: 15px; color: white;">Survis: ${pctSurvis}%</div>
-                        <div style="width: ${pctKillers}%; background: rgba(255, 51, 51, 0.8); text-align: right; padding-right: 15px; color: white;">Killers: ${pctKillers}%</div>
-                    </div>
+                    <h3 class="roster-name" style="margin-bottom: 10px; font-size: 1.8rem; color: #ffd700; letter-spacing: 2px;">🏆 LOGROS DESBLOQUEADOS 🏆</h3>
+                    ${logrosHTML}
                 </div>
             </div>
             <div class="roster-card" style="cursor: default;">

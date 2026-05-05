@@ -5,6 +5,7 @@ C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\killers\Malefic
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\service\TrialService.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\survis\Especialista.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\core\MotorTrial.java
+C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\entidades\Logro.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\entidades\Mikaela.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\main\Main.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\arma\VinculoDeCondena.java
@@ -12,9 +13,7 @@ C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\killers\EnNingu
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\survis\LoLograremos.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\arma\CajaDeHerramientas.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\estados\Ceguera.java
-C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\RpgApplication.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\entidades\LeonKennedy.java
-C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\core\Logro.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\killers\IntervencionCorrupta.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\estados\Regeneracion.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\survis\Finesse.java
@@ -27,12 +26,12 @@ C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\killers\Malefic
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\survis\Liberacion.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\survis\Parentesco.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\killers\TrucoDelVerdugo.java
+C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\RpgPooApplication.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\killers\Resistencia.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\arma\Pistola.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\killers\DespertarAncestral.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\killers\PimPamPum.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\killers\BarbacoaYChile.java
-C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\dao\UtilDAO.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\dto\ActionRequest.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\arma\Cuchillo.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\killers\Erupcion.java
@@ -63,7 +62,6 @@ C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\survis\AgenteEn
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\entidades\SableWard.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\entidades\LaraCroft.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\killers\AbrazoLugubre.java
-C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\core\SpringContextHolder.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\survis\Autocuracion.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\killers\PuntoMuerto.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\arma\Conjuro.java
@@ -73,6 +71,7 @@ C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\dto\CustomStartRequest.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\survis\DemuestraLoQueVales.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\killers\NadieEscapaDeLaMuerte.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\arma\GranadaCegadora.java
+C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\dao\ConexionDB.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\estados\Locura.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\controller\GameController.java
 C:\Users\noe29\rpg-poo\rpg-poo\src\main\java\com\dbd\habilidades\survis\Resiliencia.java
