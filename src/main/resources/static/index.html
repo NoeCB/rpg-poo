@@ -1,73 +1,158 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DBD RPG - La Prueba de la Entidad</title>
-    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@400;700&display=swap"
+        rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
+
 <body>
-    <div id="overlay" class="overlay">
-        <div class="modal">
-            <h1 class="creepy-title">EL ENTE DESPIERTA</h1>
-            <p>La prueba está a punto de comenzar. Selecciona para iniciar la cacería.</p>
-            <button id="btn-start" class="btn-primary">INICIAR SIMULACIÓN</button>
+
+    <!-- PANTALLA 0: Login -->
+    <section id="screen-login" class="screen active">
+        <div class="login-box">
+            <img src="/dbd_logo.png" alt="DBD Logo" class="dbd-logo">
+            <h1 class="dbd-title">DEAD BY DAYLIGHT - RPG</h1>
+            <div class="form-group">
+                <input type="text" id="username" placeholder="Nombre de Usuario" class="dbd-input">
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" placeholder="Contraseña" class="dbd-input">
+            </div>
+            <button onclick="awsAuthenticateUser()" class="btn-dbd">INICIAR SESIÓN</button>
         </div>
-    </div>
+    </section>
 
-    <header>
-        <h1 class="creepy-title">DEAD BY DAYLIGHT: RPG</h1>
-    </header>
-
-    <main class="game-container hidden" id="game-container">
-        
-        <!-- Área de Supervivientes -->
-        <section class="team-panel survi-panel">
-            <h2>SUPERVIVIENTES</h2>
-            <div id="survi-list" class="character-list">
-                <!-- Se inyectan por JS -->
+    <!-- PANTALLA 1: Menú Principal (The Lobby) -->
+    <section id="screen-lobby" class="screen">
+        <div class="lobby-content">
+            <img src="/dbd_logo.png" alt="DBD Logo" class="dbd-logo-large">
+            <h1 class="dbd-title">THE TRIALS OF THE POO</h1>
+            <div class="menu-buttons">
+                <button onclick="navToCampfire()" class="btn-dbd">INICIAR PRUEBA</button>
+                <button onclick="navToArchives()" class="btn-dbd">LOS ARCHIVOS (LOGROS)</button>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Centro: Controles y Log -->
-        <section class="center-panel">
-            <div class="combat-log" id="combat-log">
-                <p class="system-msg">Esperando a que empiece la partida...</p>
+    <!-- PANTALLA 2: Selección de Personaje (The Campfire) -->
+    <section id="screen-campfire" class="screen">
+        <header class="screen-header">
+            <h2 class="dbd-title">PREPARACIÓN</h2>
+            <div class="header-right">
+                <span id="selection-counter">Seleccionados: S(0/3) - K(0/3)</span>
+                <button onclick="navToLobby()" class="btn-secondary">VOLVER</button>
             </div>
-            
-            <div class="controls" id="controls">
-                <h3>ACCIONES</h3>
-                <div class="action-grid">
-                    <button class="btn-action btn-attack" onclick="setMode('ATACAR')">⚔️ ATACAR</button>
-                    <button class="btn-action btn-defend" onclick="ejecutarDefensa()">🛡️ DEFENDER</button>
-                    <button class="btn-action btn-perk" onclick="setMode('PERK')">✨ USAR PERK</button>
-                </div>
-                
-                <div id="target-selection" class="target-selection hidden">
-                    <p id="target-prompt">Selecciona tu objetivo:</p>
-                    <div id="target-list" class="target-buttons"></div>
-                    <button class="btn-cancel" onclick="cancelMode()">Cancelar</button>
-                </div>
-                
-                <div id="perk-selection" class="perk-selection hidden">
-                    <p>Selecciona la Perk a utilizar:</p>
-                    <div id="perk-list" class="perk-buttons"></div>
-                    <button class="btn-cancel" onclick="cancelMode()">Cancelar</button>
+        </header>
+
+        <div class="campfire-split">
+            <!-- Supervivientes (Izquierda) -->
+            <div class="team-side">
+                <h3 class="survi-color">SUPERVIVIENTES</h3>
+                <div id="survi-campfire-list" class="roster-grid">
+                    <!-- Se inyectan por JS -->
+                    <div class="loading">Cargando...</div>
                 </div>
             </div>
-        </section>
 
-        <!-- Área de Killers -->
-        <section class="team-panel killer-panel">
-            <h2>KILLERS</h2>
-            <div id="killer-list" class="character-list">
-                <!-- Se inyectan por JS -->
+            <div class="vs-divider">VS</div>
+
+            <!-- Asesinos (Derecha) -->
+            <div class="team-side">
+                <h3 class="killer-color">ASESINOS</h3>
+                <div id="killer-campfire-list" class="roster-grid">
+                    <!-- Se inyectan por JS -->
+                    <div class="loading">Cargando...</div>
+                </div>
             </div>
-        </section>
+        </div>
 
-    </main>
+        <div class="campfire-actions">
+            <button onclick="startManualTrial()" id="btn-start-trial" class="btn-dbd" disabled>ENTRAR A LA
+                NIEBLA</button>
+        </div>
+    </section>
 
-    <script src="app.js"></script>
+    <!-- PANTALLA 3: El Lienzo de Juego (The Trial RPG) -->
+    <section id="screen-trial" class="screen">
+        <header class="trial-header">
+            <h2 class="dbd-title">LA PRUEBA</h2>
+        </header>
+
+        <div class="trial-layout">
+            <!-- Izquierda: Estado de la partida -->
+            <aside class="sidebar-left">
+                <div class="live-team" id="live-survivors">
+                    <h4 class="survi-color">SUPERVIVIENTES</h4>
+                </div>
+                <div class="live-team" id="live-killers">
+                    <h4 class="killer-color">ASESINOS</h4>
+                </div>
+            </aside>
+
+            <!-- Centro: Escenario RPG y Combat Log -->
+            <main class="trial-center">
+                <div class="rpg-stage" id="combat-animation-area">
+                    <div id="stage-actor" class="stage-portrait">
+                        <!-- Imagen del atacante -->
+                    </div>
+                    <div id="stage-vs" class="stage-vs hidden">
+                        <span class="vs-text">VS</span>
+                    </div>
+                    <div id="stage-target" class="stage-portrait hidden">
+                        <!-- Imagen del objetivo -->
+                    </div>
+                </div>
+                <div class="combat-log" id="combat-log">
+                    <p class="system-msg">La Entidad observa...</p>
+                </div>
+            </main>
+
+            <!-- Derecha: Controles -->
+            <aside class="sidebar-right">
+                <div class="active-player-panel">
+                    <h3 id="current-turn-name">---</h3>
+                    <div class="stat-bar-container">
+                        <div class="stat-bar-fill hp-fill" id="hp-bar" style="width: 100%;"></div>
+                        <span class="stat-text" id="hp-text">100/100 HP</span>
+                    </div>
+                </div>
+
+                <div class="action-panel" id="controls">
+                    <button class="btn-action attack-btn" onclick="setMode('ATACAR')">ATACAR</button>
+                    <button class="btn-action defend-btn" onclick="sendAction('DEFENDER')">DEFENDER</button>
+                    <button class="btn-action perk-btn" onclick="setMode('PERK')">USAR PERK</button>
+
+                    <div id="selection-panel" class="selection-panel hidden">
+                        <p id="selection-prompt">Selecciona:</p>
+                        <div id="selection-list" class="selection-list"></div>
+                        <button class="btn-secondary" onclick="cancelMode()">CANCELAR</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <!-- PANTALLA 4: Los Archivos (Logros) -->
+    <section id="screen-archives" class="screen">
+        <header class="screen-header">
+            <h2 class="dbd-title">LOS ARCHIVOS</h2>
+            <button onclick="navToLobby()" class="btn-secondary">VOLVER</button>
+        </header>
+
+        <div class="archives-grid" id="archives-grid">
+            <div class="loading">Sincronizando con la base de datos...</div>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script src="app.js?v=3"></script>
 </body>
+
 </html>
