@@ -315,6 +315,15 @@ public class MotorTrial {
         System.out.println(VERDE + "¡SIMULACIÓN LISTA!" + RESET);
     }
 
+    public void iniciarWeb(ArrayList<Personaje> survisWeb, ArrayList<Personaje> killersWeb) {
+        supervivientes.clear();
+        killers.clear();
+        supervivientes.addAll(survisWeb);
+        killers.addAll(killersWeb);
+        repartirPerks();
+        repartirArmas();
+    }
+
     private void repartirArmas() {
         ArrayList<Arma> armasSolamenteSurvis = new ArrayList<>();
         armasSolamenteSurvis.add(new Pistola()); armasSolamenteSurvis.add(new Conjuro());

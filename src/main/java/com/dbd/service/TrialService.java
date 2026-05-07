@@ -1,24 +1,74 @@
 package com.dbd.service;
 
 import com.dbd.core.MotorTrial;
+import com.dbd.core.Logro;
+import com.dbd.dao.GestorPersistencia;
 import com.dbd.dto.ActionRequest;
 import com.dbd.dto.GameStateResponse;
+import com.dbd.dto.CharacterSelectionRequest;
 import com.dbd.entidades.Personaje;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 public class TrialService {
     
-    // Instancia única temporal para la Fase 1. (En el futuro esto irá a BBDD/Sesión).
+    @Autowired
+    private GestorPersistencia gestorPersistencia;
+
     private MotorTrial motor;
+
+    public Map<String, List<String>> getAvailableCharacters() {
+        Map<String, List<String>> chars = new HashMap<>();
+        chars.put("supervivientes", List.of("LeonKennedy", "SteveHarrington", "FengMin", "SableWard", "Mikaela", "AdaWong", "LaraCroft", "Nancy"));
+        chars.put("killers", List.of("GhostFace", "Legion", "Onryo", "Animatronico", "Ghoul", "Chucky", "Wesker", "LaCerda"));
+        return chars;
+    }
+
+    public List<Logro> getLogros() {
+        return gestorPersistencia.cargarLogros();
+    }
 
     public GameStateResponse iniciarPartidaAleatoria() {
         motor = new MotorTrial();
         motor.configurarPartida();
         motor.iniciarAleatorio();
         return construirRespuesta(null);
+    }
+
+    public GameStateResponse iniciarPartidaManual(CharacterSelectionRequest request) {
+        motor = new MotorTrial();
+        motor.configurarPartida();
+        
+        ArrayList<Personaje> survis = new ArrayList<>();
+        ArrayList<Personaje> killers = new ArrayList<>();
+
+        for(String s : request.getSupervivientes()) {
+            survis.add(instanciarPersonaje(s));
+        }
+        for(String k : request.getKillers()) {
+            killers.add(instanciarPersonaje(k));
+        }
+
+        motor.iniciarWeb(survis, killers);
+        return construirRespuesta("La prueba ha comenzado con personajes personalizados.");
+    }
+
+    private Personaje instanciarPersonaje(String nombreClase) {
+        try {
+            Class<?> clazz = Class.forName("com.dbd.entidades." + nombreClase);
+            return (Personaje) clazz.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            System.err.println("Error instanciando: " + nombreClase);
+            try {
+                return (Personaje) Class.forName("com.dbd.entidades.LeonKennedy").getDeclaredConstructor().newInstance();
+            } catch (Exception ex) { return null; }
+        }
     }
 
     public GameStateResponse ejecutarAccion(ActionRequest request) {
@@ -29,26 +79,20 @@ public class TrialService {
         ArrayList<Personaje> atacantes;
         ArrayList<Personaje> rivales;
 
-        // Por simplicidad, asumimos que "ATACAR" indica que es el turno actual
-        // En una implementación real, tendríamos que saber si el atacante es Survi o Killer
-        // Vamos a deducirlo buscando el personaje en las listas
         Personaje actor = null;
         Personaje objetivo = null;
 
-        // Buscar al actor
         if (request.getAtacanteIndex() < motor.getSupervivientes().size()) {
             actor = motor.getSupervivientes().get(request.getAtacanteIndex());
             atacantes = motor.getSupervivientes();
             rivales = motor.getKillers();
         } else {
-            // Si no está en survis, buscamos en killers (adaptando el index)
             int kIndex = request.getAtacanteIndex() - motor.getSupervivientes().size();
             actor = motor.getKillers().get(kIndex);
             atacantes = motor.getKillers();
             rivales = motor.getSupervivientes();
         }
 
-        // Buscar objetivo (si la acción lo requiere)
         if (request.getObjetivoIndex() < rivales.size()) {
             objetivo = rivales.get(request.getObjetivoIndex());
         }
@@ -77,9 +121,11 @@ public class TrialService {
                     logAction = actor.getNombrePersonaje() + " usó " + perk.getNombre() + " en " + objetivo.getNombrePersonaje();
                 }
                 break;
+            default:
+                logAction = "Acción ignorada por el servidor.";
+                break;
         }
 
-        // Verificar si la partida terminó
         boolean survisVivos = motor.getSupervivientes().stream().anyMatch(p -> p.getVidaActual() > 0);
         boolean killersVivos = motor.getKillers().stream().anyMatch(p -> p.getVidaActual() > 0);
 
@@ -88,7 +134,7 @@ public class TrialService {
         if (!survisVivos || !killersVivos) {
             response.setPartidaTerminada(true);
             response.setGanador(survisVivos ? "Supervivientes" : "Killers");
-            motor = null; // Reiniciar
+            motor = null; 
         }
 
         return response;
