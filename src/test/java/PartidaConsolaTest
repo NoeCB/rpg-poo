@@ -1,0 +1,46 @@
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.dbd.entidades.*;
+import com.dbd.core.*;
+import com.dbd.dao.*;
+import com.dbd.main.*;
+import com.dbd.ui.*;
+
+public class PartidaConsolaTest {
+
+    @Test
+    public void testAtaqueReduceVida() {
+        // PREPARACIÓN (Arrange)
+        // Instanciamos objetos puros de tu lógica de negocio
+        // Supongamos que el constructor es (Nombre, VidaMaxima, DañoBase)
+        Asesino killer = new Asesino("Ghost Face", 100, 20); 
+        Superviviente survi = new Superviviente("Leon", 100, 10);
+
+        int vidaInicial = survi.getVidaActual();
+
+        // ACCIÓN (Act)
+        // Ejecutamos el método que queremos probar
+        killer.atacar(survi); 
+        // O si tu daño se pasa por parámetro: survi.recibirDano(killer.getDanoAtaque());
+
+        // VERIFICACIÓN (Assert)
+        // Comprobamos que la vida del superviviente ha bajado correctamente
+        assertTrue(survi.getVidaActual() < vidaInicial, "La vida del superviviente debe ser menor tras un ataque");
+        
+        // Si sabemos matemáticamente cuánto daño hace, podemos ser exactos:
+        assertEquals(80, survi.getVidaActual(), "Leon debería tener 80 de vida tras recibir 20 de daño");
+    }
+
+    @Test
+    public void testPersonajeMuereAlLlegarCeroVida() {
+        Superviviente survi = new Superviviente("Feng Min", 100, 10);
+        
+        // Le aplicamos daño letal
+        survi.recibirDano(150); 
+
+        // Verificamos que no tiene vida negativa y que su estado es "Muerto"
+        assertEquals(0, survi.getVidaActual(), "La vida no debería bajar de 0");
+        assertTrue(survi.isMuerto(), "El personaje debería considerarse muerto (isMuerto = true)");
+    }
+}
