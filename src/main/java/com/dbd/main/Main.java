@@ -25,7 +25,7 @@ public class Main implements CommandLineRunner {
             return;
         }
 
-        Util.iniciarMusica("resources/musica_dbd.wav");
+        Util.iniciarMusica("src/main/resources/static/musica_dbd.wav");
         Scanner sc = new Scanner(System.in);
         MotorTrial prueba = new MotorTrial();
         com.dbd.dao.GestorPersistencia gestor = com.dbd.core.SpringContextHolder.getBean(com.dbd.dao.GestorPersistencia.class);

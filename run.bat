@@ -6,22 +6,10 @@ echo ========================================================
 echo   Dead by Daylight RPG - Consola Clasica
 echo ========================================================
 
-set "MAVEN_DIR=apache-maven-3.9.6"
-set "MAVEN_ZIP=maven.zip"
-
-if not exist "%MAVEN_DIR%" (
-    echo [INFO] Maven no encontrado. Descargando Maven Portable...
-    powershell -Command "Invoke-WebRequest -Uri 'https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.6/apache-maven-3.9.6-bin.zip' -OutFile '%MAVEN_ZIP%'"
-    powershell -Command "Expand-Archive -Path '%MAVEN_ZIP%' -DestinationPath '.'"
-    del "%MAVEN_ZIP%"
-)
-
-set "PATH=%CD%\%MAVEN_DIR%\bin;%PATH%"
-
 echo.
-echo [INFO] Compilando e Iniciando la Consola...
+echo [INFO] Compilando e Iniciando la Consola usando Maven Wrapper...
 echo.
 
-call mvn spring-boot:run -Dspring-boot.run.arguments=--console
+call mvnw.cmd spring-boot:run -Dspring-boot.run.arguments=--console
 
 pause
