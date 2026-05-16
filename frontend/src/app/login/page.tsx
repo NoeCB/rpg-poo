@@ -45,56 +45,56 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[url('/dbdhubn.jpg')] bg-cover bg-center bg-no-repeat bg-fixed relative">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm z-0"></div>
+      <div className="absolute inset-0 bg-black/40 z-0"></div>
       
-      <div className="z-10 p-8 sm:p-10 bg-zinc-950/80 border border-red-900/50 rounded-lg shadow-2xl shadow-red-900/20 max-w-sm w-full mx-4 backdrop-blur-md transform transition-all hover:scale-[1.01] duration-300">
-        <div className="flex justify-center mb-6">
-          <div className="w-16 h-1 bg-red-600 rounded-full animate-pulse"></div>
+      <div className="z-10 p-10 sm:p-14 bg-zinc-900/95 border border-zinc-700 rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.8)] max-w-md w-full mx-4 backdrop-blur-md transform transition-all hover:scale-[1.01] duration-300">
+        <div className="flex justify-center mb-8">
+          <div className="w-20 h-1 bg-zinc-600 rounded-full animate-pulse"></div>
         </div>
         
-        <h1 className="text-4xl font-black text-red-600 mb-6 text-center tracking-widest uppercase drop-shadow-[0_0_15px_rgba(220,38,38,0.6)]">
+        <h1 className="text-4xl md:text-5xl font-black text-zinc-100 mb-8 text-center tracking-[0.2em] uppercase drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
           DBD RPG
         </h1>
 
         {errorMessage && (
-          <div className="mb-6 p-3 bg-red-950/80 border border-red-500 rounded text-red-400 text-sm font-medium text-center animate-pulse">
+          <div className="mb-6 p-4 bg-zinc-950/80 border border-red-500/50 rounded text-red-400 text-sm font-medium text-center animate-pulse">
             {errorMessage}
           </div>
         )}
         
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="group relative">
             <input 
-              className="w-full p-3 bg-zinc-900/80 text-zinc-100 border border-zinc-800 rounded focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all duration-300 placeholder-zinc-600"
+              className="w-full p-4 bg-zinc-950/80 text-zinc-100 border border-zinc-800 rounded-lg focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all duration-300 placeholder-zinc-600 text-lg"
               type="text" placeholder="Sobreviviente o Asesino" value={username} onChange={e => setUsername(e.target.value)}
             />
           </div>
           
-          <div className="group relative mb-8">
+          <div className="group relative mb-10">
             <input 
-              className="w-full p-3 bg-zinc-900/80 text-zinc-100 border border-zinc-800 rounded focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all duration-300 placeholder-zinc-600"
+              className="w-full p-4 bg-zinc-950/80 text-zinc-100 border border-zinc-800 rounded-lg focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all duration-300 placeholder-zinc-600 text-lg"
               type="password" placeholder="Contraseña Secreta" value={password} onChange={e => setPassword(e.target.value)}
             />
           </div>
         </div>
         
-        <div className="flex flex-col gap-3 mt-8">
+        <div className="flex flex-col gap-4 mt-10">
           <button 
             onClick={() => handleAuth(true)} 
-            className="w-full bg-red-700 hover:bg-red-600 py-3 rounded font-bold text-white uppercase tracking-wider transition-all duration-300 hover:shadow-[0_0_15px_rgba(220,38,38,0.5)] active:scale-95"
+            className="w-full bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 py-4 rounded-lg font-black text-zinc-100 uppercase tracking-widest transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,0,0,0.5)] active:scale-95 text-lg"
           >
             Entrar a la Niebla
           </button>
           
-          <div className="relative flex items-center py-2">
+          <div className="relative flex items-center py-4">
             <div className="flex-grow border-t border-zinc-800"></div>
-            <span className="flex-shrink-0 mx-4 text-zinc-600 text-xs uppercase tracking-widest">O Nuevo Pacto</span>
+            <span className="flex-shrink-0 mx-6 text-zinc-500 text-xs uppercase tracking-[0.3em]">O Nuevo Pacto</span>
             <div className="flex-grow border-t border-zinc-800"></div>
           </div>
           
           <button 
             onClick={() => handleAuth(false)} 
-            className="w-full border border-red-900/50 hover:border-red-500 bg-zinc-900/50 hover:bg-red-950/30 py-3 rounded font-bold text-red-500 hover:text-red-400 uppercase tracking-wider transition-all duration-300 active:scale-95"
+            className="w-full border border-zinc-700 bg-zinc-950/50 hover:bg-zinc-800 py-4 rounded-lg font-bold text-zinc-400 hover:text-zinc-100 uppercase tracking-widest transition-all duration-300 active:scale-95 text-lg"
           >
             Firmar Registro
           </button>
