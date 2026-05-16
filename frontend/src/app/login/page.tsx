@@ -44,7 +44,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[url('https://c4.wallpaperflare.com/wallpaper/528/773/953/dead-by-daylight-logo-4k-wallpaper-preview.jpg')] bg-cover bg-center bg-no-repeat bg-fixed relative">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[url('/dbdhubn.jpg')] bg-cover bg-center bg-no-repeat bg-fixed relative">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm z-0"></div>
       
       <div className="z-10 p-8 sm:p-10 bg-zinc-950/80 border border-red-900/50 rounded-lg shadow-2xl shadow-red-900/20 max-w-sm w-full mx-4 backdrop-blur-md transform transition-all hover:scale-[1.01] duration-300">

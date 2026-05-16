@@ -103,7 +103,7 @@ export default function PlayPage() {
   const isReady = selectedSurvs.length === 3 && selectedKillers.length === 3;
 
   return (
-    <div className="min-h-screen bg-zinc-950 bg-[url('https://c4.wallpaperflare.com/wallpaper/132/511/309/dead-by-daylight-dark-wood-video-games-wallpaper-preview.jpg')] bg-cover bg-center bg-fixed relative text-white selection:bg-red-600/30 font-sans">
+    <div className="min-h-screen bg-zinc-950 bg-[url('/maxresdefault.jpg')] bg-cover bg-center bg-fixed relative text-white selection:bg-red-600/30 font-sans">
       <div className="absolute inset-0 bg-black/85 z-0 backdrop-blur-[3px]"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-red-950/20 via-transparent to-blue-950/20 z-0 mix-blend-overlay animate-pulse"></div>
 
