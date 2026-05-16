@@ -22,7 +22,46 @@ public class GameController {
 
     @GetMapping("/characters")
     public ResponseEntity<Map<String, List<String>>> getCharacters() {
+        System.out.println(">>> [GameController] GET /characters : Petición recibida correctamente. Security superado.");
         return ResponseEntity.ok(trialService.getAvailableCharacters());
+    }
+
+    @GetMapping("/saves")
+    public ResponseEntity<List<Map<String, Object>>> getSaves() {
+        System.out.println(">>> [GameController] GET /saves : Petición recibida.");
+        return ResponseEntity.ok(trialService.getSaves());
+    }
+
+    @PostMapping("/load/{id}")
+    public ResponseEntity<GameStateResponse> loadSave(@PathVariable int id) {
+        System.out.println(">>> [GameController] POST /load/" + id + " : Cargando partida...");
+        try {
+            GameStateResponse response = trialService.cargarPartida(id);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error al cargar la partida " + id + ": " + e.getMessage());
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<GameStateResponse> saveGame(@RequestBody Map<String, Integer> payload) {
+        try {
+            int ranura = payload.getOrDefault("slot", 1);
+            return ResponseEntity.ok(trialService.guardarPartidaWeb(ranura));
+        } catch (Exception e) {
+            System.err.println("Error al guardar la partida: " + e.getMessage());
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @GetMapping("/state")
+    public ResponseEntity<GameStateResponse> getState() {
+        try {
+            return ResponseEntity.ok(trialService.getState());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @GetMapping("/achievements")

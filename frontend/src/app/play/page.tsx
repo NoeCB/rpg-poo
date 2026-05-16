@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import toast, { Toaster } from 'react-hot-toast';
+import { motion } from 'framer-motion';
 
 const portraitMap: Record<string, string> = {
   // SUPERVIVIENTES
@@ -42,16 +44,21 @@ export default function PlayPage() {
   const [selectedKillers, setSelectedKillers] = useState<string[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // Fetch characters from backend via Next.js proxy
     const fetchCharacters = async () => {
       try {
-        // Fetch characters from backend via proxy
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
         const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
         const res = await fetch('/api/game/characters', {
-          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
         
         if (res.ok) {
           const data = await res.json();
@@ -64,9 +71,16 @@ export default function PlayPage() {
           setAvailableSurvs((data.supervivientes || []).map(mapToChar));
           setAvailableKillers((data.killers || []).map(mapToChar));
         } else {
-          console.error('Error fetching characters');
+          setIsError(true);
+          toast.error("Error al conectar con la Entidad: " + res.status, { style: { background: '#7f1d1d', color: '#fff' } });
         }
-      } catch (error) {
+      } catch (error: any) {
+        setIsError(true);
+        if (error.name === 'AbortError') {
+          toast.error("Tiempo de espera agotado. El servidor no responde.", { style: { background: '#7f1d1d', color: '#fff' } });
+        } else {
+          toast.error("Error crítico de red. ¿Servidor apagado?", { style: { background: '#7f1d1d', color: '#fff' } });
+        }
         console.error('Failed to connect to backend', error);
       } finally {
         setIsLoading(false);
@@ -92,11 +106,18 @@ export default function PlayPage() {
     });
   };
 
-  const handleStart = () => {
+  const handleStart = async () => {
     if (selectedSurvs.length === 3 && selectedKillers.length === 3) {
-      localStorage.setItem('selectedSurvs', JSON.stringify(selectedSurvs));
-      localStorage.setItem('selectedKillers', JSON.stringify(selectedKillers));
-      router.push('/trial');
+      setIsSubmitting(true);
+      try {
+        localStorage.setItem('selectedSurvs', JSON.stringify(selectedSurvs));
+        localStorage.setItem('selectedKillers', JSON.stringify(selectedKillers));
+        await new Promise(r => setTimeout(r, 800));
+        router.push('/trial');
+      } catch (error) {
+        toast.error("Error al iniciar partida");
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -104,6 +125,7 @@ export default function PlayPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 bg-[url('https://c4.wallpaperflare.com/wallpaper/132/511/309/dead-by-daylight-dark-wood-video-games-wallpaper-preview.jpg')] bg-cover bg-center bg-fixed relative text-white selection:bg-red-600/30 font-sans">
+      <Toaster position="top-right" />
       <div className="absolute inset-0 bg-black/85 z-0 backdrop-blur-[3px]"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-red-950/20 via-transparent to-blue-950/20 z-0 mix-blend-overlay animate-pulse"></div>
 
@@ -156,14 +178,35 @@ export default function PlayPage() {
         {/* MAIN ROSTER */}
         <main className="flex-1 flex flex-col">
           {isLoading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-zinc-400 font-bold tracking-widest uppercase animate-pulse">Contactando a la Entidad...</p>
-              </div>
+            <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] gap-6 xl:gap-10 w-full animate-pulse mt-4 flex-1">
+               <div className="bg-black/40 rounded-3xl p-8 border border-zinc-800">
+                  <div className="h-8 w-48 bg-zinc-800 rounded mb-8"></div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                     {[1,2,3,4,5,6,7,8].map(i => <div key={i} className="aspect-[3/4] bg-zinc-900 rounded-xl"></div>)}
+                  </div>
+               </div>
+               <div className="hidden xl:block w-10"></div>
+               <div className="bg-black/40 rounded-3xl p-8 border border-zinc-800">
+                  <div className="h-8 w-48 bg-zinc-800 rounded mb-8"></div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                     {[1,2,3,4,5,6,7,8].map(i => <div key={i} className="aspect-[3/4] bg-zinc-900 rounded-xl"></div>)}
+                  </div>
+               </div>
+            </div>
+          ) : isError ? (
+            <div className="flex-1 flex items-center justify-center flex-col gap-4 text-center">
+              <span className="text-6xl">☠️</span>
+              <h2 className="text-3xl text-red-500 font-black tracking-widest">LA CONEXIÓN SE HA PERDIDO</h2>
+              <p className="text-zinc-400 max-w-lg">La Entidad no puede establecer conexión con el servidor. Verifica que el backend esté corriendo.</p>
+              <button onClick={() => window.location.reload()} className="mt-4 px-6 py-2 bg-red-900 text-white rounded hover:bg-red-800 font-bold uppercase transition-colors">Reintentar</button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] gap-6 xl:gap-10 items-start flex-1 w-full">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ duration: 0.6 }}
+              className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] gap-6 xl:gap-10 items-start flex-1 w-full"
+            >
               
               {/* SUPERVIVIENTES */}
               <div className="relative bg-black/40 backdrop-blur-sm border border-zinc-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden group/container">
@@ -264,29 +307,34 @@ export default function PlayPage() {
                   })}
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* ACTION BUTTON */}
           <div className="mt-12 mb-6 flex justify-center relative">
-            {isReady && (
+            {isReady && !isSubmitting && (
               <div className="absolute inset-0 bg-red-600 blur-[50px] opacity-20 rounded-full animate-pulse"></div>
             )}
             
             <button 
               onClick={handleStart}
-              disabled={!isReady}
+              disabled={!isReady || isSubmitting}
               className={`relative px-12 py-5 rounded-2xl font-black text-xl md:text-2xl tracking-[0.2em] uppercase overflow-hidden transition-all duration-500 ${
-                isReady 
+                isReady && !isSubmitting
                 ? 'bg-gradient-to-b from-red-600 to-red-900 text-white shadow-[0_10px_40px_rgba(220,38,38,0.5)] cursor-pointer hover:-translate-y-2 hover:shadow-[0_15px_50px_rgba(220,38,38,0.7)] group border border-red-500/50' 
                 : 'bg-zinc-900/50 text-zinc-600 border border-zinc-800 cursor-not-allowed backdrop-blur-sm'
               }`}
             >
-              {isReady && (
+              {isReady && !isSubmitting && (
                 <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
               )}
               <span className="relative z-10 flex items-center gap-3">
-                {isReady ? (
+                {isSubmitting ? (
+                  <span className="flex items-center gap-3 text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]">
+                    <div className="w-6 h-6 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                    ENTRANDO...
+                  </span>
+                ) : isReady ? (
                   <>
                     <span className="animate-pulse">🔥</span> 
                     Entrar a la Niebla 

@@ -13,6 +13,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,6 +184,40 @@ public class GestorPersistencia {
             e.printStackTrace();
             System.out.println("Error al listar partidas.");
         }
+    }
+
+    /**
+     * Retorna la lista de partidas para la API web.
+     */
+    public List<Map<String, Object>> obtenerPartidas() {
+        List<Map<String, Object>> partidas = new ArrayList<>();
+        String sql = "SELECT p.id_ranura, p.fecha_guardado, p.ronda_actual, p.modo_juego, p.terminada, p.vacia, " +
+                " (SELECT COUNT(*) FROM PERSONAJE_PARTIDA pp WHERE pp.id_ranura = p.id_ranura AND pp.bando='superviviente' AND pp.vida_actual > 0) as survs_vivos, " +
+                " (SELECT COUNT(*) FROM PERSONAJE_PARTIDA pp WHERE pp.id_ranura = p.id_ranura AND pp.bando='killer' AND pp.vida_actual > 0) as killers_vivos " +
+                " FROM RANURA p ORDER BY p.id_ranura ASC";
+
+        try (Connection con = dataSource.getConnection();
+                PreparedStatement pst = con.prepareStatement(sql);
+                ResultSet rs = pst.executeQuery()) {
+
+            while (rs.next()) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", rs.getInt("id_ranura"));
+                map.put("vacia", rs.getBoolean("vacia"));
+                if (!rs.getBoolean("vacia")) {
+                    map.put("modoJuego", rs.getString("modo_juego"));
+                    map.put("ronda", rs.getInt("ronda_actual"));
+                    map.put("fecha", rs.getString("fecha_guardado"));
+                    map.put("survsVivos", rs.getInt("survs_vivos"));
+                    map.put("killersVivos", rs.getInt("killers_vivos"));
+                    map.put("terminada", rs.getBoolean("terminada"));
+                }
+                partidas.add(map);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return partidas;
     }
 
     /**
