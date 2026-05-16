@@ -56,7 +56,7 @@ public class TrialService {
         }
 
         motor.iniciarWeb(survis, killers);
-        return construirRespuesta("La prueba ha comenzado con personajes personalizados.");
+        return construirRespuesta(null);
     }
 
     private Personaje instanciarPersonaje(String nombreClase) {
