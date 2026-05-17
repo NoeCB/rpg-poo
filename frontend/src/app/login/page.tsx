@@ -32,8 +32,12 @@ export default function LoginPage() {
       if (res.ok && data?.token) {
         document.cookie = `jwt_token=${data.token}; path=/;`;
         router.push('/dashboard');
+      } else if (data && data.error) {
+        setErrorMessage(data.error);
+      } else if (!res.ok && !data) {
+        setErrorMessage('Error de conexión: El servidor backend parece estar apagado o no responde.');
       } else {
-        setErrorMessage(data?.error || (isLogin ? 'Credenciales inválidas.' : 'El usuario ya existe.'));
+        setErrorMessage(isLogin ? 'Credenciales inválidas.' : 'El usuario ya existe o hubo un problema.');
       }
     } catch (error) {
       console.error(error);
