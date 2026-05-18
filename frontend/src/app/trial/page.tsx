@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import toast, { Toaster } from 'react-hot-toast';
 
 const portraitMap: Record<string, string> = {
   // SUPERVIVIENTES
@@ -45,6 +47,63 @@ interface GameState {
   ganador: string | null;
 }
 
+function HealthBar({ value, max }: { value: number, max: number }) {
+  const pct = Math.max(0, Math.min(100, (value / max) * 100));
+  const isLow = pct <= 30;
+  return (
+    <div className={`w-full h-2 rounded-full overflow-hidden bg-zinc-900 border border-zinc-800 ${isLow ? 'animate-pulse shadow-[0_0_10px_rgba(220,38,38,0.5)]' : ''}`}>
+      <div className={`h-full transition-all duration-500 ${isLow ? 'bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.8)]' : 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]'}`} style={{ width: `${pct}%` }}></div>
+    </div>
+  );
+}
+
+function CharacterCard({ char, isMyTurn, isKiller }: { char: CharacterState, isMyTurn: boolean, isKiller: boolean }) {
+  const [prevHp, setPrevHp] = useState(char.vidaActual);
+  const [isTakingDamage, setIsTakingDamage] = useState(false);
+  
+  useEffect(() => {
+    if (char.vidaActual < prevHp) {
+      setIsTakingDamage(true);
+      const t = setTimeout(() => setIsTakingDamage(false), 500);
+      setPrevHp(char.vidaActual);
+      return () => clearTimeout(t);
+    } else if (char.vidaActual > prevHp) {
+      setPrevHp(char.vidaActual);
+    }
+  }, [char.vidaActual, prevHp]);
+
+  const isDead = char.vidaActual <= 0;
+  
+  const baseClasses = isKiller 
+    ? 'border-red-900/50 bg-red-950/20 hover:shadow-[0_0_15px_rgba(220,38,38,0.3)]'
+    : 'border-blue-900/50 bg-blue-950/20 hover:shadow-[0_0_15px_rgba(34,197,94,0.3)]';
+    
+  const turnClasses = isKiller
+    ? 'border-red-500 shadow-[0_0_15px_rgba(220,38,38,0.6)] animate-pulse'
+    : 'border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.5)] animate-pulse';
+
+  const damageClasses = 'border-red-600 bg-red-900/40 shadow-[0_0_20px_rgba(220,38,38,0.8)]';
+
+  let currentClasses = baseClasses;
+  if (isDead) currentClasses = 'border-zinc-800 bg-zinc-900/30 opacity-50';
+  else if (isTakingDamage) currentClasses = damageClasses;
+  else if (isMyTurn) currentClasses = turnClasses;
+
+  return (
+    <motion.div
+      animate={isTakingDamage ? { x: [-5, 5, -5, 5, 0], transition: { duration: 0.4 } } : { x: 0 }}
+      whileHover={{ scale: 1.05, y: -5 }}
+      className={`p-3 rounded-lg border transition-all cursor-default ${currentClasses}`}
+    >
+      <div className="flex justify-between items-center mb-2">
+        <span className={`text-sm font-bold ${isDead ? 'text-zinc-600 line-through' : (isKiller ? 'text-red-200' : 'text-blue-200')}`}>{char.nombrePersonaje}</span>
+        <span className={`text-xs font-black ${isDead ? 'text-zinc-600' : (isKiller ? 'text-red-400 drop-shadow-[0_0_5px_rgba(220,38,38,0.8)]' : 'text-green-400 drop-shadow-[0_0_5px_rgba(34,197,94,0.8)]')}`}>{isDead ? 'MUERTO' : `${char.vidaActual} HP`}</span>
+      </div>
+      {!isDead && <HealthBar value={char.vidaActual} max={char.vidaMax} />}
+    </motion.div>
+  );
+}
+
 export default function TrialPage() {
   const router = useRouter();
   
@@ -72,34 +131,50 @@ export default function TrialPage() {
   }, [combatLogs]);
 
   useEffect(() => {
+    const isResume = localStorage.getItem('resumeGame') === 'true';
     const sKeys = JSON.parse(localStorage.getItem('selectedSurvs') || '[]');
     const kKeys = JSON.parse(localStorage.getItem('selectedKillers') || '[]');
     
-    if (sKeys.length !== 3 || kKeys.length !== 3) {
+    if (!isResume && (sKeys.length !== 3 || kKeys.length !== 3)) {
       router.push('/play');
       return;
     }
 
-    setSurvKeys(sKeys);
-    setKillerKeys(kKeys);
+    if (!isResume) {
+      setSurvKeys(sKeys);
+      setKillerKeys(kKeys);
+    }
 
     const initTrial = async () => {
       try {
-        const baseUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:8080` : 'http://localhost:8080';
         const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
-        const res = await fetch(`${baseUrl}/api/game/start-manual`, {
-          method: 'POST',
+        
+        const endpoint = isResume ? '/api/game/state' : '/api/game/start-manual';
+        const method = isResume ? 'GET' : 'POST';
+        const body = isResume ? undefined : JSON.stringify({ supervivientes: sKeys, killers: kKeys });
+
+        const res = await fetch(endpoint, {
+          method,
           headers: {
             'Content-Type': 'application/json',
             ...(token ? { 'Authorization': `Bearer ${token}` } : {})
           },
-          body: JSON.stringify({ supervivientes: sKeys, killers: kKeys })
+          body
         });
         const data: GameState = await res.json();
         
         if (data && data.supervivientes) {
           setGameState(data);
           if (data.logs) setCombatLogs(data.logs);
+          
+          if (isResume) {
+            // Reconstruir las keys a partir de los nombres
+            const sKeysLoaded = data.supervivientes.map((s: any) => s.nombrePersonaje.replace(/\s+/g, ''));
+            const kKeysLoaded = data.killers.map((k: any) => k.nombrePersonaje.replace(/\s+/g, ''));
+            setSurvKeys(sKeysLoaded);
+            setKillerKeys(kKeysLoaded);
+            localStorage.removeItem('resumeGame');
+          }
         } else {
           setGameState(null);
           setCombatLogs(['Error crítico: El backend no devolvió una partida válida. (¿Está encendido?)']);
@@ -159,11 +234,8 @@ export default function TrialPage() {
   // Safeguard just in case
   if (!actor) return null;
 
-  const actorKey = isSurviTurn ? survKeys[currentIdx] : killerKeys[currentIdx];
+  const actorKey = actor.nombrePersonaje.replace(/\s+/g, '');
   const actorImg = portraitMap[actorKey] || portraitMap['DEFAULT'];
-  
-  const pctVida = (actor.vidaActual / actor.vidaMax) * 100;
-  const hpColor = pctVida > 50 ? 'bg-blue-500' : pctVida > 20 ? 'bg-orange-500' : 'bg-red-600';
 
   const sendAction = async (tipoAccion: string, objetivoIndex = -1, perkIndex = -1) => {
     if (isAnimating || gameState.partidaTerminada) return;
@@ -201,9 +273,8 @@ export default function TrialPage() {
     setPreviewTarget(null);
 
     try {
-      const baseUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:8080` : 'http://localhost:8080';
       const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
-      const res = await fetch(`${baseUrl}/api/game/action`, {
+      const res = await fetch('/api/game/action', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -234,18 +305,42 @@ export default function TrialPage() {
     }
   };
 
-  const rivales = isSurviTurn ? gameState.killers : gameState.supervivientes;
-  const rivalKeys = isSurviTurn ? killerKeys : survKeys;
-
   const handleModeAction = (targetIdx: number, perkIdx: number = -1) => {
     sendAction(activeMode, targetIdx, perkIdx);
   };
 
+  const handleSaveGame = async () => {
+    try {
+      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
+      const res = await fetch('/api/game/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ slot: 1 }) // Puedes extenderlo para elegir slot
+      });
+      if (res.ok) {
+        toast.success('El progreso de la ronda ha sido sellado por la Entidad.');
+      } else {
+        console.error(`Error al guardar. Status: ${res.status}`);
+        toast.error('Error al guardar la partida.');
+      }
+    } catch(e) {
+      console.error('Catch error en handleSaveGame:', e);
+      toast.error('Fallo de red al conectar con el servidor.');
+    }
+  };
+
+  const rivales = isSurviTurn ? gameState.killers : gameState.supervivientes;
+  const rivalKeys = isSurviTurn ? killerKeys : survKeys;
+
   return (
-    <div className="min-h-screen bg-zinc-950 font-sans text-white overflow-hidden relative selection:bg-red-900/30">
+    <div className="h-screen w-screen flex flex-col bg-zinc-950 font-sans text-white overflow-hidden relative selection:bg-red-900/30">
+      <Toaster position="top-right" />
       <div className="absolute inset-0 bg-[url('https://c4.wallpaperflare.com/wallpaper/528/773/953/dead-by-daylight-logo-4k-wallpaper-preview.jpg')] bg-cover bg-center opacity-10"></div>
       
-      <div className="relative z-10 h-screen flex flex-col">
+      <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
         {/* HEADER */}
         <header className="py-4 px-8 border-b border-zinc-800 bg-black/40 backdrop-blur-sm flex justify-between items-center shadow-lg">
           <h1 className="text-2xl tracking-[0.1em] text-white font-[family-name:var(--font-rock-salt)] drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">DEAD BY DAYLIGHT</h1>
@@ -260,20 +355,11 @@ export default function TrialPage() {
           <aside className="w-full md:w-64 bg-black/60 border-r border-zinc-800 p-4 overflow-y-auto hidden md:block">
             <h4 className="text-blue-500 font-black tracking-widest mb-6 border-b border-blue-900/50 pb-2">SUPERVIVIENTES</h4>
             <div className="space-y-4">
-              {gameState.supervivientes.map((s, idx) => {
+              {gameState.supervivientes.slice(0, 3).map((s, idx) => {
                 const isDead = s.vidaActual <= 0;
+                const isMyTurn = isSurviTurn && currentIdx === idx && !isDead;
                 return (
-                  <div key={idx} className={`p-3 rounded border transition-all ${isDead ? 'border-zinc-800 bg-zinc-900/30 opacity-50' : 'border-blue-900/30 bg-blue-950/10'}`}>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className={`text-sm font-bold ${isDead ? 'text-zinc-600 line-through' : 'text-blue-300'}`}>{s.nombrePersonaje}</span>
-                      <span className={`text-xs font-black ${isDead ? 'text-zinc-600' : 'text-blue-200'}`}>{isDead ? 'MUERTO' : `${s.vidaActual} HP`}</span>
-                    </div>
-                    {!isDead && (
-                      <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-blue-500 h-full transition-all duration-500" style={{ width: `${(s.vidaActual/s.vidaMax)*100}%` }}></div>
-                      </div>
-                    )}
-                  </div>
+                  <CharacterCard key={`${s.nombrePersonaje}-${idx}`} char={s} isMyTurn={isMyTurn} isKiller={false} />
                 );
               })}
             </div>
@@ -284,9 +370,9 @@ export default function TrialPage() {
             {/* Stage */}
             <div className="flex-1 relative flex items-center justify-center min-h-[300px]">
               
-              <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20 w-full px-4 md:px-10 h-full">
+              <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full px-4 md:px-10 h-full">
                 {/* ACTOR (Attacker) */}
-                <div className={`relative flex flex-col items-center transition-all duration-500 ease-in-out ${animState === 'ATTACK' ? 'translate-x-8 md:translate-x-24 scale-125 z-50' : ''} ${animState === 'DEFEND' ? 'scale-95 opacity-80 brightness-150 drop-shadow-[0_0_30px_rgba(59,130,246,1)]' : ''}`}>
+                <div className={`relative flex flex-col items-center transition-all duration-500 ease-in-out ${animState === 'ATTACK' ? 'translate-x-4 scale-110 z-50' : ''} ${animState === 'DEFEND' ? 'scale-95 opacity-80 brightness-150 drop-shadow-[0_0_30px_rgba(59,130,246,1)]' : ''}`}>
                   <div className={`w-48 h-64 md:w-64 md:h-96 rounded-xl overflow-hidden border-4 ${isSurviTurn ? 'border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.6)]' : 'border-red-600 shadow-[0_0_40px_rgba(220,38,38,0.6)]'}`}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
@@ -299,7 +385,7 @@ export default function TrialPage() {
                           'object-top'}`} 
                     />
                   </div>
-                  <div className="mt-6 bg-black/90 px-6 py-2 rounded-lg border-2 border-zinc-700 text-lg md:text-xl font-black shadow-2xl tracking-wider">
+                  <div className="mt-4 text-white bg-transparent font-bold tracking-wide text-xl md:text-2xl drop-shadow-md">
                     {actor.nombrePersonaje}
                   </div>
                   <div className="absolute -top-12 font-black text-sm tracking-[0.2em] text-white animate-bounce bg-zinc-800/90 px-5 py-2 rounded-full border-2 border-zinc-500 shadow-xl">TURNO ACTUAL</div>
@@ -330,13 +416,16 @@ export default function TrialPage() {
                         </div>
                       )}
                     </div>
-                  ) : (
-                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-zinc-950 border-4 border-red-900/60 flex items-center justify-center text-red-600 font-black text-4xl md:text-5xl shadow-[0_0_30px_rgba(220,38,38,0.4)] relative">
-                      <div className="absolute inset-0 bg-red-600/20 blur-xl rounded-full animate-pulse"></div>
-                      VS
+                    <div className="mt-4 text-white bg-transparent font-bold tracking-wide text-xl md:text-2xl drop-shadow-md">
+                      {previewTarget?.name || 'Objetivo'}
                     </div>
-                  )}
-                </div>
+                    {animState === 'DAMAGE' && (
+                      <div className="absolute inset-0 flex items-center justify-center animate-[scratch_0.5s_ease-out_forwards]">
+                        <span className="text-8xl md:text-9xl text-red-600 font-black drop-shadow-[0_0_20px_rgba(220,38,38,1)] -rotate-[20deg] tracking-tighter">///</span>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
               </div>
 
               {gameState.partidaTerminada && (
@@ -372,21 +461,12 @@ export default function TrialPage() {
             {/* Killers List */}
             <div className="p-4 border-b border-zinc-800 hidden md:block">
               <h4 className="text-red-600 font-black tracking-widest mb-4 border-b border-red-900/50 pb-2">ASESINOS</h4>
-              <div className="space-y-3">
-                {gameState.killers.map((k, idx) => {
+              <div className="space-y-4">
+                {gameState.killers.slice(0, 3).map((k, idx) => {
                   const isDead = k.vidaActual <= 0;
+                  const isMyTurn = !isSurviTurn && currentIdx === idx && !isDead;
                   return (
-                    <div key={idx} className={`p-2 rounded border transition-all ${isDead ? 'border-zinc-800 bg-zinc-900/30 opacity-50' : 'border-red-900/30 bg-red-950/10'}`}>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className={`text-xs font-bold ${isDead ? 'text-zinc-600 line-through' : 'text-red-300'}`}>{k.nombrePersonaje}</span>
-                        <span className={`text-[10px] font-black ${isDead ? 'text-zinc-600' : 'text-red-200'}`}>{isDead ? 'MUERTO' : `${k.vidaActual} HP`}</span>
-                      </div>
-                      {!isDead && (
-                        <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
-                          <div className="bg-red-600 h-full transition-all duration-500" style={{ width: `${(k.vidaActual/k.vidaMax)*100}%` }}></div>
-                        </div>
-                      )}
-                    </div>
+                    <CharacterCard key={`${k.nombrePersonaje}-${idx}`} char={k} isMyTurn={isMyTurn} isKiller={true} />
                   );
                 })}
               </div>
@@ -394,67 +474,81 @@ export default function TrialPage() {
 
             {/* Controls */}
             <div className="flex-1 p-6 flex flex-col bg-zinc-950/80">
-              <div className="mb-6">
-                <p className="text-xs text-zinc-500 tracking-widest mb-1 uppercase">Turno Actual</p>
-                <h3 className="text-2xl font-black text-white truncate">{actor.nombrePersonaje}</h3>
-                <div className="mt-3 bg-zinc-900 h-3 rounded-full overflow-hidden border border-zinc-800 relative shadow-inner">
-                  <div className={`h-full transition-all duration-500 ${hpColor}`} style={{ width: `${pctVida}%` }}></div>
-                  <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white drop-shadow-md">{actor.vidaActual} / {actor.vidaMax}</span>
+              <div className="mb-6 flex justify-between items-start">
+                <div>
+                  <p className="text-xs text-zinc-500 tracking-widest mb-1 uppercase">Turno Actual</p>
+                  <h3 className="text-2xl font-black text-white truncate">{actor.nombrePersonaje}</h3>
                 </div>
+              </div>
+              <div className="mb-6">
+                 <HealthBar value={actor.vidaActual} max={actor.vidaMax} />
+                 <p className="text-center text-[10px] font-black text-zinc-400 mt-1 uppercase">{actor.vidaActual} / {actor.vidaMax} HP</p>
               </div>
 
               {!gameState.partidaTerminada && (
                 <div className="flex-1 flex flex-col gap-3 justify-end">
-                  {activeMode === 'NONE' ? (
-                    <>
-                      <button onClick={() => setActiveMode('ATACAR')} disabled={isAnimating} className="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-3 rounded tracking-wider shadow-[0_0_15px_rgba(220,38,38,0.2)] hover:shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all disabled:opacity-50">ATACAR</button>
-                      <button onClick={() => sendAction('DEFENDER')} disabled={isAnimating} className="w-full bg-blue-800 hover:bg-blue-700 text-white font-bold py-3 rounded tracking-wider transition-all disabled:opacity-50">DEFENDER</button>
-                      <button onClick={() => setActiveMode('PERK')} disabled={isAnimating || !actor.perks?.some(p => p.usos > 0)} className="w-full bg-purple-900 hover:bg-purple-800 text-white font-bold py-3 rounded tracking-wider transition-all disabled:opacity-50">USAR PERK</button>
-                    </>
-                  ) : activeMode === 'ATACAR' ? (
-                    <div className="flex flex-col h-full">
-                      <p className="text-sm text-zinc-400 mb-3 font-bold">Selecciona Objetivo:</p>
-                      <div className="space-y-2 flex-1 overflow-y-auto pr-1">
-                        {rivales.map((r, idx) => {
-                          if (r.vidaActual <= 0) return null;
-                          return (
-                            <button 
-                              key={idx}
-                              onMouseEnter={() => setPreviewTarget({ charKey: rivalKeys[idx], name: r.nombrePersonaje })}
-                              onMouseLeave={() => setPreviewTarget(null)}
-                              onClick={() => handleModeAction(idx)}
-                              className="w-full text-left px-4 py-3 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 rounded text-sm font-bold transition-all text-zinc-200 hover:text-white"
-                            >
-                              {r.nombrePersonaje} <span className="float-right text-xs opacity-50">{r.vidaActual} HP</span>
-                            </button>
-                          );
-                        })}
+                  
+                  {/* Action Panel */}
+                  <div className="bg-zinc-900 border border-zinc-700 p-4 rounded-xl flex flex-col gap-3 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+                    <p className="text-xs font-black text-zinc-500 tracking-widest text-center border-b border-zinc-800 pb-2 mb-1">PANEL DE ACCIONES</p>
+                    {activeMode === 'NONE' ? (
+                      <>
+                        <button onClick={() => setActiveMode('ATACAR')} disabled={isAnimating} className="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-3 rounded tracking-wider shadow-[0_0_15px_rgba(220,38,38,0.2)] hover:shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all disabled:opacity-50">ATACAR</button>
+                        <button onClick={() => sendAction('DEFENDER')} disabled={isAnimating} className="w-full bg-blue-800 hover:bg-blue-700 text-white font-bold py-3 rounded tracking-wider transition-all disabled:opacity-50">DEFENDER</button>
+                        <button onClick={() => setActiveMode('PERK')} disabled={isAnimating || !actor.perks?.some(p => p.usos > 0)} className="w-full bg-purple-900 hover:bg-purple-800 text-white font-bold py-3 rounded tracking-wider transition-all disabled:opacity-50">USAR PERK</button>
+                      </>
+                    ) : activeMode === 'ATACAR' ? (
+                      <div className="flex flex-col h-full">
+                        <p className="text-sm text-zinc-400 mb-3 font-bold">Selecciona Objetivo:</p>
+                        <div className="space-y-2 flex-1 overflow-y-auto pr-1 max-h-48">
+                          {rivales.map((r, idx) => {
+                            if (r.vidaActual <= 0) return null;
+                            const fixedKey = r.nombrePersonaje.replace(/\s+/g, '');
+                            return (
+                              <button 
+                                key={`${r.nombrePersonaje}-${idx}`}
+                                onMouseEnter={() => setPreviewTarget({ charKey: fixedKey, name: r.nombrePersonaje })}
+                                onMouseLeave={() => setPreviewTarget(null)}
+                                onClick={() => handleModeAction(idx)}
+                                className="w-full text-left px-4 py-3 bg-zinc-950 hover:bg-red-900/50 border border-zinc-800 hover:border-red-600 rounded text-sm font-bold transition-all text-zinc-200 hover:text-white"
+                              >
+                                {r.nombrePersonaje} <span className="float-right text-xs opacity-50">{r.vidaActual} HP</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <button onClick={() => setActiveMode('NONE')} className="mt-4 w-full border border-zinc-700 hover:bg-zinc-800 py-2 rounded text-sm font-bold text-zinc-400 transition-all">CANCELAR</button>
                       </div>
-                      <button onClick={() => setActiveMode('NONE')} className="mt-4 w-full border border-zinc-700 hover:bg-zinc-800 py-2 rounded text-sm font-bold text-zinc-400 transition-all">CANCELAR</button>
-                    </div>
-                  ) : activeMode === 'PERK' ? (
-                    <div className="flex flex-col h-full">
-                      <p className="text-sm text-zinc-400 mb-3 font-bold">Selecciona Perk:</p>
-                      <div className="space-y-2 flex-1 overflow-y-auto pr-1">
-                        {actor.perks?.map((p, idx) => {
-                          if (p.usos <= 0) return null;
-                          return (
-                            <button 
-                              key={idx}
-                              onClick={() => {
-                                // Default to target 0 if backend doesn't care, or extend here if needed
-                                sendAction('PERK', 0, idx); 
-                              }}
-                              className="w-full text-left px-4 py-3 bg-purple-950/50 hover:bg-purple-900 border border-purple-900/50 rounded text-sm font-bold transition-all text-purple-200"
-                            >
-                              {p.nombre} <span className="float-right text-xs opacity-50">{p.usos} usos</span>
-                            </button>
-                          );
-                        })}
+                    ) : activeMode === 'PERK' ? (
+                      <div className="flex flex-col h-full">
+                        <p className="text-sm text-zinc-400 mb-3 font-bold">Selecciona Perk:</p>
+                        <div className="space-y-2 flex-1 overflow-y-auto pr-1 max-h-48">
+                          {actor.perks?.map((p, idx) => {
+                            if (p.usos <= 0) return null;
+                            return (
+                              <button 
+                                key={idx}
+                                onClick={() => {
+                                  sendAction('PERK', 0, idx); 
+                                }}
+                                className="w-full text-left px-4 py-3 bg-purple-950/50 hover:bg-purple-900 border border-purple-900/50 rounded text-sm font-bold transition-all text-purple-200"
+                              >
+                                {p.nombre} <span className="float-right text-xs opacity-50">{p.usos} usos</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <button onClick={() => setActiveMode('NONE')} className="mt-4 w-full border border-zinc-700 hover:bg-zinc-800 py-2 rounded text-sm font-bold text-zinc-400 transition-all">CANCELAR</button>
                       </div>
-                      <button onClick={() => setActiveMode('NONE')} className="mt-4 w-full border border-zinc-700 hover:bg-zinc-800 py-2 rounded text-sm font-bold text-zinc-400 transition-all">CANCELAR</button>
-                    </div>
-                  ) : null}
+                    ) : null}
+                  </div>
+
+                  <button 
+                    onClick={handleSaveGame} 
+                    className="mt-2 w-full bg-zinc-950 border-2 border-green-600 text-green-500 font-black py-4 rounded-xl tracking-[0.2em] uppercase shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.6)] hover:bg-green-950/30 transition-all active:scale-95"
+                  >
+                    GUARDAR PARTIDA
+                  </button>
                 </div>
               )}
             </div>

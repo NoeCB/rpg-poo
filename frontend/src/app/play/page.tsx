@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import toast, { Toaster } from 'react-hot-toast';
+import { motion } from 'framer-motion';
 
 const portraitMap: Record<string, string> = {
   // SUPERVIVIENTES
@@ -42,16 +44,21 @@ export default function PlayPage() {
   const [selectedKillers, setSelectedKillers] = useState<string[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // Fetch characters from backend via Next.js proxy
     const fetchCharacters = async () => {
       try {
-        // Fetch characters from backend via proxy
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
         const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
         const res = await fetch('/api/game/characters', {
-          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
         
         if (res.ok) {
           const data = await res.json();
@@ -64,9 +71,16 @@ export default function PlayPage() {
           setAvailableSurvs((data.supervivientes || []).map(mapToChar));
           setAvailableKillers((data.killers || []).map(mapToChar));
         } else {
-          console.error('Error fetching characters');
+          setIsError(true);
+          toast.error("Error al conectar con la Entidad: " + res.status, { style: { background: '#7f1d1d', color: '#fff' } });
         }
-      } catch (error) {
+      } catch (error: any) {
+        setIsError(true);
+        if (error.name === 'AbortError') {
+          toast.error("Tiempo de espera agotado. El servidor no responde.", { style: { background: '#7f1d1d', color: '#fff' } });
+        } else {
+          toast.error("Error crítico de red. ¿Servidor apagado?", { style: { background: '#7f1d1d', color: '#fff' } });
+        }
         console.error('Failed to connect to backend', error);
       } finally {
         setIsLoading(false);
@@ -92,11 +106,18 @@ export default function PlayPage() {
     });
   };
 
-  const handleStart = () => {
+  const handleStart = async () => {
     if (selectedSurvs.length === 3 && selectedKillers.length === 3) {
-      localStorage.setItem('selectedSurvs', JSON.stringify(selectedSurvs));
-      localStorage.setItem('selectedKillers', JSON.stringify(selectedKillers));
-      router.push('/trial');
+      setIsSubmitting(true);
+      try {
+        localStorage.setItem('selectedSurvs', JSON.stringify(selectedSurvs));
+        localStorage.setItem('selectedKillers', JSON.stringify(selectedKillers));
+        await new Promise(r => setTimeout(r, 800));
+        router.push('/trial');
+      } catch (error) {
+        toast.error("Error al iniciar partida");
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -156,14 +177,35 @@ export default function PlayPage() {
         {/* MAIN ROSTER */}
         <main className="flex-1 flex flex-col">
           {isLoading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-zinc-400 font-bold tracking-widest uppercase animate-pulse">Contactando a la Entidad...</p>
-              </div>
+            <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] gap-6 xl:gap-10 w-full animate-pulse mt-4 flex-1">
+               <div className="bg-black/40 rounded-3xl p-8 border border-zinc-800">
+                  <div className="h-8 w-48 bg-zinc-800 rounded mb-8"></div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                     {[1,2,3,4,5,6,7,8].map(i => <div key={i} className="aspect-[3/4] bg-zinc-900 rounded-xl"></div>)}
+                  </div>
+               </div>
+               <div className="hidden xl:block w-10"></div>
+               <div className="bg-black/40 rounded-3xl p-8 border border-zinc-800">
+                  <div className="h-8 w-48 bg-zinc-800 rounded mb-8"></div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                     {[1,2,3,4,5,6,7,8].map(i => <div key={i} className="aspect-[3/4] bg-zinc-900 rounded-xl"></div>)}
+                  </div>
+               </div>
+            </div>
+          ) : isError ? (
+            <div className="flex-1 flex items-center justify-center flex-col gap-4 text-center">
+              <span className="text-6xl">☠️</span>
+              <h2 className="text-3xl text-red-500 font-black tracking-widest">LA CONEXIÓN SE HA PERDIDO</h2>
+              <p className="text-zinc-400 max-w-lg">La Entidad no puede establecer conexión con el servidor. Verifica que el backend esté corriendo.</p>
+              <button onClick={() => window.location.reload()} className="mt-4 px-6 py-2 bg-red-900 text-white rounded hover:bg-red-800 font-bold uppercase transition-colors">Reintentar</button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] gap-6 xl:gap-10 items-start flex-1 w-full">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ duration: 0.6 }}
+              className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] gap-6 xl:gap-10 items-start flex-1 w-full"
+            >
               
               {/* SUPERVIVIENTES */}
               <div className="relative bg-black/40 backdrop-blur-sm border border-zinc-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden group/container">
@@ -278,7 +320,7 @@ export default function PlayPage() {
                   })}
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* ACTION BUTTON */}

@@ -34,6 +34,46 @@ public class TrialService {
         return gestorPersistencia.cargarLogros();
     }
 
+    public List<Map<String, Object>> getSaves() {
+        return gestorPersistencia.obtenerPartidas();
+    }
+
+    public GameStateResponse cargarPartida(int idRanura) {
+        ArrayList<Personaje> survis = new ArrayList<>();
+        ArrayList<Personaje> killers = new ArrayList<>();
+        Object[] meta = gestorPersistencia.cargarPartidaCompleta(idRanura, survis, killers);
+        
+        if (meta == null) {
+            throw new IllegalStateException("Ranura vacía o partida no encontrada");
+        }
+        
+        motor = new MotorTrial();
+        motor.configurarPartida();
+        motor.setIdRanuraActual(idRanura, (String) meta[1]);
+        motor.iniciarWeb(survis, killers);
+        
+        return construirRespuesta("Partida reanudada desde la ranura " + idRanura);
+    }
+
+    public GameStateResponse getState() {
+        if (motor == null) {
+            throw new IllegalStateException("No hay partida en curso");
+        }
+        return construirRespuesta("Estado actual recuperado");
+    }
+
+    public GameStateResponse guardarPartidaWeb(int ranura) {
+        if (motor == null) {
+            throw new IllegalStateException("No hay partida activa para guardar");
+        }
+        boolean exito = gestorPersistencia.guardarPartida(ranura, 1, "manual", false, motor.getSupervivientes(), motor.getKillers());
+        if (!exito) {
+            throw new IllegalStateException("Fallo al guardar en BD");
+        }
+        motor.setIdRanuraActual(ranura, "manual");
+        return construirRespuesta("Partida guardada exitosamente en la ranura " + ranura);
+    }
+
     public GameStateResponse iniciarPartidaAleatoria() {
         motor = new MotorTrial();
         motor.configurarPartida();
