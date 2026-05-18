@@ -57,21 +57,18 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 bg-[url('/dbdhubn.jpg')] bg-cover bg-center bg-fixed relative text-white">
-      <div className="absolute inset-0 bg-black/85 z-0 backdrop-blur-[2px]"></div>
-      
+      <div className="absolute inset-0 bg-black/70 z-0 backdrop-blur-[1px]"></div>
+
       <div className="relative z-10 p-6 md:p-12 max-w-6xl mx-auto flex flex-col min-h-screen">
         <header className="flex flex-col sm:flex-row justify-between items-center border-b border-red-900/40 pb-6 mb-10 gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-red-900/30 rounded-full flex items-center justify-center border border-red-600/50 shadow-[0_0_15px_rgba(220,38,38,0.3)]">
-              <span className="text-red-500 font-bold text-xl">D</span>
-            </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-black text-zinc-100 tracking-wider">PANEL DE CONTROL</h1>
-              <p className="text-red-500/80 text-sm font-medium tracking-widest">LA NIEBLA TE ESPERA</p>
+              <h1 className="text-5xl font-normal text-white tracking-[0.05em] font-[family-name:var(--font-another-danger)] drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">MENU PRINCIPAL</h1>
+              <p className="text-red-500/85 text-xs font-black tracking-[0.2em] mt-2 uppercase font-[family-name:var(--font-special-elite)]">LA NIEBLA TE ESPERA</p>
             </div>
           </div>
-          <button 
-            onClick={handleLogout} 
+          <button
+            onClick={handleLogout}
             className="px-6 py-2 border border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800 hover:border-zinc-500 rounded font-medium transition-all duration-300 active:scale-95"
           >
             Escapar
@@ -79,37 +76,78 @@ export default function DashboardPage() {
         </header>
 
         <main className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          
+
           {/* Card Nueva Partida */}
-          <div 
-            className="group bg-gradient-to-br from-zinc-900/90 to-zinc-950/90 border border-zinc-800 hover:border-red-600 p-8 rounded-xl shadow-lg hover:shadow-[0_0_30px_rgba(220,38,38,0.15)] transition-all duration-500 cursor-pointer transform hover:-translate-y-2 flex flex-col items-center text-center relative overflow-hidden" 
+          <div
+            className="group relative h-[480px] rounded-2xl overflow-hidden border border-zinc-800/85 hover:border-red-600/85 shadow-lg hover:shadow-[0_0_35px_rgba(220,38,38,0.25)] transition-all duration-500 cursor-pointer transform hover:-translate-y-2 flex flex-col justify-end p-6"
             onClick={() => router.push('/play')}
           >
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="w-20 h-20 rounded-full bg-red-950/30 border border-red-900/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 shadow-[0_0_20px_rgba(220,38,38,0.2)]">
-              <span className="text-red-500 text-3xl font-black drop-shadow-[0_0_8px_rgba(220,38,38,0.8)]">⚔</span>
+            {/* Card Background Image (occupies the whole card) */}
+            <div className="absolute inset-0 z-0">
+              <img
+                src="/gf.jpg"
+                alt="Nueva Partida"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.7] group-hover:brightness-[0.9]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent opacity-90 group-hover:opacity-85 transition-opacity"></div>
             </div>
-            <h2 className="text-2xl font-bold text-red-50 mb-3 group-hover:text-red-400 transition-colors duration-300 tracking-wide">Nueva Partida</h2>
-            <p className="text-zinc-400 text-sm leading-relaxed group-hover:text-zinc-300 transition-colors">
-              Adéntrate en la Niebla. Selecciona tu bando, prepara tu equipamiento y enfréntate a la prueba final.
-            </p>
+
+            {/* Overlaid themed box with text */}
+            <div className="relative z-10 bg-red-950/75 hover:bg-red-900/85 border border-red-900/40 backdrop-blur-[6px] p-5 rounded-xl text-center shadow-[0_4px_20px_rgba(220,38,38,0.2)] transition-all duration-300">
+              <h2 className="text-2xl font-black text-red-50 mb-2 group-hover:text-red-400 transition-colors duration-300 tracking-wide">Nueva Partida</h2>
+              <p className="text-zinc-200 text-xs leading-relaxed font-[family-name:var(--font-special-elite)] tracking-wide">
+                Adéntrate en la Niebla. Selecciona tu bando, prepara tu equipamiento y enfréntate a la prueba final.
+              </p>
+            </div>
           </div>
 
           {/* Card Cargar Partida */}
-          <div 
-            className="group bg-zinc-900/50 border border-zinc-800 hover:border-blue-600 p-8 rounded-xl shadow-lg hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] transition-all duration-500 cursor-pointer transform hover:-translate-y-2 flex flex-col items-center text-center relative overflow-hidden"
+          <div
+            className="group relative h-[480px] rounded-2xl overflow-hidden border border-zinc-800/85 hover:border-blue-600/85 shadow-lg hover:shadow-[0_0_35px_rgba(59,130,246,0.25)] transition-all duration-500 cursor-pointer transform hover:-translate-y-2 flex flex-col justify-end p-6"
             onClick={openLoadModal}
           >
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-600 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="w-20 h-20 rounded-full bg-blue-950/30 border border-blue-900/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
-              <span className="text-blue-500 text-3xl font-black drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]">⏳</span>
+            {/* Card Background Image (occupies the whole card) */}
+            <div className="absolute inset-0 z-0">
+              <img
+                src="/head.jpg"
+                alt="Cargar Partida"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.7] group-hover:brightness-[0.9]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent opacity-90 group-hover:opacity-85 transition-opacity"></div>
             </div>
-            <h2 className="text-2xl font-bold text-zinc-300 mb-3 group-hover:text-blue-400 transition-colors duration-300 tracking-wide">Cargar Partida</h2>
-            <p className="text-zinc-500 text-sm leading-relaxed group-hover:text-zinc-300 transition-colors">
-              Reanuda tus pruebas donde las dejaste. Accede a las ranuras de guardado de la Entidad.
-            </p>
+
+            {/* Overlaid themed box with text */}
+            <div className="relative z-10 bg-blue-950/75 hover:bg-blue-900/85 border border-blue-900/40 backdrop-blur-[6px] p-5 rounded-xl text-center shadow-[0_4px_20px_rgba(59,130,246,0.2)] transition-all duration-300">
+              <h2 className="text-2xl font-black text-zinc-100 mb-2 group-hover:text-blue-400 transition-colors duration-300 tracking-wide">Cargar Partida</h2>
+              <p className="text-zinc-200 text-xs leading-relaxed font-[family-name:var(--font-special-elite)] tracking-wide">
+                Reanuda tus pruebas donde las dejaste. Accede a las ranuras de guardado de la Entidad.
+              </p>
+            </div>
           </div>
-          
+
+          {/* Card Logros */}
+          <div
+            className="group relative h-[480px] rounded-2xl overflow-hidden border border-zinc-800/85 hover:border-purple-600/85 shadow-lg hover:shadow-[0_0_35px_rgba(168,85,247,0.25)] transition-all duration-500 cursor-not-allowed transform flex flex-col justify-end p-6"
+          >
+            {/* Card Background Image (occupies the whole card) */}
+            <div className="absolute inset-0 z-0">
+              <img
+                src="/hunter.jpg"
+                alt="Logros"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.4] group-hover:brightness-[0.7] grayscale group-hover:grayscale-0"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent opacity-90 group-hover:opacity-85 transition-opacity"></div>
+            </div>
+
+            {/* Overlaid themed box with text */}
+            <div className="relative z-10 bg-purple-950/75 hover:bg-purple-900/85 border border-purple-900/40 backdrop-blur-[6px] p-5 rounded-xl text-center shadow-[0_4px_20px_rgba(168,85,247,0.2)] transition-all duration-300">
+              <h2 className="text-2xl font-black text-zinc-100 mb-2 group-hover:text-purple-400 transition-colors duration-300 tracking-wide">Logros (unreleased)</h2>
+              <p className="text-zinc-300 text-xs leading-relaxed font-[family-name:var(--font-special-elite)] tracking-wide">
+                Próximamente. Registra tus hitos y descubre recompensas ocultas en la Niebla.
+              </p>
+            </div>
+          </div>
+
         </main>
 
         {/* MODAL DE CARGA */}
@@ -124,7 +162,7 @@ export default function DashboardPage() {
                   <span className="text-2xl font-bold">×</span>
                 </button>
               </div>
-              
+
               <div className="p-6 max-h-[60vh] overflow-y-auto">
                 {isLoadingSaves ? (
                   <div className="flex flex-col items-center justify-center py-12">
@@ -163,15 +201,14 @@ export default function DashboardPage() {
                               <span>🔪 Vivos: <span className="text-red-400">{save.killersVivos}</span></span>
                             </p>
                           </div>
-                          
-                          <button 
+
+                          <button
                             onClick={() => loadGame(save.id)}
                             disabled={save.terminada}
-                            className={`px-6 py-2 rounded font-bold uppercase tracking-wider text-sm transition-all ${
-                              save.terminada 
-                              ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed' 
+                            className={`px-6 py-2 rounded font-bold uppercase tracking-wider text-sm transition-all ${save.terminada
+                              ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
                               : 'bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_10px_rgba(59,130,246,0.3)] hover:shadow-[0_0_20px_rgba(59,130,246,0.5)]'
-                            }`}
+                              }`}
                           >
                             {save.terminada ? 'Completada' : 'Cargar'}
                           </button>
