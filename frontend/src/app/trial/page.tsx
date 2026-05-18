@@ -12,17 +12,21 @@ const portraitMap: Record<string, string> = {
   "FengMin": "/fenming.jpg",
   "SableWard": "/sableward.jpg",
   "Mikaela": "/mikaelareid.jpg",
+  "MikaelaReid": "/mikaelareid.jpg",
   "AdaWong": "/adawong.jpg",
   "LaraCroft": "/laracroft.jpg",
   "Nancy": "/nancy.jpg",
+  "NancyWheeler": "/nancy.jpg",
   // KILLERS
   "GhostFace": "/ghostface.jpg",
   "Legion": "/legion.jpg",
   "Onryo": "/onryo.jpg",
   "Animatronico": "/animatronico.jpg",
+  "Animatrónico": "/animatronico.jpg",
   "Ghoul": "/ghoul.jpg",
   "Chucky": "/chuckyf.jpg",
   "Wesker": "/wesker.jpg",
+  "AlbertWesker": "/wesker.jpg",
   "LaCerda": "/cerda.jpg",
   "DEFAULT": "/dbd_logo.png"
 };
@@ -45,6 +49,10 @@ interface GameState {
   logs: string[];
   partidaTerminada: boolean;
   ganador: string | null;
+  modoJuego?: string;
+  decidedAction?: string;
+  decidedTargetIndex?: number;
+  decidedPerkIndex?: number;
 }
 
 function HealthBar({ value, max }: { value: number, max: number }) {
@@ -115,9 +123,13 @@ export default function TrialPage() {
   const [currentIdx, setCurrentIdx] = useState(0);
   
   const [activeMode, setActiveMode] = useState<'NONE' | 'ATACAR' | 'PERK'>('NONE');
-  const [previewTarget, setPreviewTarget] = useState<{ charKey: string; name: string } | null>(null);
+  const [previewTarget, setPreviewTarget] = useState<{ charKey: string; name: string; image: string } | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animState, setAnimState] = useState<'IDLE' | 'ATTACK' | 'DAMAGE' | 'DEFEND'>('IDLE');
+
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [saves, setSaves] = useState<any[]>([]);
+  const [isLoadingSaves, setIsLoadingSaves] = useState(false);
 
   const logsEndRef = useRef<HTMLDivElement>(null);
 
@@ -151,7 +163,8 @@ export default function TrialPage() {
         
         const endpoint = isResume ? '/api/game/state' : '/api/game/start-manual';
         const method = isResume ? 'GET' : 'POST';
-        const body = isResume ? undefined : JSON.stringify({ supervivientes: sKeys, killers: kKeys });
+        const gameMode = localStorage.getItem('selectedMode') || 'manual';
+        const body = isResume ? undefined : JSON.stringify({ supervivientes: sKeys, killers: kKeys, modo: gameMode });
 
         const res = await fetch(endpoint, {
           method,
@@ -210,6 +223,18 @@ export default function TrialPage() {
     }
   }, [gameState, currentIdx, isSurviTurn]);
 
+  // Auto-play game loop for automatic mode
+  useEffect(() => {
+    if (!gameState || gameState.partidaTerminada || isLoading || isAnimating || isSaveModalOpen) return;
+
+    if (gameState.modoJuego === 'automatico') {
+      const timer = setTimeout(() => {
+        sendAction('AUTO');
+      }, 1600);
+      return () => clearTimeout(timer);
+    }
+  }, [gameState, isAnimating, isLoading, isSaveModalOpen, currentIdx, isSurviTurn]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center flex-col text-white">
@@ -246,31 +271,33 @@ export default function TrialPage() {
     const globalAtacanteIdx = isSurviTurn ? currentIdx : (gameState.supervivientes.length + currentIdx);
     const safeObjetivoIndex = objetivoIndex === -1 ? 0 : objetivoIndex;
 
-    // Preserve target info for the animation
     const rivales = isSurviTurn ? gameState.killers : gameState.supervivientes;
-    const rivalKeys = isSurviTurn ? killerKeys : survKeys;
-    if (safeObjetivoIndex < rivales.length) {
-      setPreviewTarget({
-        charKey: rivalKeys[safeObjetivoIndex],
-        name: rivales[safeObjetivoIndex].nombrePersonaje
-      });
-    }
 
-    // Mini animation logic before API call
-    if (tipoAccion === 'ATACAR' || tipoAccion === 'PERK') {
-      setAnimState('ATTACK');
-      await new Promise(r => setTimeout(r, 600));
-      setAnimState('DAMAGE');
-      await new Promise(r => setTimeout(r, 800));
-      setAnimState('IDLE');
-    } else if (tipoAccion === 'DEFENDER') {
-      setAnimState('DEFEND');
-      await new Promise(r => setTimeout(r, 800));
-      setAnimState('IDLE');
-    }
+    if (tipoAccion !== 'AUTO') {
+      // Manual action: trigger pre-animations
+      if (safeObjetivoIndex < rivales.length) {
+        const targetChar = rivales[safeObjetivoIndex];
+        const fixedKey = targetChar.nombrePersonaje.replace(/\s+/g, '');
+        setPreviewTarget({
+          charKey: fixedKey,
+          name: targetChar.nombrePersonaje,
+          image: portraitMap[fixedKey] || portraitMap['DEFAULT']
+        });
+      }
 
-    // Clear preview target after animations
-    setPreviewTarget(null);
+      if (tipoAccion === 'ATACAR' || tipoAccion === 'PERK') {
+        setAnimState('ATTACK');
+        await new Promise(r => setTimeout(r, 600));
+        setAnimState('DAMAGE');
+        await new Promise(r => setTimeout(r, 800));
+        setAnimState('IDLE');
+      } else if (tipoAccion === 'DEFENDER') {
+        setAnimState('DEFEND');
+        await new Promise(r => setTimeout(r, 800));
+        setAnimState('IDLE');
+      }
+      setPreviewTarget(null);
+    }
 
     try {
       const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
@@ -289,6 +316,39 @@ export default function TrialPage() {
       });
       
       const data: GameState = await res.json();
+      
+      if (tipoAccion === 'AUTO' && data) {
+        const decAction = data.decidedAction;
+        const decTargetIdx = data.decidedTargetIndex ?? -1;
+
+        if (decAction === 'ATACAR' || decAction === 'PERK') {
+          const safeDecTarget = decTargetIdx >= 0 && decTargetIdx < rivales.length ? decTargetIdx : 0;
+          const targetChar = rivales[safeDecTarget];
+          if (targetChar) {
+            const fixedKey = targetChar.nombrePersonaje.replace(/\s+/g, '');
+            setPreviewTarget({
+              charKey: fixedKey,
+              name: targetChar.nombrePersonaje,
+              image: portraitMap[fixedKey] || portraitMap['DEFAULT']
+            });
+          }
+          setAnimState('ATTACK');
+          await new Promise(r => setTimeout(r, 600));
+          setAnimState('DAMAGE');
+          await new Promise(r => setTimeout(r, 800));
+          setAnimState('IDLE');
+          setPreviewTarget(null);
+        } else if (decAction === 'DEFENDER') {
+          setAnimState('DEFEND');
+          await new Promise(r => setTimeout(r, 800));
+          setAnimState('IDLE');
+        } else {
+          setAnimState('ATTACK');
+          await new Promise(r => setTimeout(r, 450));
+          setAnimState('IDLE');
+        }
+      }
+
       setGameState(data);
       if (data.logs && data.logs.length > 0) {
         setCombatLogs(prev => [...prev, ...data.logs]);
@@ -309,7 +369,28 @@ export default function TrialPage() {
     sendAction(activeMode, targetIdx, perkIdx);
   };
 
-  const handleSaveGame = async () => {
+  const openSaveModal = async () => {
+    setIsSaveModalOpen(true);
+    setIsLoadingSaves(true);
+    try {
+      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
+      const res = await fetch('/api/game/saves', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSaves(data);
+      } else {
+        toast.error("Error al obtener ranuras de guardado.");
+      }
+    } catch (error) {
+      toast.error("Error de red al conectar.");
+    } finally {
+      setIsLoadingSaves(false);
+    }
+  };
+
+  const handleSaveGame = async (slotId: number) => {
     try {
       const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
       const res = await fetch('/api/game/save', {
@@ -318,10 +399,11 @@ export default function TrialPage() {
           'Content-Type': 'application/json',
           ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
-        body: JSON.stringify({ slot: 1 }) // Puedes extenderlo para elegir slot
+        body: JSON.stringify({ slot: slotId })
       });
       if (res.ok) {
-        toast.success('El progreso de la ronda ha sido sellado por la Entidad.');
+        toast.success(`El progreso ha sido sellado en la Ranura ${slotId}.`);
+        setIsSaveModalOpen(false);
       } else {
         console.error(`Error al guardar. Status: ${res.status}`);
         toast.error('Error al guardar la partida.');
@@ -398,7 +480,7 @@ export default function TrialPage() {
                       <div className={`w-48 h-64 md:w-64 md:h-96 rounded-xl overflow-hidden border-4 border-zinc-500 opacity-90 ${animState === 'DAMAGE' ? 'border-red-600 shadow-[0_0_50px_rgba(220,38,38,1)]' : ''}`}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img 
-                          src={previewTarget ? portraitMap[previewTarget.charKey] : portraitMap['DEFAULT']} 
+                          src={previewTarget ? previewTarget.image : portraitMap['DEFAULT']} 
                           alt="Target" 
                           className={`w-full h-full object-cover 
                             ${previewTarget?.charKey === 'AdaWong' ? 'object-center scale-[1.5]' : 
@@ -416,16 +498,13 @@ export default function TrialPage() {
                         </div>
                       )}
                     </div>
-                    <div className="mt-4 text-white bg-transparent font-bold tracking-wide text-xl md:text-2xl drop-shadow-md">
-                      {previewTarget?.name || 'Objetivo'}
+                  ) : (
+                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-zinc-950 border-4 border-red-900/60 flex items-center justify-center text-red-600 font-black text-4xl md:text-5xl shadow-[0_0_30px_rgba(220,38,38,0.4)] relative">
+                      <div className="absolute inset-0 bg-red-600/20 blur-xl rounded-full animate-pulse"></div>
+                      VS
                     </div>
-                    {animState === 'DAMAGE' && (
-                      <div className="absolute inset-0 flex items-center justify-center animate-[scratch_0.5s_ease-out_forwards]">
-                        <span className="text-8xl md:text-9xl text-red-600 font-black drop-shadow-[0_0_20px_rgba(220,38,38,1)] -rotate-[20deg] tracking-tighter">///</span>
-                      </div>
-                    )}
-                  </motion.div>
-                )}
+                  )}
+                </div>
               </div>
 
               {gameState.partidaTerminada && (
@@ -491,7 +570,15 @@ export default function TrialPage() {
                   {/* Action Panel */}
                   <div className="bg-zinc-900 border border-zinc-700 p-4 rounded-xl flex flex-col gap-3 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
                     <p className="text-xs font-black text-zinc-500 tracking-widest text-center border-b border-zinc-800 pb-2 mb-1">PANEL DE ACCIONES</p>
-                    {activeMode === 'NONE' ? (
+                    {gameState.modoJuego === 'automatico' ? (
+                      <div className="py-6 flex flex-col items-center justify-center text-center">
+                        <div className="w-12 h-12 bg-amber-500/20 border border-amber-500/50 rounded-full flex items-center justify-center animate-pulse mb-3">
+                          <span className="text-2xl">🤖</span>
+                        </div>
+                        <p className="text-amber-500 font-black tracking-widest text-sm uppercase">Modo Automático</p>
+                        <p className="text-zinc-500 text-xs mt-1 max-w-[200px]">La Entidad está guiando las acciones de los combatientes.</p>
+                      </div>
+                    ) : activeMode === 'NONE' ? (
                       <>
                         <button onClick={() => setActiveMode('ATACAR')} disabled={isAnimating} className="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-3 rounded tracking-wider shadow-[0_0_15px_rgba(220,38,38,0.2)] hover:shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all disabled:opacity-50">ATACAR</button>
                         <button onClick={() => sendAction('DEFENDER')} disabled={isAnimating} className="w-full bg-blue-800 hover:bg-blue-700 text-white font-bold py-3 rounded tracking-wider transition-all disabled:opacity-50">DEFENDER</button>
@@ -507,7 +594,7 @@ export default function TrialPage() {
                             return (
                               <button 
                                 key={`${r.nombrePersonaje}-${idx}`}
-                                onMouseEnter={() => setPreviewTarget({ charKey: fixedKey, name: r.nombrePersonaje })}
+                                onMouseEnter={() => setPreviewTarget({ charKey: fixedKey, name: r.nombrePersonaje, image: portraitMap[fixedKey] || portraitMap['DEFAULT'] })}
                                 onMouseLeave={() => setPreviewTarget(null)}
                                 onClick={() => handleModeAction(idx)}
                                 className="w-full text-left px-4 py-3 bg-zinc-950 hover:bg-red-900/50 border border-zinc-800 hover:border-red-600 rounded text-sm font-bold transition-all text-zinc-200 hover:text-white"
@@ -544,7 +631,7 @@ export default function TrialPage() {
                   </div>
 
                   <button 
-                    onClick={handleSaveGame} 
+                    onClick={openSaveModal} 
                     className="mt-2 w-full bg-zinc-950 border-2 border-green-600 text-green-500 font-black py-4 rounded-xl tracking-[0.2em] uppercase shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.6)] hover:bg-green-950/30 transition-all active:scale-95"
                   >
                     GUARDAR PARTIDA
@@ -555,6 +642,75 @@ export default function TrialPage() {
           </aside>
         </div>
       </div>
+
+      {/* MODAL DE GUARDADO */}
+      {isSaveModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
+          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-black/40">
+              <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-200 tracking-widest uppercase">
+                Sellar Progreso en la Niebla
+              </h3>
+              <button onClick={() => setIsSaveModalOpen(false)} className="text-zinc-500 hover:text-white transition-colors">
+                <span className="text-2xl font-bold">×</span>
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <p className="text-zinc-400 text-sm mb-6">
+                Elige una ranura del destino para resguardar tu estado actual de supervivencia o masacre. Si la ranura ya tiene una partida, se sobrescribirá.
+              </p>
+              
+              {isLoadingSaves ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                  <p className="text-zinc-400 font-bold tracking-widest uppercase animate-pulse">Consultando a la Entidad...</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {saves.map(save => (
+                    <div 
+                      key={save.id} 
+                      onClick={() => handleSaveGame(save.id)}
+                      className="group bg-zinc-900/60 hover:bg-green-950/20 border border-zinc-800 hover:border-green-600 p-5 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,197,94,0.15)] cursor-pointer"
+                    >
+                      <div>
+                        <div className="flex items-center gap-3 mb-1">
+                          <p className="text-zinc-300 group-hover:text-green-400 font-black text-lg transition-colors">Ranura {save.id}</p>
+                          <span className={`text-xs px-2 py-0.5 rounded uppercase font-bold tracking-wider ${save.vacia ? 'bg-zinc-800 text-zinc-500' : 'bg-red-900/40 text-red-400 border border-red-900/60'}`}>
+                            {save.vacia ? 'Vacía' : 'Ocupada'}
+                          </span>
+                        </div>
+                        {!save.vacia && (
+                          <>
+                            <p className="text-zinc-400 text-sm mb-1">
+                              Modo: <span className="text-zinc-200">{save.modoJuego.toUpperCase()}</span> | Ronda: <span className="text-zinc-200">{save.ronda}</span>
+                            </p>
+                            <p className="text-zinc-500 text-xs flex gap-3">
+                              <span>🏃 Vivos: <span className="text-blue-400">{save.survsVivos}</span></span>
+                              <span>🔪 Vivos: <span className="text-red-400">{save.killersVivos}</span></span>
+                            </p>
+                          </>
+                        )}
+                      </div>
+                      
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSaveGame(save.id);
+                        }}
+                        className="px-6 py-2 rounded font-bold uppercase tracking-wider text-sm bg-green-700 hover:bg-green-600 text-white shadow-[0_0_10px_rgba(34,197,94,0.3)] hover:shadow-[0_0_20px_rgba(34,197,94,0.5)] transition-all group-hover:scale-105"
+                      >
+                        Sellar Aquí
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes shake {

@@ -34,18 +34,36 @@ public class GestorPersistencia {
      * Guarda el estado entero de la partida en una ranura específica apoyándose en
      * Transacciones.
      */
-    public boolean guardarPartida(int idRanura, int ronda, String modoJuego, boolean terminada,
+    public boolean guardarPartida(int idRanura, Long usuarioId, int ronda, String modoJuego, boolean terminada,
             ArrayList<Personaje> survis, ArrayList<Personaje> killers) {
-        String sqlBorrarViejos = "DELETE FROM PERSONAJE_PARTIDA WHERE id_ranura = ?";
-        String sqlUpdatePartida = "UPDATE RANURA SET ronda_actual = ?, modo_juego = ?, terminada = ?, vacia = FALSE WHERE id_ranura = ?";
+        String sqlBorrarViejos = "DELETE FROM PERSONAJE_PARTIDA WHERE id_ranura = ? AND usuario_id = ?";
+        String sqlUpdatePartida = "UPDATE RANURA SET ronda_actual = ?, modo_juego = ?, terminada = ?, vacia = FALSE WHERE id_ranura = ? AND usuario_id = ?";
 
         try (Connection con = dataSource.getConnection()) {
             con.setAutoCommit(false); // Transacción para integridad total (Implementación 4)
+
+            // 0. Asegurar que las ranuras existen para este usuario
+            String countSql = "SELECT COUNT(*) FROM RANURA WHERE usuario_id = ?";
+            try (PreparedStatement pstCount = con.prepareStatement(countSql)) {
+                pstCount.setLong(1, usuarioId);
+                try (ResultSet rsCount = pstCount.executeQuery()) {
+                    if (rsCount.next() && rsCount.getInt(1) == 0) {
+                        String insertSql = "INSERT INTO RANURA (id_ranura, usuario_id, vacia) VALUES (1, ?, TRUE), (2, ?, TRUE), (3, ?, TRUE)";
+                        try (PreparedStatement pstInsert = con.prepareStatement(insertSql)) {
+                            pstInsert.setLong(1, usuarioId);
+                            pstInsert.setLong(2, usuarioId);
+                            pstInsert.setLong(3, usuarioId);
+                            pstInsert.executeUpdate();
+                        }
+                    }
+                }
+            }
 
             // 1. Limpiar los datos antiguos de esa ranura (ON DELETE CASCADE borrará armas
             // y perks viejas)
             try (PreparedStatement pstDel = con.prepareStatement(sqlBorrarViejos)) {
                 pstDel.setInt(1, idRanura);
+                pstDel.setLong(2, usuarioId);
                 pstDel.executeUpdate();
             }
 
@@ -55,15 +73,16 @@ public class GestorPersistencia {
                 pstUpd.setString(2, modoJuego);
                 pstUpd.setBoolean(3, terminada);
                 pstUpd.setInt(4, idRanura);
+                pstUpd.setLong(5, usuarioId);
                 pstUpd.executeUpdate();
             }
 
             // 3. Guardar PERSONAJES NUEVOS (Supervivientes y luego Killers)
             for (Personaje p : survis) {
-                insertarPersonajeCompleto(con, idRanura, p, "superviviente");
+                insertarPersonajeCompleto(con, idRanura, usuarioId, p, "superviviente");
             }
             for (Personaje p : killers) {
-                insertarPersonajeCompleto(con, idRanura, p, "killer");
+                insertarPersonajeCompleto(con, idRanura, usuarioId, p, "killer");
             }
 
             con.commit();
@@ -75,20 +94,21 @@ public class GestorPersistencia {
         }
     }
 
-    private void insertarPersonajeCompleto(Connection con, int idRanura, Personaje p, String bando)
+    private void insertarPersonajeCompleto(Connection con, int idRanura, Long usuarioId, Personaje p, String bando)
             throws SQLException {
-        String sqlPers = "INSERT INTO PERSONAJE_PARTIDA (id_ranura, clase_personaje, nombre, vida_actual, vida_max, defensa_base, defendiendo, bando) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sqlPers = "INSERT INTO PERSONAJE_PARTIDA (id_ranura, usuario_id, clase_personaje, nombre, vida_actual, vida_max, defensa_base, defendiendo, bando) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int idPersonaje = -1;
 
         try (PreparedStatement pst = con.prepareStatement(sqlPers, Statement.RETURN_GENERATED_KEYS)) {
             pst.setInt(1, idRanura);
-            pst.setString(2, p.getClass().getSimpleName()); // Guardamos la clase exacta (ej. GhostFace, Mikaela)
-            pst.setString(3, p.getNombrePersonaje());
-            pst.setInt(4, p.getVidaActual());
-            pst.setInt(5, p.getVidaMax());
-            pst.setInt(6, p.getDefensaBase());
-            pst.setBoolean(7, p.isDefendiendo());
-            pst.setString(8, bando);
+            pst.setLong(2, usuarioId);
+            pst.setString(3, p.getClass().getSimpleName()); // Guardamos la clase exacta (ej. GhostFace, Mikaela)
+            pst.setString(4, p.getNombrePersonaje());
+            pst.setInt(5, p.getVidaActual());
+            pst.setInt(6, p.getVidaMax());
+            pst.setInt(7, p.getDefensaBase());
+            pst.setBoolean(8, p.isDefendiendo());
+            pst.setString(9, bando);
             pst.executeUpdate();
 
             ResultSet rs = pst.getGeneratedKeys();
@@ -145,41 +165,63 @@ public class GestorPersistencia {
      * Detallado).
      */
     public void listarPartidas() {
-        String sql = "SELECT p.id_ranura, p.fecha_guardado, p.ronda_actual, p.modo_juego, p.terminada, p.vacia, " +
-                " (SELECT COUNT(*) FROM PERSONAJE_PARTIDA pp WHERE pp.id_ranura = p.id_ranura AND pp.bando='superviviente' AND pp.vida_actual > 0) as survs_vivos, "
-                +
-                " (SELECT COUNT(*) FROM PERSONAJE_PARTIDA pp WHERE pp.id_ranura = p.id_ranura AND pp.bando='killer' AND pp.vida_actual > 0) as killers_vivos "
-                +
-                " FROM RANURA p ORDER BY p.id_ranura ASC";
+        listarPartidas(1L);
+    }
 
+    public void listarPartidas(Long usuarioId) {
+        // Crear las ranuras si no existen para este usuario
+        String countSql = "SELECT COUNT(*) FROM RANURA WHERE usuario_id = ?";
         try (Connection con = dataSource.getConnection();
-                PreparedStatement pst = con.prepareStatement(sql);
-                ResultSet rs = pst.executeQuery()) {
-
-            System.out.println(MORADO + "\n========== RANURAS DE GUARDADO ==========" + RESET);
-            while (rs.next()) {
-                int id = rs.getInt("id_ranura");
-                boolean vacia = rs.getBoolean("vacia");
-
-                if (vacia) {
-                    System.out.println(CYAN + "[Ranura " + id + "] " + AMARILLO + "--- VACÍA ---" + RESET);
-                } else {
-                    String modo = rs.getString("modo_juego");
-                    int ronda = rs.getInt("ronda_actual");
-                    String fecha = rs.getString("fecha_guardado");
-                    int survsVivos = rs.getInt("survs_vivos");
-                    int killersVivos = rs.getInt("killers_vivos");
-                    boolean terminada = rs.getBoolean("terminada");
-
-                    String estadoStr = terminada ? (ROJO + "[FINALIZADA]" + RESET) : (VERDE + "[EN CURSO]" + RESET);
-
-                    System.out.println(CYAN + "[Ranura " + id + "] " + estadoStr +
-                            " Ronda: " + ronda + " | Modo: " + modo + " | Survs Vivos: " + survsVivos
-                            + " | Killers Vivos: " + killersVivos +
-                            " | " + fecha + RESET);
+             PreparedStatement pstCount = con.prepareStatement(countSql)) {
+            pstCount.setLong(1, usuarioId);
+            try (ResultSet rsCount = pstCount.executeQuery()) {
+                if (rsCount.next() && rsCount.getInt(1) == 0) {
+                    String insertSql = "INSERT INTO RANURA (id_ranura, usuario_id, vacia) VALUES (1, ?, TRUE), (2, ?, TRUE), (3, ?, TRUE)";
+                    try (PreparedStatement pstInsert = con.prepareStatement(insertSql)) {
+                        pstInsert.setLong(1, usuarioId);
+                        pstInsert.setLong(2, usuarioId);
+                        pstInsert.setLong(3, usuarioId);
+                        pstInsert.executeUpdate();
+                    }
                 }
             }
-            System.out.println(MORADO + "=========================================\n" + RESET);
+        } catch(SQLException e) { e.printStackTrace(); }
+
+        String sql = "SELECT p.id_ranura, p.fecha_guardado, p.ronda_actual, p.modo_juego, p.terminada, p.vacia, " +
+                " (SELECT COUNT(*) FROM PERSONAJE_PARTIDA pp WHERE pp.id_ranura = p.id_ranura AND pp.usuario_id = p.usuario_id AND pp.bando='superviviente' AND pp.vida_actual > 0) as survs_vivos, " +
+                " (SELECT COUNT(*) FROM PERSONAJE_PARTIDA pp WHERE pp.id_ranura = p.id_ranura AND pp.usuario_id = p.usuario_id AND pp.bando='killer' AND pp.vida_actual > 0) as killers_vivos " +
+                " FROM RANURA p WHERE p.usuario_id = ? ORDER BY p.id_ranura ASC";
+
+        try (Connection con = dataSource.getConnection();
+                PreparedStatement pst = con.prepareStatement(sql)) {
+            pst.setLong(1, usuarioId);
+            try (ResultSet rs = pst.executeQuery()) {
+
+                System.out.println(MORADO + "\n========== RANURAS DE GUARDADO ==========" + RESET);
+                while (rs.next()) {
+                    int id = rs.getInt("id_ranura");
+                    boolean vacia = rs.getBoolean("vacia");
+
+                    if (vacia) {
+                        System.out.println(CYAN + "[Ranura " + id + "] " + AMARILLO + "--- VACÍA ---" + RESET);
+                    } else {
+                        String modo = rs.getString("modo_juego");
+                        int ronda = rs.getInt("ronda_actual");
+                        String fecha = rs.getString("fecha_guardado");
+                        int survsVivos = rs.getInt("survs_vivos");
+                        int killersVivos = rs.getInt("killers_vivos");
+                        boolean terminada = rs.getBoolean("terminada");
+
+                        String estadoStr = terminada ? (ROJO + "[FINALIZADA]" + RESET) : (VERDE + "[EN CURSO]" + RESET);
+
+                        System.out.println(CYAN + "[Ranura " + id + "] " + estadoStr +
+                                " Ronda: " + ronda + " | Modo: " + modo + " | Survs Vivos: " + survsVivos
+                                + " | Killers Vivos: " + killersVivos +
+                                " | " + fecha + RESET);
+                    }
+                }
+                System.out.println(MORADO + "=========================================\n" + RESET);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("Error al listar partidas.");
@@ -189,30 +231,50 @@ public class GestorPersistencia {
     /**
      * Retorna la lista de partidas para la API web.
      */
-    public List<Map<String, Object>> obtenerPartidas() {
+    public List<Map<String, Object>> obtenerPartidas(Long usuarioId) {
         List<Map<String, Object>> partidas = new ArrayList<>();
+        
+        // Crear las ranuras si no existen para este usuario
+        String countSql = "SELECT COUNT(*) FROM RANURA WHERE usuario_id = ?";
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement pstCount = con.prepareStatement(countSql)) {
+            pstCount.setLong(1, usuarioId);
+            try (ResultSet rsCount = pstCount.executeQuery()) {
+                if (rsCount.next() && rsCount.getInt(1) == 0) {
+                    String insertSql = "INSERT INTO RANURA (id_ranura, usuario_id, vacia) VALUES (1, ?, TRUE), (2, ?, TRUE), (3, ?, TRUE)";
+                    try (PreparedStatement pstInsert = con.prepareStatement(insertSql)) {
+                        pstInsert.setLong(1, usuarioId);
+                        pstInsert.setLong(2, usuarioId);
+                        pstInsert.setLong(3, usuarioId);
+                        pstInsert.executeUpdate();
+                    }
+                }
+            }
+        } catch(SQLException e) { e.printStackTrace(); }
+
         String sql = "SELECT p.id_ranura, p.fecha_guardado, p.ronda_actual, p.modo_juego, p.terminada, p.vacia, " +
-                " (SELECT COUNT(*) FROM PERSONAJE_PARTIDA pp WHERE pp.id_ranura = p.id_ranura AND pp.bando='superviviente' AND pp.vida_actual > 0) as survs_vivos, " +
-                " (SELECT COUNT(*) FROM PERSONAJE_PARTIDA pp WHERE pp.id_ranura = p.id_ranura AND pp.bando='killer' AND pp.vida_actual > 0) as killers_vivos " +
-                " FROM RANURA p ORDER BY p.id_ranura ASC";
+                " (SELECT COUNT(*) FROM PERSONAJE_PARTIDA pp WHERE pp.id_ranura = p.id_ranura AND pp.usuario_id = p.usuario_id AND pp.bando='superviviente' AND pp.vida_actual > 0) as survs_vivos, " +
+                " (SELECT COUNT(*) FROM PERSONAJE_PARTIDA pp WHERE pp.id_ranura = p.id_ranura AND pp.usuario_id = p.usuario_id AND pp.bando='killer' AND pp.vida_actual > 0) as killers_vivos " +
+                " FROM RANURA p WHERE p.usuario_id = ? ORDER BY p.id_ranura ASC";
 
         try (Connection con = dataSource.getConnection();
-                PreparedStatement pst = con.prepareStatement(sql);
-                ResultSet rs = pst.executeQuery()) {
-
-            while (rs.next()) {
-                Map<String, Object> map = new HashMap<>();
-                map.put("id", rs.getInt("id_ranura"));
-                map.put("vacia", rs.getBoolean("vacia"));
-                if (!rs.getBoolean("vacia")) {
-                    map.put("modoJuego", rs.getString("modo_juego"));
-                    map.put("ronda", rs.getInt("ronda_actual"));
-                    map.put("fecha", rs.getString("fecha_guardado"));
-                    map.put("survsVivos", rs.getInt("survs_vivos"));
-                    map.put("killersVivos", rs.getInt("killers_vivos"));
-                    map.put("terminada", rs.getBoolean("terminada"));
+             PreparedStatement pst = con.prepareStatement(sql)) {
+            pst.setLong(1, usuarioId);
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", rs.getInt("id_ranura"));
+                    map.put("vacia", rs.getBoolean("vacia"));
+                    if (!rs.getBoolean("vacia")) {
+                        map.put("modoJuego", rs.getString("modo_juego"));
+                        map.put("ronda", rs.getInt("ronda_actual"));
+                        map.put("fecha", rs.getString("fecha_guardado"));
+                        map.put("survsVivos", rs.getInt("survs_vivos"));
+                        map.put("killersVivos", rs.getInt("killers_vivos"));
+                        map.put("terminada", rs.getBoolean("terminada"));
+                    }
+                    partidas.add(map);
                 }
-                partidas.add(map);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -223,19 +285,21 @@ public class GestorPersistencia {
     /**
      * Borra los datos de una ranura, declarándola vacía.
      */
-    public void borrarPartida(int idRanura) {
-        String sqlBorrarPers = "DELETE FROM PERSONAJE_PARTIDA WHERE id_ranura = ?";
-        String sqlUpdatePartida = "UPDATE RANURA SET ronda_actual = 1, terminada = FALSE, vacia = TRUE WHERE id_ranura = ?";
+    public void borrarPartida(int idRanura, Long usuarioId) {
+        String sqlBorrarPers = "DELETE FROM PERSONAJE_PARTIDA WHERE id_ranura = ? AND usuario_id = ?";
+        String sqlUpdatePartida = "UPDATE RANURA SET ronda_actual = 1, terminada = FALSE, vacia = TRUE WHERE id_ranura = ? AND usuario_id = ?";
 
         try (Connection con = dataSource.getConnection()) {
             con.setAutoCommit(false);
 
             try (PreparedStatement pst1 = con.prepareStatement(sqlBorrarPers)) {
                 pst1.setInt(1, idRanura);
+                pst1.setLong(2, usuarioId);
                 pst1.executeUpdate();
             }
             try (PreparedStatement pst2 = con.prepareStatement(sqlUpdatePartida)) {
                 pst2.setInt(1, idRanura);
+                pst2.setLong(2, usuarioId);
                 pst2.executeUpdate();
             }
 
@@ -246,14 +310,19 @@ public class GestorPersistencia {
         }
     }
 
+    public Object[] cargarPartidaCompleta(int idRanura, ArrayList<Personaje> survisRef,
+            ArrayList<Personaje> killersRef) {
+        return cargarPartidaCompleta(idRanura, 1L, survisRef, killersRef);
+    }
+
     /**
      * Carga completa desde Base de Datos instanciando clases por Reflection
      * (Implementación 3).
      * Retorna un Array con: [0] Ronda (int), [1] Modo de Juego (String)
      */
-    public Object[] cargarPartidaCompleta(int idRanura, ArrayList<Personaje> survisRef,
+    public Object[] cargarPartidaCompleta(int idRanura, Long usuarioId, ArrayList<Personaje> survisRef,
             ArrayList<Personaje> killersRef) {
-        String sqlPartida = "SELECT ronda_actual, modo_juego, vacia FROM RANURA WHERE id_ranura = ?";
+        String sqlPartida = "SELECT ronda_actual, modo_juego, vacia FROM RANURA WHERE id_ranura = ? AND usuario_id = ?";
         try (Connection con = dataSource.getConnection()) {
 
             int ronda = 1;
@@ -262,6 +331,7 @@ public class GestorPersistencia {
 
             try (PreparedStatement pst = con.prepareStatement(sqlPartida)) {
                 pst.setInt(1, idRanura);
+                pst.setLong(2, usuarioId);
                 try (ResultSet rs = pst.executeQuery()) {
                     if (rs.next()) {
                         vacia = rs.getBoolean("vacia");
@@ -281,9 +351,10 @@ public class GestorPersistencia {
             survisRef.clear();
             killersRef.clear();
 
-            String sqlPersonajes = "SELECT * FROM PERSONAJE_PARTIDA WHERE id_ranura = ?";
+            String sqlPersonajes = "SELECT * FROM PERSONAJE_PARTIDA WHERE id_ranura = ? AND usuario_id = ?";
             try (PreparedStatement pstP = con.prepareStatement(sqlPersonajes)) {
                 pstP.setInt(1, idRanura);
+                pstP.setLong(2, usuarioId);
                 try (ResultSet rsP = pstP.executeQuery()) {
                     while (rsP.next()) {
                         int idPersDB = rsP.getInt("id_personaje");
@@ -476,14 +547,38 @@ public class GestorPersistencia {
         }
     }
 
+    private Long obtenerUsuarioIdActual() {
+        try {
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
+                String username = auth.getName();
+                String sql = "SELECT id FROM usuarios WHERE username = ?";
+                try (Connection con = dataSource.getConnection();
+                     PreparedStatement pst = con.prepareStatement(sql)) {
+                    pst.setString(1, username);
+                    try (ResultSet rs = pst.executeQuery()) {
+                        if (rs.next()) {
+                            return rs.getLong("id");
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Fuera de contexto web
+        }
+        return 1L; // Usuario por defecto
+    }
+
     /**
-     * Desbloquea un logro en la base de datos si no lo estaba.
+     * Desbloquea un logro en la base de datos si no lo estaba para el usuario actual.
      */
     public void desbloquearLogro(int idLogro) {
-        String sql = "UPDATE LOGROS SET conseguido = TRUE WHERE id_logro = ? AND conseguido = FALSE";
+        Long usuarioId = obtenerUsuarioIdActual();
+        String sqlInsert = "INSERT IGNORE INTO USUARIOS_LOGROS (usuario_id, id_logro) VALUES (?, ?)";
         try (Connection con = dataSource.getConnection();
-                PreparedStatement pst = con.prepareStatement(sql)) {
-            pst.setInt(1, idLogro);
+                PreparedStatement pst = con.prepareStatement(sqlInsert)) {
+            pst.setLong(1, usuarioId);
+            pst.setInt(2, idLogro);
             int filas = pst.executeUpdate();
             if (filas > 0) {
                 // Para saber el nombre y avisar
@@ -491,7 +586,7 @@ public class GestorPersistencia {
                     pst2.setInt(1, idLogro);
                     ResultSet rs = pst2.executeQuery();
                     if (rs.next()) {
-                        System.out.println(AMARILLO + "\n¡LOGRO DESBLOQUEADO: " + rs.getString("nombre") + "!" + RESET);
+                        System.out.println(AMARILLO + "\n¡LOGRO DESBLOQUEADO PARA USUARIO " + usuarioId + ": " + rs.getString("nombre") + "!" + RESET);
                     }
                 }
             }
@@ -501,17 +596,30 @@ public class GestorPersistencia {
     }
 
     /**
-     * Carga todos los logros.
+     * Carga todos los logros para el usuario actual.
      */
     public ArrayList<Logro> cargarLogros() {
+        Long usuarioId = obtenerUsuarioIdActual();
+        return cargarLogrosParaUsuario(usuarioId);
+    }
+
+    /**
+     * Carga todos los logros para un usuario específico.
+     */
+    public ArrayList<Logro> cargarLogrosParaUsuario(Long usuarioId) {
         ArrayList<Logro> lista = new ArrayList<>();
-        String sql = "SELECT * FROM LOGROS";
+        String sql = "SELECT l.id_logro, l.nombre, l.descripcion, " +
+                     "CASE WHEN ul.usuario_id IS NOT NULL THEN TRUE ELSE FALSE END as conseguido " +
+                     "FROM LOGROS l " +
+                     "LEFT JOIN USUARIOS_LOGROS ul ON l.id_logro = ul.id_logro AND ul.usuario_id = ?";
         try (Connection con = dataSource.getConnection();
-                PreparedStatement pst = con.prepareStatement(sql);
-                ResultSet rs = pst.executeQuery()) {
-            while (rs.next()) {
-                lista.add(new Logro(rs.getInt("id_logro"), rs.getString("nombre"), rs.getString("descripcion"),
-                        rs.getBoolean("conseguido")));
+                PreparedStatement pst = con.prepareStatement(sql)) {
+            pst.setLong(1, usuarioId);
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(new Logro(rs.getInt("id_logro"), rs.getString("nombre"), rs.getString("descripcion"),
+                            rs.getBoolean("conseguido")));
+                }
             }
         } catch (SQLException e) {
             UtilDAO.imprimirErrorSQL(e);

@@ -29,14 +29,16 @@ public class GameController {
     @GetMapping("/saves")
     public ResponseEntity<List<Map<String, Object>>> getSaves() {
         System.out.println(">>> [GameController] GET /saves : Petición recibida.");
-        return ResponseEntity.ok(trialService.getSaves());
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(trialService.getSaves(username));
     }
 
     @PostMapping("/load/{id}")
     public ResponseEntity<GameStateResponse> loadSave(@PathVariable int id) {
         System.out.println(">>> [GameController] POST /load/" + id + " : Cargando partida...");
         try {
-            GameStateResponse response = trialService.cargarPartida(id);
+            String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+            GameStateResponse response = trialService.cargarPartida(id, username);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             System.err.println("Error al cargar la partida " + id + ": " + e.getMessage());
@@ -48,7 +50,8 @@ public class GameController {
     public ResponseEntity<GameStateResponse> saveGame(@RequestBody Map<String, Integer> payload) {
         try {
             int ranura = payload.getOrDefault("slot", 1);
-            return ResponseEntity.ok(trialService.guardarPartidaWeb(ranura));
+            String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+            return ResponseEntity.ok(trialService.guardarPartidaWeb(ranura, username));
         } catch (Exception e) {
             System.err.println("Error al guardar la partida: " + e.getMessage());
             return ResponseEntity.badRequest().body(null);
@@ -66,7 +69,8 @@ public class GameController {
 
     @GetMapping("/achievements")
     public ResponseEntity<List<Logro>> getAchievements() {
-        return ResponseEntity.ok(trialService.getLogros());
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(trialService.getLogros(username));
     }
 
     @PostMapping("/start")
@@ -77,7 +81,9 @@ public class GameController {
 
     @PostMapping("/start-manual")
     public ResponseEntity<GameStateResponse> iniciarPartidaManual(@RequestBody CharacterSelectionRequest request) {
+        System.out.println(">>> [GameController] iniciarPartidaManual recibida. Modo en request: " + request.getModo());
         GameStateResponse response = trialService.iniciarPartidaManual(request);
+        System.out.println(">>> [GameController] Respuesta construida. Modo de juego en respuesta: " + response.getModoJuego());
         return ResponseEntity.ok(response);
     }
 

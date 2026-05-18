@@ -7,6 +7,8 @@ import com.dbd.dto.ActionRequest;
 import com.dbd.dto.GameStateResponse;
 import com.dbd.dto.CharacterSelectionRequest;
 import com.dbd.entidades.Personaje;
+import com.dbd.dao.UsuarioRepository;
+import com.dbd.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,9 @@ public class TrialService {
     @Autowired
     private GestorPersistencia gestorPersistencia;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     private MotorTrial motor;
 
     public Map<String, List<String>> getAvailableCharacters() {
@@ -34,14 +39,24 @@ public class TrialService {
         return gestorPersistencia.cargarLogros();
     }
 
-    public List<Map<String, Object>> getSaves() {
-        return gestorPersistencia.obtenerPartidas();
+    public List<Logro> getLogros(String username) {
+        Usuario user = usuarioRepository.findByUsername(username).orElse(null);
+        if (user != null) {
+            return gestorPersistencia.cargarLogrosParaUsuario(user.getId());
+        }
+        return gestorPersistencia.cargarLogros();
     }
 
-    public GameStateResponse cargarPartida(int idRanura) {
+    public List<Map<String, Object>> getSaves(String username) {
+        Usuario user = usuarioRepository.findByUsername(username).orElseThrow(() -> new IllegalStateException("Usuario no encontrado"));
+        return gestorPersistencia.obtenerPartidas(user.getId());
+    }
+
+    public GameStateResponse cargarPartida(int idRanura, String username) {
+        Usuario user = usuarioRepository.findByUsername(username).orElseThrow(() -> new IllegalStateException("Usuario no encontrado"));
         ArrayList<Personaje> survis = new ArrayList<>();
         ArrayList<Personaje> killers = new ArrayList<>();
-        Object[] meta = gestorPersistencia.cargarPartidaCompleta(idRanura, survis, killers);
+        Object[] meta = gestorPersistencia.cargarPartidaCompleta(idRanura, user.getId(), survis, killers);
         
         if (meta == null) {
             throw new IllegalStateException("Ranura vacía o partida no encontrada");
@@ -62,15 +77,17 @@ public class TrialService {
         return construirRespuesta("Estado actual recuperado");
     }
 
-    public GameStateResponse guardarPartidaWeb(int ranura) {
+    public GameStateResponse guardarPartidaWeb(int ranura, String username) {
         if (motor == null) {
             throw new IllegalStateException("No hay partida activa para guardar");
         }
-        boolean exito = gestorPersistencia.guardarPartida(ranura, 1, "manual", false, motor.getSupervivientes(), motor.getKillers());
+        Usuario user = usuarioRepository.findByUsername(username).orElseThrow(() -> new IllegalStateException("Usuario no encontrado"));
+        String modo = (motor.getModoActual() != null) ? motor.getModoActual() : "manual";
+        boolean exito = gestorPersistencia.guardarPartida(ranura, user.getId(), 1, modo, false, motor.getSupervivientes(), motor.getKillers());
         if (!exito) {
             throw new IllegalStateException("Fallo al guardar en BD");
         }
-        motor.setIdRanuraActual(ranura, "manual");
+        motor.setIdRanuraActual(ranura, modo);
         return construirRespuesta("Partida guardada exitosamente en la ranura " + ranura);
     }
 
@@ -84,6 +101,8 @@ public class TrialService {
     public GameStateResponse iniciarPartidaManual(CharacterSelectionRequest request) {
         motor = new MotorTrial();
         motor.configurarPartida();
+        String modo = (request.getModo() != null && !request.getModo().isEmpty()) ? request.getModo() : "manual";
+        motor.setIdRanuraActual(-1, modo);
         
         ArrayList<Personaje> survis = new ArrayList<>();
         ArrayList<Personaje> killers = new ArrayList<>();
@@ -140,6 +159,15 @@ public class TrialService {
         String logAction = "";
 
         switch (request.getTipoAccion().toUpperCase()) {
+            case "AUTO":
+                if (actor != null) {
+                    actor.decidirAccionIA(atacantes, rivales);
+                    logAction = actor.getUltimoMensajeLog();
+                    if (logAction == null || logAction.isEmpty()) {
+                        logAction = actor.getNombrePersonaje() + " realizó una maniobra táctica automática.";
+                    }
+                }
+                break;
             case "ATACAR":
                 if (actor != null && objetivo != null) {
                     int danio = actor.getArma() != null ? actor.getArma().getDanioBase() : 15;
@@ -170,6 +198,11 @@ public class TrialService {
         boolean killersVivos = motor.getKillers().stream().anyMatch(p -> p.getVidaActual() > 0);
 
         GameStateResponse response = construirRespuesta(logAction);
+        if (request.getTipoAccion().equalsIgnoreCase("AUTO") && actor != null) {
+            response.setDecidedAction(actor.getDecidedAction());
+            response.setDecidedTargetIndex(actor.getDecidedTargetIndex());
+            response.setDecidedPerkIndex(actor.getDecidedPerkIndex());
+        }
 
         if (!survisVivos || !killersVivos) {
             response.setPartidaTerminada(true);
@@ -185,6 +218,7 @@ public class TrialService {
         if (motor != null) {
             response.setSupervivientes(motor.getSupervivientes());
             response.setKillers(motor.getKillers());
+            response.setModoJuego(motor.getModoActual());
         }
         if (logAction != null && !logAction.isEmpty()) {
             response.addLog(logAction);
