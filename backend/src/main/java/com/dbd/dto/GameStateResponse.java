@@ -54,4 +54,42 @@ public class GameStateResponse {
     public void setGanador(String ganador) {
         this.ganador = ganador;
     }
+
+    private String modoJuego = "manual";
+
+    public String getModoJuego() {
+        return modoJuego;
+    }
+
+    public void setModoJuego(String modoJuego) {
+        this.modoJuego = modoJuego;
+    }
+
+    private String decidedAction = "";
+    private int decidedTargetIndex = -1;
+    private int decidedPerkIndex = -1;
+
+    public String getDecidedAction() {
+        return decidedAction;
+    }
+
+    public void setDecidedAction(String decidedAction) {
+        this.decidedAction = decidedAction;
+    }
+
+    public int getDecidedTargetIndex() {
+        return decidedTargetIndex;
+    }
+
+    public void setDecidedTargetIndex(int decidedTargetIndex) {
+        this.decidedTargetIndex = decidedTargetIndex;
+    }
+
+    public int getDecidedPerkIndex() {
+        return decidedPerkIndex;
+    }
+
+    public void setDecidedPerkIndex(int decidedPerkIndex) {
+        this.decidedPerkIndex = decidedPerkIndex;
+    }
 }

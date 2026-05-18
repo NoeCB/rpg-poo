@@ -59,6 +59,44 @@ public abstract class Personaje {
      */
     protected boolean defendiendo = false;
 
+    private String ultimoMensajeLog = "";
+
+    public String getUltimoMensajeLog() {
+        return ultimoMensajeLog;
+    }
+
+    public void setUltimoMensajeLog(String ultimoMensajeLog) {
+        this.ultimoMensajeLog = ultimoMensajeLog;
+    }
+
+    private String decidedAction = "";
+    private int decidedTargetIndex = -1;
+    private int decidedPerkIndex = -1;
+
+    public String getDecidedAction() {
+        return decidedAction;
+    }
+
+    public void setDecidedAction(String decidedAction) {
+        this.decidedAction = decidedAction;
+    }
+
+    public int getDecidedTargetIndex() {
+        return decidedTargetIndex;
+    }
+
+    public void setDecidedTargetIndex(int decidedTargetIndex) {
+        this.decidedTargetIndex = decidedTargetIndex;
+    }
+
+    public int getDecidedPerkIndex() {
+        return decidedPerkIndex;
+    }
+
+    public void setDecidedPerkIndex(int decidedPerkIndex) {
+        this.decidedPerkIndex = decidedPerkIndex;
+    }
+
     /**
      * Constructor que inicializa un personaje con sus atributos base.
      * Crea las listas vacías de estados y perks, así como establece el arma en
@@ -372,13 +410,24 @@ public abstract class Personaje {
                     Util.MORADO + "\n [" + this.nombrePersonaje + "] ejecuta una jugada maestra..." + Util.RESET);
             perkElegida.lanzar(this, objetivo);
             perkElegida.consumirUso();
+            this.ultimoMensajeLog = this.nombrePersonaje + " ejecutó una jugada maestra de forma autónoma usando su Perk [" + perkElegida.getNombre() + "] contra " + objetivo.getNombrePersonaje() + ".";
+            this.decidedAction = "PERK";
+            this.decidedTargetIndex = enemigos.indexOf(objetivo);
+            this.decidedPerkIndex = this.perks.indexOf(perkElegida);
         }
         // Se reduce la probabilidad de spamear la defensa para que la partida avance
         else if (enPeligro && dado > 60) {
             System.out.println(
                     Util.CYAN + this.nombrePersonaje + " adopta una postura defensiva desesperada." + Util.RESET);
             this.defendiendo = true;
+            this.ultimoMensajeLog = this.nombrePersonaje + " adoptó postura defensiva de forma autónoma para mitigar daño.";
+            this.decidedAction = "DEFENDER";
+            this.decidedTargetIndex = -1;
+            this.decidedPerkIndex = -1;
         } else {
+            this.decidedAction = "ATACAR";
+            this.decidedTargetIndex = enemigos.indexOf(objetivo);
+            this.decidedPerkIndex = -1;
             atacarBasico(objetivo);
         }
     }
@@ -425,19 +474,28 @@ public abstract class Personaje {
                                 + Util.RESET);
 
                 // Golpe crítico (20% de probabilidad)
+                boolean isCrit = false;
                 if (Math.random() < 0.20) {
                     System.out.println(Util.AMARILLO + "¡GOLPE CRÍTICO! ¡El daño se duplica!" + Util.RESET);
                     danioGenerado = danioGenerado * 2;
+                    isCrit = true;
                     com.dbd.core.SpringContextHolder.getBean(com.dbd.dao.GestorPersistencia.class).desbloquearLogro(6); // Golpe Crítico
                 }
 
                 com.dbd.core.SpringContextHolder.getBean(com.dbd.dao.GestorPersistencia.class).desbloquearLogro(16); // Armado y Peligroso
                 rival.recibirDanio(danioGenerado);
+                
+                if (isCrit) {
+                    this.ultimoMensajeLog = "¡GOLPE CRÍTICO! " + this.nombrePersonaje + " atacó con su " + this.arma.getNombreArma() + " a " + rival.getNombrePersonaje() + " de forma autónoma, causando " + danioGenerado + " de daño duplicado.";
+                } else {
+                    this.ultimoMensajeLog = this.nombrePersonaje + " atacó con su " + this.arma.getNombreArma() + " a " + rival.getNombrePersonaje() + " de forma autónoma, causando " + danioGenerado + " de daño.";
+                }
             } else {
                 // El ataque falla
                 System.out
                         .println(Util.ROJO + "¡El ataque con " + this.arma.getNombreArma() + " ha FALLADO! (Precisión: "
                                 + this.arma.getPrecision() + "%)" + Util.RESET);
+                this.ultimoMensajeLog = "¡El ataque autónomo de " + this.nombrePersonaje + " con " + this.arma.getNombreArma() + " contra " + rival.getNombrePersonaje() + " ha FALLADO! (Precisión: " + this.arma.getPrecision() + "%).";
             }
 
         } else {
@@ -456,16 +514,24 @@ public abstract class Personaje {
                     + rival.getNombrePersonaje() + "!" + Util.RESET);
 
             // Golpe crítico también para los puñetazos (20% de probabilidad)
+            boolean isCrit = false;
             if (Math.random() < 0.20) {
                 System.out.println(
                         Util.AMARILLO + "¡GOLPE CRÍTICO! ¡El daño base se duplica con este golpazo!" + Util.RESET);
                 danioGenerado = danioGenerado * 2;
+                isCrit = true;
                 com.dbd.core.SpringContextHolder.getBean(com.dbd.dao.GestorPersistencia.class).desbloquearLogro(6); // Golpe Crítico
             }
 
             rival.recibirDanio(danioGenerado);
             if (rival.getVidaActual() <= 0) {
                 com.dbd.core.SpringContextHolder.getBean(com.dbd.dao.GestorPersistencia.class).desbloquearLogro(17); // Mano Limpia
+            }
+            
+            if (isCrit) {
+                this.ultimoMensajeLog = "¡GOLPE CRÍTICO! " + this.nombrePersonaje + " atacó desarmado a " + rival.getNombrePersonaje() + " de forma autónoma, causando " + danioGenerado + " de daño duplicado.";
+            } else {
+                this.ultimoMensajeLog = this.nombrePersonaje + " atacó desarmado a " + rival.getNombrePersonaje() + " de forma autónoma, causando " + danioGenerado + " de daño.";
             }
         }
     }
