@@ -56,8 +56,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 bg-[url('https://c4.wallpaperflare.com/wallpaper/132/511/309/dead-by-daylight-dark-wood-video-games-wallpaper-preview.jpg')] bg-cover bg-center bg-fixed relative text-white font-sans">
-      <Toaster position="top-right" />
+    <div className="min-h-screen bg-zinc-950 bg-[url('/dbdhubn.jpg')] bg-cover bg-center bg-fixed relative text-white">
       <div className="absolute inset-0 bg-black/85 z-0 backdrop-blur-[2px]"></div>
       
       <div className="relative z-10 p-6 md:p-12 max-w-6xl mx-auto flex flex-col min-h-screen">

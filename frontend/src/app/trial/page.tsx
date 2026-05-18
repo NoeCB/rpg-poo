@@ -242,10 +242,19 @@ export default function TrialPage() {
     
     setIsAnimating(true);
     setActiveMode('NONE');
-    setPreviewTarget(null);
 
     const globalAtacanteIdx = isSurviTurn ? currentIdx : (gameState.supervivientes.length + currentIdx);
     const safeObjetivoIndex = objetivoIndex === -1 ? 0 : objetivoIndex;
+
+    // Preserve target info for the animation
+    const rivales = isSurviTurn ? gameState.killers : gameState.supervivientes;
+    const rivalKeys = isSurviTurn ? killerKeys : survKeys;
+    if (safeObjetivoIndex < rivales.length) {
+      setPreviewTarget({
+        charKey: rivalKeys[safeObjetivoIndex],
+        name: rivales[safeObjetivoIndex].nombrePersonaje
+      });
+    }
 
     // Mini animation logic before API call
     if (tipoAccion === 'ATACAR' || tipoAccion === 'PERK') {
@@ -259,6 +268,9 @@ export default function TrialPage() {
       await new Promise(r => setTimeout(r, 800));
       setAnimState('IDLE');
     }
+
+    // Clear preview target after animations
+    setPreviewTarget(null);
 
     try {
       const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
@@ -331,7 +343,7 @@ export default function TrialPage() {
       <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
         {/* HEADER */}
         <header className="py-4 px-8 border-b border-zinc-800 bg-black/40 backdrop-blur-sm flex justify-between items-center shadow-lg">
-          <h1 className="text-2xl font-black tracking-[0.2em] text-red-600 drop-shadow-[0_0_10px_rgba(220,38,38,0.5)]">LA PRUEBA</h1>
+          <h1 className="text-2xl tracking-[0.1em] text-white font-[family-name:var(--font-rock-salt)] drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">DEAD BY DAYLIGHT</h1>
           <button onClick={() => router.push('/dashboard')} className="text-zinc-400 hover:text-white transition-colors text-sm font-bold tracking-wider uppercase border border-zinc-700 px-4 py-1 rounded">
             Abandonar
           </button>
@@ -362,7 +374,16 @@ export default function TrialPage() {
                 {/* ACTOR (Attacker) */}
                 <div className={`relative flex flex-col items-center transition-all duration-500 ease-in-out ${animState === 'ATTACK' ? 'translate-x-4 scale-110 z-50' : ''} ${animState === 'DEFEND' ? 'scale-95 opacity-80 brightness-150 drop-shadow-[0_0_30px_rgba(59,130,246,1)]' : ''}`}>
                   <div className={`w-48 h-64 md:w-64 md:h-96 rounded-xl overflow-hidden border-4 ${isSurviTurn ? 'border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.6)]' : 'border-red-600 shadow-[0_0_40px_rgba(220,38,38,0.6)]'}`}>
-                    <img src={actorImg} alt="Actor" className="w-full h-full object-cover object-top" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img 
+                      src={actorImg} 
+                      alt="Actor" 
+                      className={`w-full h-full object-cover 
+                        ${actorKey === 'AdaWong' ? 'object-center scale-[1.5]' : 
+                          actorKey === 'Onryo' ? 'object-bottom scale-[1.2] -translate-y-10' : 
+                          actorKey === 'Animatronico' ? 'object-center scale-[1.3] -translate-y-6' : 
+                          'object-top'}`} 
+                    />
                   </div>
                   <div className="mt-4 text-white bg-transparent font-bold tracking-wide text-xl md:text-2xl drop-shadow-md">
                     {actor.nombrePersonaje}
@@ -370,22 +391,30 @@ export default function TrialPage() {
                   <div className="absolute -top-12 font-black text-sm tracking-[0.2em] text-white animate-bounce bg-zinc-800/90 px-5 py-2 rounded-full border-2 border-zinc-500 shadow-xl">TURNO ACTUAL</div>
                 </div>
 
-                {/* VS TEXT */}
-                {(previewTarget || animState === 'DAMAGE') && (
-                   <div className="text-white bg-transparent font-black text-4xl md:text-6xl tracking-widest opacity-50 drop-shadow-lg mx-4">
-                     VS
-                   </div>
-                )}
-
-                {/* TARGET */}
-                {(previewTarget || animState === 'DAMAGE') && (
-                  <motion.div 
-                    initial={{ opacity: 0, x: 20 }} 
-                    animate={{ opacity: 1, x: 0 }}
-                    className={`relative flex flex-col items-center transition-all duration-300 ease-out ${animState === 'DAMAGE' ? 'translate-x-4 sepia contrast-[1.8] animate-[shake_0.4s_ease-in-out_infinite] scale-110 z-40' : ''}`}
-                  >
-                    <div className={`w-48 h-64 md:w-64 md:h-96 rounded-xl overflow-hidden border-4 border-zinc-500 opacity-90 ${animState === 'DAMAGE' ? 'border-red-600 shadow-[0_0_50px_rgba(220,38,38,1)]' : ''}`}>
-                      <img src={previewTarget ? portraitMap[previewTarget.charKey] : portraitMap['DEFAULT']} alt="Target" className="w-full h-full object-cover object-top" />
+                {/* VS or TARGET */}
+                <div className="relative flex flex-col items-center mt-10 md:mt-0">
+                  {(previewTarget || animState === 'DAMAGE') ? (
+                    <div className={`relative flex flex-col items-center transition-all duration-300 ease-out ${animState === 'DAMAGE' ? 'translate-x-4 sepia contrast-[1.8] animate-[shake_0.4s_ease-in-out_infinite] scale-110 z-40' : ''}`}>
+                      <div className={`w-48 h-64 md:w-64 md:h-96 rounded-xl overflow-hidden border-4 border-zinc-500 opacity-90 ${animState === 'DAMAGE' ? 'border-red-600 shadow-[0_0_50px_rgba(220,38,38,1)]' : ''}`}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                          src={previewTarget ? portraitMap[previewTarget.charKey] : portraitMap['DEFAULT']} 
+                          alt="Target" 
+                          className={`w-full h-full object-cover 
+                            ${previewTarget?.charKey === 'AdaWong' ? 'object-center scale-[1.5]' : 
+                              previewTarget?.charKey === 'Onryo' ? 'object-bottom scale-[1.2] -translate-y-10' : 
+                              previewTarget?.charKey === 'Animatronico' ? 'object-center scale-[1.3] -translate-y-6' : 
+                              'object-top'}`} 
+                        />
+                      </div>
+                      <div className="mt-6 bg-black/90 px-6 py-2 rounded-lg border-2 border-zinc-700 text-lg md:text-xl font-black shadow-2xl tracking-wider">
+                        {previewTarget?.name || 'Objetivo'}
+                      </div>
+                      {animState === 'DAMAGE' && (
+                        <div className="absolute inset-0 flex items-center justify-center animate-[scratch_0.5s_ease-out_forwards]">
+                          <span className="text-8xl md:text-9xl text-red-600 font-black drop-shadow-[0_0_20px_rgba(220,38,38,1)] -rotate-[20deg] tracking-tighter">///</span>
+                        </div>
+                      )}
                     </div>
                     <div className="mt-4 text-white bg-transparent font-bold tracking-wide text-xl md:text-2xl drop-shadow-md">
                       {previewTarget?.name || 'Objetivo'}
@@ -411,7 +440,7 @@ export default function TrialPage() {
             </div>
 
             {/* Combat Log */}
-            <div className="h-48 md:h-64 bg-black/80 border-t border-zinc-800 p-4 overflow-y-auto font-mono text-sm leading-relaxed shadow-inner">
+            <div className="h-48 md:h-64 bg-black/80 border-t border-zinc-800 p-4 overflow-y-auto font-[family-name:var(--font-special-elite)] text-sm md:text-base leading-relaxed shadow-inner tracking-tight">
               <div className="space-y-1">
                 {combatLogs.map((log, i) => {
                   let colorClass = 'text-zinc-400';
