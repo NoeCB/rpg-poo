@@ -33,6 +33,13 @@ public class JwtFilter extends OncePerRequestFilter {
             } else {
                 try {
                     String username = jwtUtil.validateTokenAndRetrieveSubject(jwt);
+                    
+                    if (username == null || username.isBlank()) {
+                        System.err.println("Token proporcionado no contiene identidad válida.");
+                        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid JWT Token Payload");
+                        return;
+                    }
+
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(username, null, Collections.emptyList());
                     
@@ -40,7 +47,13 @@ public class JwtFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
                 } catch (JWTVerificationException exc) {
+                    System.err.println("Fallo de verificación de token JWT: " + exc.getMessage());
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid JWT Token");
+                    return;
+                } catch (Exception e) {
+                    System.err.println("Excepción inesperada procesando token JWT: " + e.getMessage());
+                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error procesando autenticación");
+                    return;
                 }
             }
         }

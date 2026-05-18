@@ -12,18 +12,22 @@ const portraitMap: Record<string, string> = {
   "FengMin": "/fenming.jpg",
   "SableWard": "/sableward.jpg",
   "Mikaela": "/mikaelareid.jpg",
+  "MikaelaReid": "/mikaelareid.jpg",
   "AdaWong": "/adawong.jpg",
   "LaraCroft": "/laracroft.jpg",
   "Nancy": "/nancy.jpg",
+  "NancyWheeler": "/nancy.jpg",
 
   // KILLERS
   "GhostFace": "/ghostface.jpg",
   "Legion": "/legion.jpg",
   "Onryo": "/onryo.jpg",
   "Animatronico": "/animatronico.jpg",
+  "Animatrónico": "/animatronico.jpg",
   "Ghoul": "/ghoul.jpg",
   "Chucky": "/chuckyf.jpg",
   "Wesker": "/wesker.jpg",
+  "AlbertWesker": "/wesker.jpg",
   "LaCerda": "/cerda.jpg",
 
   "DEFAULT": "/dbd_logo.png"
@@ -42,6 +46,7 @@ export default function PlayPage() {
 
   const [selectedSurvs, setSelectedSurvs] = useState<string[]>([]);
   const [selectedKillers, setSelectedKillers] = useState<string[]>([]);
+  const [gameMode, setGameMode] = useState<'manual' | 'automatico'>('manual');
 
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -112,6 +117,7 @@ export default function PlayPage() {
       try {
         localStorage.setItem('selectedSurvs', JSON.stringify(selectedSurvs));
         localStorage.setItem('selectedKillers', JSON.stringify(selectedKillers));
+        localStorage.setItem('selectedMode', gameMode);
         await new Promise(r => setTimeout(r, 800));
         router.push('/trial');
       } catch (error) {
@@ -317,6 +323,54 @@ export default function PlayPage() {
                 </div>
               </div>
             </motion.div>
+          {/* GAME MODE SELECTOR */}
+          <div className="mt-12 max-w-2xl mx-auto w-full">
+            <h4 className="text-zinc-500 font-bold tracking-widest text-xs uppercase text-center mb-4">Selecciona el Modo de Juego</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* MODO MANUAL */}
+              <button 
+                onClick={() => setGameMode('manual')}
+                className={`p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group ${
+                  gameMode === 'manual'
+                  ? 'bg-blue-950/20 border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)]'
+                  : 'bg-black/40 border-zinc-800 hover:border-zinc-700'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-1">
+                  <span className={`text-xl ${gameMode === 'manual' ? 'text-blue-400' : 'text-zinc-500'}`}>🎮</span>
+                  <span className={`font-black tracking-wider uppercase text-sm ${gameMode === 'manual' ? 'text-white' : 'text-zinc-400'}`}>Modo Manual</span>
+                </div>
+                <p className="text-zinc-500 text-xs leading-relaxed">
+                  Control absoluto sobre las acciones, perks y posturas defensivas de cada combatiente.
+                </p>
+                {gameMode === 'manual' && (
+                  <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,1)]"></div>
+                )}
+              </button>
+
+              {/* MODO AUTOMÁTICO */}
+              <button 
+                onClick={() => setGameMode('automatico')}
+                className={`p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group ${
+                  gameMode === 'automatico'
+                  ? 'bg-amber-950/20 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]'
+                  : 'bg-black/40 border-zinc-800 hover:border-zinc-700'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-1">
+                  <span className={`text-xl ${gameMode === 'automatico' ? 'text-amber-400 animate-pulse' : 'text-zinc-500'}`}>🤖</span>
+                  <span className={`font-black tracking-wider uppercase text-sm ${gameMode === 'automatico' ? 'text-white' : 'text-zinc-400'}`}>Modo Automático</span>
+                </div>
+                <p className="text-zinc-500 text-xs leading-relaxed">
+                  La IA decide las mejores jugadas de supervivientes y asesinos de forma autónoma.
+                </p>
+                {gameMode === 'automatico' && (
+                  <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,1)]"></div>
+                )}
+              </button>
+            </div>
+          </div>
+            </>
           )}
 
           {/* ACTION BUTTON */}
