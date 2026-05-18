@@ -153,61 +153,60 @@ export default function DashboardPage() {
         {/* MODAL DE CARGA */}
         {isLoadModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div className="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-              <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-black/40">
-                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-200 tracking-widest uppercase">
+            <div className="bg-stone-950 border-[3px] border-double border-red-950 rounded-none w-full max-w-2xl shadow-[inset_0_0_20px_rgba(0,0,0,0.9),0_0_35px_rgba(100,20,20,0.3)] overflow-hidden animate-in fade-in duration-200">
+              <div className="p-6 border-b border-red-950/60 flex justify-between items-center bg-black/50">
+                <h3 className="text-2xl font-normal text-red-600 tracking-widest uppercase font-[family-name:var(--font-horroroid)] drop-shadow-[0_0_10px_rgba(220,38,38,0.5)]">
                   Ranuras de Guardado
                 </h3>
-                <button onClick={() => setIsLoadModalOpen(false)} className="text-zinc-500 hover:text-white transition-colors">
-                  <span className="text-2xl font-bold">×</span>
+                <button onClick={() => setIsLoadModalOpen(false)} className="text-zinc-500 hover:text-red-500 transition-colors">
+                  <span className="text-2xl font-normal">×</span>
                 </button>
               </div>
 
               <div className="p-6 max-h-[60vh] overflow-y-auto">
                 {isLoadingSaves ? (
                   <div className="flex flex-col items-center justify-center py-12">
-                    <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p className="text-zinc-400 font-bold tracking-widest uppercase animate-pulse">Contactando a la Entidad...</p>
+                    <div className="w-10 h-10 border-2 border-red-900 border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p className="text-red-800 text-xs font-[family-name:var(--font-special-elite)] tracking-widest uppercase animate-pulse">Contactando con la Entidad...</p>
                   </div>
                 ) : saves.length === 0 ? (
                   <div className="text-center py-12">
-                    <span className="text-4xl block mb-4">🕸️</span>
-                    <p className="text-zinc-400 font-bold uppercase tracking-wider">No hay registros de partidas.</p>
+                    <p className="text-zinc-600 text-xs font-[family-name:var(--font-special-elite)] uppercase tracking-widest">No hay registros de partidas selladas en la Niebla.</p>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-4">
                     {saves.map(save => (
                       save.vacia ? (
-                        <div key={save.id} className="bg-zinc-900/30 border border-zinc-800/50 p-4 rounded-xl flex items-center justify-between opacity-50">
+                        <div key={save.id} className="bg-stone-950/40 border border-stone-900/60 p-4 rounded-none flex items-center justify-between opacity-40">
                           <div>
-                            <p className="text-zinc-500 font-bold">Ranura {save.id}</p>
-                            <p className="text-zinc-600 text-sm">VACÍA</p>
+                            <p className="text-zinc-600 font-normal text-lg tracking-wider font-[family-name:var(--font-horroroid)]">Ranura {save.id}</p>
+                            <p className="text-zinc-700 text-xs font-[family-name:var(--font-special-elite)] tracking-wider">VACÍA</p>
                           </div>
                         </div>
                       ) : (
-                        <div key={save.id} className="group bg-zinc-900 border border-zinc-700 hover:border-blue-500 p-5 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300 hover:shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                        <div key={save.id} className="group bg-stone-950 border border-stone-900/80 hover:border-red-950 p-5 rounded-none flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300 hover:shadow-[inset_0_0_15px_rgba(0,0,0,0.8),0_0_15px_rgba(100,20,20,0.15)]">
                           <div>
                             <div className="flex items-center gap-3 mb-1">
-                              <p className="text-zinc-300 font-black text-lg">Ranura {save.id}</p>
-                              <span className={`text-xs px-2 py-0.5 rounded uppercase font-bold tracking-wider ${save.terminada ? 'bg-red-900/50 text-red-400' : 'bg-green-900/50 text-green-400'}`}>
+                              <p className="text-red-500 font-normal text-xl tracking-wider font-[family-name:var(--font-horroroid)]">Ranura {save.id}</p>
+                              <span className={`text-xs px-2 py-0.5 rounded-none font-normal tracking-wider font-[family-name:var(--font-special-elite)] ${save.terminada ? 'bg-red-950 text-red-500 border border-red-900/40' : 'bg-green-950 text-green-500 border border-green-900/40'}`}>
                                 {save.terminada ? 'Finalizada' : 'En curso'}
                               </span>
                             </div>
-                            <p className="text-zinc-400 text-sm mb-1">
-                              Modo: <span className="text-white">{save.modoJuego.toUpperCase()}</span> | Ronda: <span className="text-white">{save.ronda}</span>
+                            <p className="text-zinc-500 text-xs mb-1 font-[family-name:var(--font-special-elite)]">
+                              Modo: <span className="text-zinc-400">{save.modoJuego.toUpperCase()}</span> | Ronda: <span className="text-zinc-400">{save.ronda}</span>
                             </p>
-                            <p className="text-zinc-500 text-xs flex gap-3">
-                              <span>🏃 Vivos: <span className="text-blue-400">{save.survsVivos}</span></span>
-                              <span>🔪 Vivos: <span className="text-red-400">{save.killersVivos}</span></span>
+                            <p className="text-zinc-600 text-xs flex gap-3 font-[family-name:var(--font-special-elite)]">
+                              <span>Survis Vivos: <span className="text-zinc-400">{save.survsVivos}</span></span>
+                              <span>Killers Vivos: <span className="text-zinc-400">{save.killersVivos}</span></span>
                             </p>
                           </div>
 
                           <button
                             onClick={() => loadGame(save.id)}
                             disabled={save.terminada}
-                            className={`px-6 py-2 rounded font-bold uppercase tracking-wider text-sm transition-all ${save.terminada
-                              ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
-                              : 'bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_10px_rgba(59,130,246,0.3)] hover:shadow-[0_0_20px_rgba(59,130,246,0.5)]'
+                            className={`px-6 py-2.5 rounded-none font-normal uppercase tracking-widest text-xs transition-all font-[family-name:var(--font-special-elite)] ${save.terminada
+                              ? 'bg-zinc-900 text-zinc-600 border border-zinc-800 cursor-not-allowed'
+                              : 'bg-[#3a0909] hover:bg-[#520f0f] text-[#fca5a5] border border-[#6b1414] hover:text-white'
                               }`}
                           >
                             {save.terminada ? 'Completada' : 'Cargar'}

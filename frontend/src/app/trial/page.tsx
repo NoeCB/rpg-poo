@@ -417,12 +417,19 @@ export default function TrialPage() {
               </div>
 
               {gameState.partidaTerminada && (
-                <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center flex-col">
-                  <h2 className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-500 tracking-[0.3em] mb-4 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">PARTIDA FINALIZADA</h2>
-                  <h3 className={`text-3xl font-bold tracking-widest ${gameState.ganador === 'supervivientes' ? 'text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.8)]' : 'text-red-600 drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]'}`}>
+                <div className="absolute inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center flex-col p-4">
+                  <h2 className="text-5xl md:text-7xl font-normal text-zinc-100 tracking-[0.05em] mb-4 drop-shadow-[0_0_25px_rgba(255,255,255,0.35)] font-[family-name:var(--font-another-danger)] text-center">
+                    PARTIDA FINALIZADA
+                  </h2>
+                  <h3 className={`text-2xl md:text-4xl font-normal tracking-[0.08em] font-[family-name:var(--font-horroroid)] text-center ${gameState.ganador === 'supervivientes' ? 'text-blue-500 drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]' : 'text-red-600 drop-shadow-[0_0_12px_rgba(220,38,38,0.8)]'}`}>
                     GANAN LOS {gameState.ganador?.toUpperCase()}
                   </h3>
-                  <button onClick={() => router.push('/dashboard')} className="mt-12 px-8 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded tracking-widest transition-all shadow-lg border border-zinc-600">VOLVER AL DASHBOARD</button>
+                  <button 
+                    onClick={() => router.push('/dashboard')} 
+                    className="mt-12 px-8 py-3.5 bg-stone-950 border border-stone-850 hover:border-red-900/60 text-stone-400 hover:text-white font-normal rounded-none tracking-widest transition-all shadow-xl font-[family-name:var(--font-special-elite)] text-sm active:scale-95 uppercase"
+                  >
+                    VOLVER AL DASHBOARD
+                  </button>
                 </div>
               )}
             </div>
