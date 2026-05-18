@@ -206,170 +206,169 @@ export default function PlayPage() {
               <button onClick={() => window.location.reload()} className="mt-4 px-6 py-2 bg-red-900 text-white rounded hover:bg-red-800 font-bold uppercase transition-colors">Reintentar</button>
             </div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] gap-6 xl:gap-10 items-start flex-1 w-full"
-            >
+            <>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] gap-6 xl:gap-10 items-start flex-1 w-full"
+              >
 
-              {/* SUPERVIVIENTES */}
-              <div className="relative bg-black/40 backdrop-blur-sm border border-zinc-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden group/container">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-600/50 to-transparent"></div>
+                {/* SUPERVIVIENTES */}
+                <div className="relative bg-black/40 backdrop-blur-sm border border-zinc-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden group/container">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-600/50 to-transparent"></div>
 
-                <h3 className="text-3xl font-normal text-zinc-400 mb-8 flex items-center gap-3 border-b border-zinc-800/80 pb-4 tracking-widest uppercase font-[family-name:var(--font-horroroid)]">
-                  <span className="text-3xl drop-shadow-[0_0_15px_rgba(156,163,175,0.3)]"></span> Supervivientes
-                </h3>
+                  <h3 className="text-3xl font-normal text-zinc-400 mb-8 flex items-center gap-3 border-b border-zinc-800/80 pb-4 tracking-widest uppercase font-[family-name:var(--font-horroroid)]">
+                    <span className="text-3xl drop-shadow-[0_0_15px_rgba(156,163,175,0.3)]"></span> Supervivientes
+                  </h3>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
-                  {availableSurvs.map((s) => {
-                    const isSelected = selectedSurvs.includes(s.id);
-                    return (
-                      <button
-                        key={s.id}
-                        onClick={() => toggleSurv(s.id)}
-                        className={`relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer transition-all duration-500 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-zinc-900 ${isSelected
-                          ? 'ring-2 ring-blue-500 ring-offset-4 ring-offset-zinc-950 shadow-[0_0_30px_rgba(59,130,246,0.5)] scale-105 z-10'
-                          : 'border border-zinc-800 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.6)] hover:scale-105 hover:z-10'
-                          }`}
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10 opacity-90 transition-opacity duration-300 group-hover:opacity-40"></div>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={s.image}
-                          alt={s.name}
-                          className={`object-cover w-full h-full transition-all duration-500 ease-out 
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
+                    {availableSurvs.map((s) => {
+                      const isSelected = selectedSurvs.includes(s.id);
+                      return (
+                        <button
+                          key={s.id}
+                          onClick={() => toggleSurv(s.id)}
+                          className={`relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer transition-all duration-500 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-zinc-900 ${isSelected
+                            ? 'ring-2 ring-blue-500 ring-offset-4 ring-offset-zinc-950 shadow-[0_0_30px_rgba(59,130,246,0.5)] scale-105 z-10'
+                            : 'border border-zinc-800 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.6)] hover:scale-105 hover:z-10'
+                            }`}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10 opacity-90 transition-opacity duration-300 group-hover:opacity-40"></div>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={s.image}
+                            alt={s.name}
+                            className={`object-cover w-full h-full transition-all duration-500 ease-out 
                             ${s.id === 'AdaWong' ? 'object-center scale-[1.5]' : 'object-top scale-100'} 
                             ${isSelected ? 'saturate-100 opacity-100 brightness-110' : 'saturate-0 opacity-70 group-hover:scale-110 group-hover:saturate-100 group-hover:opacity-100'}`}
-                        />
+                          />
 
-                        <div className="absolute bottom-0 left-0 w-full p-3 sm:p-5 z-20 transform transition-transform duration-300 bg-gradient-to-t from-black via-black/80 to-transparent">
-                          <p className={`text-sm md:text-base lg:text-lg font-normal text-center uppercase tracking-wider font-[family-name:var(--font-special-elite)] ${isSelected ? 'text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,1)]' : 'text-zinc-300 group-hover:text-white'
-                            }`}>
-                            {s.name}
-                          </p>
-                        </div>
-
-                        {isSelected && (
-                          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-20 w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(59,130,246,0.8)] animate-bounce">
-                            <span className="text-white text-xs font-black">{selectedSurvs.indexOf(s.id) + 1}</span>
+                          <div className="absolute bottom-0 left-0 w-full p-3 sm:p-5 z-20 transform transition-transform duration-300 bg-gradient-to-t from-black via-black/80 to-transparent">
+                            <p className={`text-sm md:text-base lg:text-lg font-normal text-center uppercase tracking-wider font-[family-name:var(--font-special-elite)] ${isSelected ? 'text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,1)]' : 'text-zinc-300 group-hover:text-white'
+                              }`}>
+                              {s.name}
+                            </p>
                           </div>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
 
-              {/* VS Divider */}
-              <div className="hidden xl:flex flex-col items-center justify-center self-stretch opacity-80 py-10">
-                <div className="w-[2px] h-full bg-gradient-to-b from-transparent via-red-900/50 to-transparent"></div>
-                <div className="my-6 relative group">
-                  <div className="absolute inset-0 bg-red-600 rounded-full blur-md opacity-40 group-hover:opacity-70 transition-opacity duration-500 animate-pulse"></div>
-                  <div className="relative bg-zinc-950 border-2 border-red-900 text-transparent bg-clip-text bg-gradient-to-br from-red-400 to-red-700 font-black text-4xl w-20 h-20 flex items-center justify-center rounded-full shadow-[0_0_30px_rgba(220,38,38,0.4)] tracking-tighter">
-                    VS
+                          {isSelected && (
+                            <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-20 w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(59,130,246,0.8)] animate-bounce">
+                              <span className="text-white text-xs font-black">{selectedSurvs.indexOf(s.id) + 1}</span>
+                            </div>
+                          )}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
-                <div className="w-[2px] h-full bg-gradient-to-t from-transparent via-red-900/50 to-transparent"></div>
-              </div>
 
-              {/* ASESINOS */}
-              <div className="relative bg-black/40 backdrop-blur-sm border border-zinc-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden group/container">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-600/50 to-transparent"></div>
+                {/* VS Divider */}
+                <div className="hidden xl:flex flex-col items-center justify-center self-stretch opacity-80 py-10">
+                  <div className="w-[2px] h-full bg-gradient-to-b from-transparent via-red-900/50 to-transparent"></div>
+                  <div className="my-6 relative group">
+                    <div className="absolute inset-0 bg-red-600 rounded-full blur-md opacity-40 group-hover:opacity-70 transition-opacity duration-500 animate-pulse"></div>
+                    <div className="relative bg-zinc-950 border-2 border-red-900 text-transparent bg-clip-text bg-gradient-to-br from-red-400 to-red-700 font-black text-4xl w-20 h-20 flex items-center justify-center rounded-full shadow-[0_0_30px_rgba(220,38,38,0.4)] tracking-tighter">
+                      VS
+                    </div>
+                  </div>
+                  <div className="w-[2px] h-full bg-gradient-to-t from-transparent via-red-900/50 to-transparent"></div>
+                </div>
 
-                <h3 className="text-3xl font-normal text-zinc-400 mb-8 flex items-center gap-3 border-b border-zinc-800/80 pb-4 tracking-widest uppercase font-[family-name:var(--font-horroroid)]">
-                  <span className="text-3xl drop-shadow-[0_0_15px_rgba(156,163,175,0.3)]"></span> Asesinos
-                </h3>
+                {/* ASESINOS */}
+                <div className="relative bg-black/40 backdrop-blur-sm border border-zinc-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden group/container">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-600/50 to-transparent"></div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
-                  {availableKillers.map((k) => {
-                    const isSelected = selectedKillers.includes(k.id);
-                    return (
-                      <button
-                        key={k.id}
-                        onClick={() => toggleKiller(k.id)}
-                        className={`relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer transition-all duration-500 group focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-zinc-900 ${isSelected
-                          ? 'ring-2 ring-red-600 ring-offset-4 ring-offset-zinc-950 shadow-[0_0_30px_rgba(220,38,38,0.5)] scale-105 z-10'
-                          : 'border border-zinc-800 hover:border-red-500/50 hover:shadow-[0_0_20px_rgba(220,38,38,0.6)] hover:scale-105 hover:z-10'
-                          }`}
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10 opacity-90 transition-opacity duration-300 group-hover:opacity-40"></div>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={k.image}
-                          alt={k.name}
-                          className={`object-cover w-full h-full transition-all duration-500 ease-out 
+                  <h3 className="text-3xl font-normal text-zinc-400 mb-8 flex items-center gap-3 border-b border-zinc-800/80 pb-4 tracking-widest uppercase font-[family-name:var(--font-horroroid)]">
+                    <span className="text-3xl drop-shadow-[0_0_15px_rgba(156,163,175,0.3)]"></span> Asesinos
+                  </h3>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
+                    {availableKillers.map((k) => {
+                      const isSelected = selectedKillers.includes(k.id);
+                      return (
+                        <button
+                          key={k.id}
+                          onClick={() => toggleKiller(k.id)}
+                          className={`relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer transition-all duration-500 group focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-zinc-900 ${isSelected
+                            ? 'ring-2 ring-red-600 ring-offset-4 ring-offset-zinc-950 shadow-[0_0_30px_rgba(220,38,38,0.5)] scale-105 z-10'
+                            : 'border border-zinc-800 hover:border-red-500/50 hover:shadow-[0_0_20px_rgba(220,38,38,0.6)] hover:scale-105 hover:z-10'
+                            }`}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10 opacity-90 transition-opacity duration-300 group-hover:opacity-40"></div>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={k.image}
+                            alt={k.name}
+                            className={`object-cover w-full h-full transition-all duration-500 ease-out 
                             ${k.id === 'Onryo' ? 'object-bottom scale-[1.2] -translate-y-10' :
-                              k.id === 'Animatronico' ? 'object-center scale-[1.3] -translate-y-6' :
-                                'object-top scale-100'} 
+                                k.id === 'Animatronico' ? 'object-center scale-[1.3] -translate-y-6' :
+                                  'object-top scale-100'} 
                             ${isSelected ? 'saturate-100 opacity-100 brightness-110' : 'saturate-0 opacity-70 group-hover:scale-110 group-hover:saturate-100 group-hover:opacity-100'}`}
-                        />
+                          />
 
-                        <div className="absolute bottom-0 left-0 w-full p-3 sm:p-5 z-20 transform transition-transform duration-300 bg-gradient-to-t from-black via-black/80 to-transparent">
-                          <p className={`text-sm md:text-base lg:text-lg font-normal text-center uppercase tracking-wider font-[family-name:var(--font-special-elite)] ${isSelected ? 'text-red-400 drop-shadow-[0_0_8px_rgba(220,38,38,1)]' : 'text-zinc-300 group-hover:text-white'
-                            }`}>
-                            {k.name}
-                          </p>
-                        </div>
-
-                        {isSelected && (
-                          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-20 w-5 h-5 sm:w-6 sm:h-6 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(220,38,38,0.8)] animate-bounce">
-                            <span className="text-white text-xs font-black">{selectedKillers.indexOf(k.id) + 1}</span>
+                          <div className="absolute bottom-0 left-0 w-full p-3 sm:p-5 z-20 transform transition-transform duration-300 bg-gradient-to-t from-black via-black/80 to-transparent">
+                            <p className={`text-sm md:text-base lg:text-lg font-normal text-center uppercase tracking-wider font-[family-name:var(--font-special-elite)] ${isSelected ? 'text-red-400 drop-shadow-[0_0_8px_rgba(220,38,38,1)]' : 'text-zinc-300 group-hover:text-white'
+                              }`}>
+                              {k.name}
+                            </p>
                           </div>
-                        )}
-                      </button>
-                    )
-                  })}
+
+                          {isSelected && (
+                            <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-20 w-5 h-5 sm:w-6 sm:h-6 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(220,38,38,0.8)] animate-bounce">
+                              <span className="text-white text-xs font-black">{selectedKillers.indexOf(k.id) + 1}</span>
+                            </div>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              </motion.div>
+              {/* GAME MODE SELECTOR */}
+              <div className="mt-12 max-w-2xl mx-auto w-full">
+                <h4 className="text-zinc-500 font-bold tracking-widest text-xs uppercase text-center mb-4">Selecciona el Modo de Juego</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* MODO MANUAL */}
+                  <button
+                    onClick={() => setGameMode('manual')}
+                    className={`p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group ${gameMode === 'manual'
+                        ? 'bg-blue-950/20 border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)]'
+                        : 'bg-black/40 border-zinc-800 hover:border-zinc-700'
+                      }`}
+                  >
+                    <div className="flex items-center gap-3 mb-1">
+                      <span className={`text-xl ${gameMode === 'manual' ? 'text-blue-400' : 'text-zinc-500'}`}>🎮</span>
+                      <span className={`font-black tracking-wider uppercase text-sm ${gameMode === 'manual' ? 'text-white' : 'text-zinc-400'}`}>Modo Manual</span>
+                    </div>
+                    <p className="text-zinc-500 text-xs leading-relaxed">
+                      Control absoluto sobre las acciones, perks y posturas defensivas de cada combatiente.
+                    </p>
+                    {gameMode === 'manual' && (
+                      <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,1)]"></div>
+                    )}
+                  </button>
+
+                  {/* MODO AUTOMÁTICO */}
+                  <button
+                    onClick={() => setGameMode('automatico')}
+                    className={`p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group ${gameMode === 'automatico'
+                        ? 'bg-amber-950/20 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]'
+                        : 'bg-black/40 border-zinc-800 hover:border-zinc-700'
+                      }`}
+                  >
+                    <div className="flex items-center gap-3 mb-1">
+                      <span className={`text-xl ${gameMode === 'automatico' ? 'text-amber-400 animate-pulse' : 'text-zinc-500'}`}>🤖</span>
+                      <span className={`font-black tracking-wider uppercase text-sm ${gameMode === 'automatico' ? 'text-white' : 'text-zinc-400'}`}>Modo Automático</span>
+                    </div>
+                    <p className="text-zinc-500 text-xs leading-relaxed">
+                      La IA decide las mejores jugadas de supervivientes y asesinos de forma autónoma.
+                    </p>
+                    {gameMode === 'automatico' && (
+                      <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,1)]"></div>
+                    )}
+                  </button>
                 </div>
               </div>
-            </motion.div>
-          {/* GAME MODE SELECTOR */}
-          <div className="mt-12 max-w-2xl mx-auto w-full">
-            <h4 className="text-zinc-500 font-bold tracking-widest text-xs uppercase text-center mb-4">Selecciona el Modo de Juego</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* MODO MANUAL */}
-              <button 
-                onClick={() => setGameMode('manual')}
-                className={`p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group ${
-                  gameMode === 'manual'
-                  ? 'bg-blue-950/20 border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)]'
-                  : 'bg-black/40 border-zinc-800 hover:border-zinc-700'
-                }`}
-              >
-                <div className="flex items-center gap-3 mb-1">
-                  <span className={`text-xl ${gameMode === 'manual' ? 'text-blue-400' : 'text-zinc-500'}`}>🎮</span>
-                  <span className={`font-black tracking-wider uppercase text-sm ${gameMode === 'manual' ? 'text-white' : 'text-zinc-400'}`}>Modo Manual</span>
-                </div>
-                <p className="text-zinc-500 text-xs leading-relaxed">
-                  Control absoluto sobre las acciones, perks y posturas defensivas de cada combatiente.
-                </p>
-                {gameMode === 'manual' && (
-                  <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,1)]"></div>
-                )}
-              </button>
-
-              {/* MODO AUTOMÁTICO */}
-              <button 
-                onClick={() => setGameMode('automatico')}
-                className={`p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group ${
-                  gameMode === 'automatico'
-                  ? 'bg-amber-950/20 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]'
-                  : 'bg-black/40 border-zinc-800 hover:border-zinc-700'
-                }`}
-              >
-                <div className="flex items-center gap-3 mb-1">
-                  <span className={`text-xl ${gameMode === 'automatico' ? 'text-amber-400 animate-pulse' : 'text-zinc-500'}`}>🤖</span>
-                  <span className={`font-black tracking-wider uppercase text-sm ${gameMode === 'automatico' ? 'text-white' : 'text-zinc-400'}`}>Modo Automático</span>
-                </div>
-                <p className="text-zinc-500 text-xs leading-relaxed">
-                  La IA decide las mejores jugadas de supervivientes y asesinos de forma autónoma.
-                </p>
-                {gameMode === 'automatico' && (
-                  <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,1)]"></div>
-                )}
-              </button>
-            </div>
-          </div>
             </>
           )}
 
