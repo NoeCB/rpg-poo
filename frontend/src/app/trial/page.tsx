@@ -103,7 +103,7 @@ function CharacterCard({ char, isMyTurn, isKiller }: { char: CharacterState, isM
       whileHover={{ scale: 1.05, y: -5 }}
       className={`p-3 rounded-lg border transition-all cursor-default ${currentClasses}`}
     >
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center mb-2 font-[family-name:var(--font-special-elite)]">
         <span className={`text-sm font-bold ${isDead ? 'text-zinc-600 line-through' : (isKiller ? 'text-red-200' : 'text-blue-200')}`}>{char.nombrePersonaje}</span>
         <span className={`text-xs font-black ${isDead ? 'text-zinc-600' : (isKiller ? 'text-red-400 drop-shadow-[0_0_5px_rgba(220,38,38,0.8)]' : 'text-green-400 drop-shadow-[0_0_5px_rgba(34,197,94,0.8)]')}`}>{isDead ? 'MUERTO' : `${char.vidaActual} HP`}</span>
       </div>
@@ -423,20 +423,13 @@ export default function TrialPage() {
       <div className="absolute inset-0 bg-[url('https://c4.wallpaperflare.com/wallpaper/528/773/953/dead-by-daylight-logo-4k-wallpaper-preview.jpg')] bg-cover bg-center opacity-10"></div>
       
       <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
-        {/* HEADER */}
-        <header className="py-4 px-8 border-b border-zinc-800 bg-black/40 backdrop-blur-sm flex justify-between items-center shadow-lg">
-          <h1 className="text-2xl tracking-[0.1em] text-white font-[family-name:var(--font-rock-salt)] drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">DEAD BY DAYLIGHT</h1>
-          <button onClick={() => router.push('/dashboard')} className="text-zinc-400 hover:text-white transition-colors text-sm font-bold tracking-wider uppercase border border-zinc-700 px-4 py-1 rounded">
-            Abandonar
-          </button>
-        </header>
 
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           
           {/* LEFT SIDEBAR - SURVIVORS */}
           <aside className="w-full md:w-64 bg-black/60 border-r border-zinc-800 p-4 overflow-y-auto hidden md:block">
-            <h4 className="text-blue-500 font-black tracking-widest mb-6 border-b border-blue-900/50 pb-2">SUPERVIVIENTES</h4>
-            <div className="space-y-4">
+            <h4 className="text-2xl font-normal text-blue-500 tracking-widest mb-4 border-b border-blue-900/50 pb-2 font-[family-name:var(--font-horroroid)]">SUPERVIVIENTES</h4>
+            <div className="space-y-2">
               {gameState.supervivientes.slice(0, 3).map((s, idx) => {
                 const isDead = s.vidaActual <= 0;
                 const isMyTurn = isSurviTurn && currentIdx === idx && !isDead;
@@ -455,7 +448,7 @@ export default function TrialPage() {
               <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full px-4 md:px-10 h-full">
                 {/* ACTOR (Attacker) */}
                 <div className={`relative flex flex-col items-center transition-all duration-500 ease-in-out ${animState === 'ATTACK' ? 'translate-x-4 scale-110 z-50' : ''} ${animState === 'DEFEND' ? 'scale-95 opacity-80 brightness-150 drop-shadow-[0_0_30px_rgba(59,130,246,1)]' : ''}`}>
-                  <div className={`w-48 h-64 md:w-64 md:h-96 rounded-xl overflow-hidden border-4 ${isSurviTurn ? 'border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.6)]' : 'border-red-600 shadow-[0_0_40px_rgba(220,38,38,0.6)]'}`}>
+                  <div className={`w-40 h-56 md:w-56 md:h-72 rounded-xl overflow-hidden border-4 ${isSurviTurn ? 'border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.6)]' : 'border-red-600 shadow-[0_0_40px_rgba(220,38,38,0.6)]'}`}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
                       src={actorImg} 
@@ -467,17 +460,17 @@ export default function TrialPage() {
                           'object-top'}`} 
                     />
                   </div>
-                  <div className="mt-4 text-white bg-transparent font-bold tracking-wide text-xl md:text-2xl drop-shadow-md">
+                  <div className="mt-4 text-white bg-transparent font-normal tracking-wide text-xl md:text-2xl drop-shadow-md font-[family-name:var(--font-special-elite)]">
                     {actor.nombrePersonaje}
                   </div>
-                  <div className="absolute -top-12 font-black text-sm tracking-[0.2em] text-white animate-bounce bg-zinc-800/90 px-5 py-2 rounded-full border-2 border-zinc-500 shadow-xl">TURNO ACTUAL</div>
+                  <div className="absolute -top-12 font-[family-name:var(--font-special-elite)] text-sm tracking-[0.2em] text-white animate-bounce bg-zinc-850/90 px-5 py-2 rounded-full border-2 border-zinc-700 shadow-xl">TURNO ACTUAL</div>
                 </div>
 
                 {/* VS or TARGET */}
                 <div className="relative flex flex-col items-center mt-10 md:mt-0">
-                  {(previewTarget || animState === 'DAMAGE') ? (
+                  {(previewTarget || animState === 'DAMAGE') && (
                     <div className={`relative flex flex-col items-center transition-all duration-300 ease-out ${animState === 'DAMAGE' ? 'translate-x-4 sepia contrast-[1.8] animate-[shake_0.4s_ease-in-out_infinite] scale-110 z-40' : ''}`}>
-                      <div className={`w-48 h-64 md:w-64 md:h-96 rounded-xl overflow-hidden border-4 border-zinc-500 opacity-90 ${animState === 'DAMAGE' ? 'border-red-600 shadow-[0_0_50px_rgba(220,38,38,1)]' : ''}`}>
+                      <div className={`w-40 h-56 md:w-56 md:h-72 rounded-xl overflow-hidden border-4 border-zinc-500 opacity-90 ${animState === 'DAMAGE' ? 'border-red-600 shadow-[0_0_50px_rgba(220,38,38,1)]' : ''}`}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img 
                           src={previewTarget ? previewTarget.image : portraitMap['DEFAULT']} 
@@ -489,7 +482,7 @@ export default function TrialPage() {
                               'object-top'}`} 
                         />
                       </div>
-                      <div className="mt-6 bg-black/90 px-6 py-2 rounded-lg border-2 border-zinc-700 text-lg md:text-xl font-black shadow-2xl tracking-wider">
+                      <div className="mt-4 text-white bg-transparent font-normal tracking-wide text-xl md:text-2xl drop-shadow-md font-[family-name:var(--font-special-elite)]">
                         {previewTarget?.name || 'Objetivo'}
                       </div>
                       {animState === 'DAMAGE' && (
@@ -508,30 +501,66 @@ export default function TrialPage() {
               </div>
 
               {gameState.partidaTerminada && (
-                <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center flex-col">
-                  <h2 className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-500 tracking-[0.3em] mb-4 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">PARTIDA FINALIZADA</h2>
-                  <h3 className={`text-3xl font-bold tracking-widest ${gameState.ganador === 'supervivientes' ? 'text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.8)]' : 'text-red-600 drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]'}`}>
+                <div className="absolute inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center flex-col p-4">
+                  <h2 className="text-5xl md:text-7xl font-normal text-zinc-100 tracking-[0.05em] mb-4 drop-shadow-[0_0_25px_rgba(255,255,255,0.35)] font-[family-name:var(--font-another-danger)] text-center">
+                    PARTIDA FINALIZADA
+                  </h2>
+                  <h3 className={`text-2xl md:text-4xl font-normal tracking-[0.08em] font-[family-name:var(--font-horroroid)] text-center ${gameState.ganador === 'supervivientes' ? 'text-blue-500 drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]' : 'text-red-600 drop-shadow-[0_0_12px_rgba(220,38,38,0.8)]'}`}>
                     GANAN LOS {gameState.ganador?.toUpperCase()}
                   </h3>
-                  <button onClick={() => router.push('/dashboard')} className="mt-12 px-8 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded tracking-widest transition-all shadow-lg border border-zinc-600">VOLVER AL DASHBOARD</button>
+                  <button 
+                    onClick={() => router.push('/dashboard')} 
+                    className="mt-12 px-8 py-3.5 bg-stone-950 border border-stone-850 hover:border-red-900/60 text-stone-400 hover:text-white font-normal rounded-none tracking-widest transition-all shadow-xl font-[family-name:var(--font-special-elite)] text-sm active:scale-95 uppercase"
+                  >
+                    VOLVER AL DASHBOARD
+                  </button>
                 </div>
               )}
             </div>
 
             {/* Combat Log */}
-            <div className="h-48 md:h-64 bg-black/80 border-t border-zinc-800 p-4 overflow-y-auto font-[family-name:var(--font-special-elite)] text-sm md:text-base leading-relaxed shadow-inner tracking-tight">
-              <div className="space-y-1">
-                {combatLogs.map((log, i) => {
-                  let colorClass = 'text-zinc-400';
-                  if (log.includes('atacó') || log.includes('daño') || log.includes('CRÍTICO') || log.includes('MUERTO')) colorClass = 'text-red-400 font-bold';
-                  else if (log.includes('Perk') || log.includes('usó')) colorClass = 'text-purple-400';
-                  else if (log.includes('defensiva') || log.includes('bloqueo')) colorClass = 'text-blue-400';
-                  else if (log.includes('turno')) colorClass = 'text-white font-black bg-white/10 px-2 py-0.5 rounded inline-block mt-2 mb-1';
-                  
-                  return <p key={i} className={`${colorClass} transition-all`}>{log}</p>;
-                })}
-                <div ref={logsEndRef} />
-              </div>
+            <div className="h-32 md:h-48 bg-black/85 border-t border-zinc-800 p-4 overflow-y-auto font-[family-name:var(--font-special-elite)] text-sm md:text-base leading-relaxed shadow-inner tracking-tight">
+              {combatLogs.length <= 1 ? (
+                <div className="text-zinc-500 flex flex-col gap-3 py-2">
+                  <p className="font-bold text-zinc-400 uppercase tracking-widest text-sm mb-2 border-b border-zinc-900 pb-2">📋 GUÍA TÁCTICA DE LA PRUEBA</p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <span className="text-[#fca5a5] font-bold">⚔ ATACAR:</span>
+                      <p className="mt-1 text-xs text-zinc-500 leading-relaxed">
+                        Arremete contra un oponente seleccionado para minar sus puntos de vida (HP) y acercarlo a su sacrificio o muerte.
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-[#a7f3d0] font-bold">🛡 DEFENDER:</span>
+                      <p className="mt-1 text-xs text-zinc-500 leading-relaxed">
+                        Adopta una postura defensiva que reduce a la mitad el daño que este personaje reciba durante el siguiente turno rival.
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-[#f3e8ff] font-bold">✨ USAR PERK:</span>
+                      <p className="mt-1 text-xs text-zinc-500 leading-relaxed">
+                        Desata una habilidad especial activa exclusiva del personaje actual para infligir efectos potentes. Tiene usos limitados.
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-zinc-600 mt-4 border-t border-zinc-900 pt-2 animate-pulse uppercase tracking-wider">
+                    Realiza cualquier acción de combate para iniciar la Prueba y revelar el registro completo del combate...
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {combatLogs.map((log, i) => {
+                    let colorClass = 'text-zinc-400';
+                    if (log.includes('atacó') || log.includes('daño') || log.includes('CRÍTICO') || log.includes('MUERTO')) colorClass = 'text-red-400 font-bold';
+                    else if (log.includes('Perk') || log.includes('usó')) colorClass = 'text-purple-400';
+                    else if (log.includes('defensiva') || log.includes('bloqueo')) colorClass = 'text-blue-400';
+                    else if (log.includes('turno')) colorClass = 'text-white font-black bg-white/10 px-2 py-0.5 rounded inline-block mt-2 mb-1';
+                    
+                    return <p key={i} className={`${colorClass} transition-all`}>{log}</p>;
+                  })}
+                  <div ref={logsEndRef} />
+                </div>
+              )}
             </div>
           </main>
 
@@ -539,8 +568,8 @@ export default function TrialPage() {
           <aside className="w-full md:w-80 bg-black/60 border-l border-zinc-800 flex flex-col shadow-2xl">
             {/* Killers List */}
             <div className="p-4 border-b border-zinc-800 hidden md:block">
-              <h4 className="text-red-600 font-black tracking-widest mb-4 border-b border-red-900/50 pb-2">ASESINOS</h4>
-              <div className="space-y-4">
+              <h4 className="text-2xl font-normal text-red-600 tracking-widest mb-2 border-b border-red-900/50 pb-2 font-[family-name:var(--font-horroroid)]">ASESINOS</h4>
+              <div className="space-y-2">
                 {gameState.killers.slice(0, 3).map((k, idx) => {
                   const isDead = k.vidaActual <= 0;
                   const isMyTurn = !isSurviTurn && currentIdx === idx && !isDead;
@@ -552,20 +581,20 @@ export default function TrialPage() {
             </div>
 
             {/* Controls */}
-            <div className="flex-1 p-6 flex flex-col bg-zinc-950/80">
-              <div className="mb-6 flex justify-between items-start">
+            <div className="flex-1 p-4 flex flex-col bg-zinc-950/80 font-[family-name:var(--font-special-elite)]">
+              <div className="mb-4 flex justify-between items-start">
                 <div>
                   <p className="text-xs text-zinc-500 tracking-widest mb-1 uppercase">Turno Actual</p>
-                  <h3 className="text-2xl font-black text-white truncate">{actor.nombrePersonaje}</h3>
+                  <h3 className="text-2xl font-normal text-white truncate">{actor.nombrePersonaje}</h3>
                 </div>
               </div>
-              <div className="mb-6">
+              <div className="mb-4">
                  <HealthBar value={actor.vidaActual} max={actor.vidaMax} />
-                 <p className="text-center text-[10px] font-black text-zinc-400 mt-1 uppercase">{actor.vidaActual} / {actor.vidaMax} HP</p>
+                 <p className="text-center text-[10px] font-normal text-zinc-400 mt-1 uppercase">{actor.vidaActual} / {actor.vidaMax} HP</p>
               </div>
 
               {!gameState.partidaTerminada && (
-                <div className="flex-1 flex flex-col gap-3 justify-end">
+                <div className="flex-1 flex flex-col gap-2 justify-end">
                   
                   {/* Action Panel */}
                   <div className="bg-zinc-900 border border-zinc-700 p-4 rounded-xl flex flex-col gap-3 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
@@ -580,14 +609,14 @@ export default function TrialPage() {
                       </div>
                     ) : activeMode === 'NONE' ? (
                       <>
-                        <button onClick={() => setActiveMode('ATACAR')} disabled={isAnimating} className="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-3 rounded tracking-wider shadow-[0_0_15px_rgba(220,38,38,0.2)] hover:shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all disabled:opacity-50">ATACAR</button>
-                        <button onClick={() => sendAction('DEFENDER')} disabled={isAnimating} className="w-full bg-blue-800 hover:bg-blue-700 text-white font-bold py-3 rounded tracking-wider transition-all disabled:opacity-50">DEFENDER</button>
-                        <button onClick={() => setActiveMode('PERK')} disabled={isAnimating || !actor.perks?.some(p => p.usos > 0)} className="w-full bg-purple-900 hover:bg-purple-800 text-white font-bold py-3 rounded tracking-wider transition-all disabled:opacity-50">USAR PERK</button>
+                        <button onClick={() => setActiveMode('ATACAR')} disabled={isAnimating} className="w-full bg-[#3a0909] hover:bg-[#520f0f] text-[#fca5a5] border border-[#6b1414] font-normal py-3 rounded-none text-lg tracking-[0.15em] hover:text-white transition-all disabled:opacity-30">ATACAR</button>
+                        <button onClick={() => sendAction('DEFENDER')} disabled={isAnimating} className="w-full bg-[#1b2b20] hover:bg-[#273d2e] text-[#a7f3d0] border border-[#2b4c37] font-normal py-3 rounded-none text-lg tracking-[0.15em] hover:text-white transition-all disabled:opacity-30">DEFENDER</button>
+                        <button onClick={() => setActiveMode('PERK')} disabled={isAnimating || !actor.perks?.some(p => p.usos > 0)} className="w-full bg-[#27153a] hover:bg-[#391e55] text-[#f3e8ff] border border-[#4a2472] font-normal py-3 rounded-none text-lg tracking-[0.15em] hover:text-white transition-all disabled:opacity-30">USAR PERK</button>
                       </>
                     ) : activeMode === 'ATACAR' ? (
-                      <div className="flex flex-col h-full">
-                        <p className="text-sm text-zinc-400 mb-3 font-bold">Selecciona Objetivo:</p>
-                        <div className="space-y-2 flex-1 overflow-y-auto pr-1 max-h-48">
+                      <div className="flex flex-col h-full font-[family-name:var(--font-special-elite)]">
+                        <p className="text-sm text-zinc-400 mb-2 font-normal uppercase tracking-wider">Selecciona Objetivo:</p>
+                        <div className="space-y-2 flex-1 overflow-y-auto pr-1 max-h-36">
                           {rivales.map((r, idx) => {
                             if (r.vidaActual <= 0) return null;
                             const fixedKey = r.nombrePersonaje.replace(/\s+/g, '');
@@ -597,19 +626,19 @@ export default function TrialPage() {
                                 onMouseEnter={() => setPreviewTarget({ charKey: fixedKey, name: r.nombrePersonaje, image: portraitMap[fixedKey] || portraitMap['DEFAULT'] })}
                                 onMouseLeave={() => setPreviewTarget(null)}
                                 onClick={() => handleModeAction(idx)}
-                                className="w-full text-left px-4 py-3 bg-zinc-950 hover:bg-red-900/50 border border-zinc-800 hover:border-red-600 rounded text-sm font-bold transition-all text-zinc-200 hover:text-white"
+                                className="w-full text-left px-4 py-2 bg-stone-950 hover:bg-[#3a0909]/40 border border-stone-900 hover:border-[#6b1414] rounded-none text-sm font-normal transition-all text-[#fca5a5] hover:text-white"
                               >
                                 {r.nombrePersonaje} <span className="float-right text-xs opacity-50">{r.vidaActual} HP</span>
                               </button>
                             );
                           })}
                         </div>
-                        <button onClick={() => setActiveMode('NONE')} className="mt-4 w-full border border-zinc-700 hover:bg-zinc-800 py-2 rounded text-sm font-bold text-zinc-400 transition-all">CANCELAR</button>
+                        <button onClick={() => setActiveMode('NONE')} className="mt-3 w-full border border-stone-900 hover:bg-stone-900 py-1.5 rounded-none text-xs font-normal text-stone-500 transition-all uppercase tracking-widest">CANCELAR</button>
                       </div>
                     ) : activeMode === 'PERK' ? (
-                      <div className="flex flex-col h-full">
-                        <p className="text-sm text-zinc-400 mb-3 font-bold">Selecciona Perk:</p>
-                        <div className="space-y-2 flex-1 overflow-y-auto pr-1 max-h-48">
+                      <div className="flex flex-col h-full font-[family-name:var(--font-special-elite)]">
+                        <p className="text-sm text-zinc-400 mb-2 font-normal uppercase tracking-wider">Selecciona Perk:</p>
+                        <div className="space-y-2 flex-1 overflow-y-auto pr-1 max-h-36">
                           {actor.perks?.map((p, idx) => {
                             if (p.usos <= 0) return null;
                             return (
@@ -618,14 +647,14 @@ export default function TrialPage() {
                                 onClick={() => {
                                   sendAction('PERK', 0, idx); 
                                 }}
-                                className="w-full text-left px-4 py-3 bg-purple-950/50 hover:bg-purple-900 border border-purple-900/50 rounded text-sm font-bold transition-all text-purple-200"
+                                className="w-full text-left px-4 py-2 bg-stone-950 hover:bg-[#27153a]/40 border border-stone-900 hover:border-[#4a2472] rounded-none text-sm font-normal transition-all text-[#f3e8ff] hover:text-white"
                               >
                                 {p.nombre} <span className="float-right text-xs opacity-50">{p.usos} usos</span>
                               </button>
                             );
                           })}
                         </div>
-                        <button onClick={() => setActiveMode('NONE')} className="mt-4 w-full border border-zinc-700 hover:bg-zinc-800 py-2 rounded text-sm font-bold text-zinc-400 transition-all">CANCELAR</button>
+                        <button onClick={() => setActiveMode('NONE')} className="mt-3 w-full border border-stone-900 hover:bg-stone-900 py-1.5 rounded-none text-xs font-normal text-stone-500 transition-all uppercase tracking-widest">CANCELAR</button>
                       </div>
                     ) : null}
                   </div>
@@ -634,7 +663,7 @@ export default function TrialPage() {
                     onClick={openSaveModal} 
                     className="mt-2 w-full bg-zinc-950 border-2 border-green-600 text-green-500 font-black py-4 rounded-xl tracking-[0.2em] uppercase shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.6)] hover:bg-green-950/30 transition-all active:scale-95"
                   >
-                    GUARDAR PARTIDA
+                    GUARDAR Y ABANDONAR
                   </button>
                 </div>
               )}

@@ -43,7 +43,7 @@ export default function PlayPage() {
   const router = useRouter();
   const [availableSurvs, setAvailableSurvs] = useState<Character[]>([]);
   const [availableKillers, setAvailableKillers] = useState<Character[]>([]);
-  
+
   const [selectedSurvs, setSelectedSurvs] = useState<string[]>([]);
   const [selectedKillers, setSelectedKillers] = useState<string[]>([]);
   const [gameMode, setGameMode] = useState<'manual' | 'automatico'>('manual');
@@ -64,7 +64,7 @@ export default function PlayPage() {
           signal: controller.signal
         });
         clearTimeout(timeoutId);
-        
+
         if (res.ok) {
           const data = await res.json();
           const mapToChar = (id: string): Character => ({
@@ -135,22 +135,22 @@ export default function PlayPage() {
       <div className="absolute inset-0 bg-gradient-to-tr from-red-950/20 via-transparent to-blue-950/20 z-0 mix-blend-overlay animate-pulse"></div>
 
       <div className="relative z-10 p-4 md:p-8 w-full max-w-[1800px] mx-auto flex flex-col min-h-screen">
-        
+
         {/* HEADER */}
         <header className="flex flex-col lg:flex-row justify-between items-center border-b border-red-900/30 pb-6 mb-10 gap-6 backdrop-blur-md bg-black/20 p-6 rounded-2xl shadow-2xl border-t border-zinc-800/50">
           <div className="text-center lg:text-left">
-            <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 to-zinc-400 tracking-widest drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] uppercase">
-              Preparación
+            <h1 className="text-5xl md:text-6xl font-normal text-white tracking-[0.05em] font-[family-name:var(--font-horroroid)] drop-shadow-[0_2px_15px_rgba(255,255,255,0.25)] uppercase">
+              LA HOGUERA
             </h1>
-            <p className="text-red-500 font-bold tracking-[0.3em] mt-2 text-xs md:text-sm uppercase drop-shadow-[0_0_8px_rgba(220,38,38,0.6)]">
-              La Hoguera (The Campfire)
+            <p className="text-zinc-300 tracking-[0.1em] mt-2 text-xs md:text-sm font-[family-name:var(--font-special-elite)]">
+              elige tus personajes y adentrate a la niebla.
             </p>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row items-center gap-6 w-full lg:w-auto">
             <div className="flex gap-4 items-center bg-black/40 px-6 py-3 rounded-xl border border-zinc-800/80 shadow-inner">
               <div className="flex flex-col items-center">
-                <span className="text-xs text-zinc-500 font-bold tracking-wider uppercase mb-1">Supervivientes</span>
+                <span className="text-xs text-zinc-500 font-bold tracking-wider uppercase mb-1 font-[family-name:var(--font-special-elite)]">Supervivientes</span>
                 <div className="flex gap-1">
                   {[0, 1, 2].map(i => (
                     <div key={i} className={`w-3 h-3 rounded-full ${i < selectedSurvs.length ? 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]' : 'bg-zinc-700'}`}></div>
@@ -159,7 +159,7 @@ export default function PlayPage() {
               </div>
               <div className="w-px h-8 bg-zinc-800"></div>
               <div className="flex flex-col items-center">
-                <span className="text-xs text-zinc-500 font-bold tracking-wider uppercase mb-1">Asesinos</span>
+                <span className="text-xs text-zinc-500 font-bold tracking-wider uppercase mb-1 font-[family-name:var(--font-special-elite)]">Asesinos</span>
                 <div className="flex gap-1">
                   {[0, 1, 2].map(i => (
                     <div key={i} className={`w-3 h-3 rounded-full ${i < selectedKillers.length ? 'bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.8)]' : 'bg-zinc-700'}`}></div>
@@ -167,10 +167,10 @@ export default function PlayPage() {
                 </div>
               </div>
             </div>
-            
-            <button 
-              onClick={() => router.push('/dashboard')} 
-              className="group relative px-6 py-3 bg-zinc-900 text-zinc-300 rounded-xl overflow-hidden font-bold tracking-wider uppercase text-sm border border-zinc-700 hover:border-zinc-500 transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] active:scale-95 w-full sm:w-auto"
+
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="group relative px-6 py-3 bg-zinc-900 text-zinc-300 rounded-xl overflow-hidden font-[family-name:var(--font-special-elite)] tracking-wider uppercase text-sm border border-zinc-700 hover:border-zinc-500 transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] active:scale-95 w-full sm:w-auto"
             >
               <div className="absolute inset-0 w-0 bg-white/5 transition-all duration-[250ms] ease-out group-hover:w-full"></div>
               <span className="relative flex items-center justify-center gap-2">
@@ -184,19 +184,19 @@ export default function PlayPage() {
         <main className="flex-1 flex flex-col">
           {isLoading ? (
             <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] gap-6 xl:gap-10 w-full animate-pulse mt-4 flex-1">
-               <div className="bg-black/40 rounded-3xl p-8 border border-zinc-800">
-                  <div className="h-8 w-48 bg-zinc-800 rounded mb-8"></div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                     {[1,2,3,4,5,6,7,8].map(i => <div key={i} className="aspect-[3/4] bg-zinc-900 rounded-xl"></div>)}
-                  </div>
-               </div>
-               <div className="hidden xl:block w-10"></div>
-               <div className="bg-black/40 rounded-3xl p-8 border border-zinc-800">
-                  <div className="h-8 w-48 bg-zinc-800 rounded mb-8"></div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                     {[1,2,3,4,5,6,7,8].map(i => <div key={i} className="aspect-[3/4] bg-zinc-900 rounded-xl"></div>)}
-                  </div>
-               </div>
+              <div className="bg-black/40 rounded-3xl p-8 border border-zinc-800">
+                <div className="h-8 w-48 bg-zinc-800 rounded mb-8"></div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <div key={i} className="aspect-[3/4] bg-zinc-900 rounded-xl"></div>)}
+                </div>
+              </div>
+              <div className="hidden xl:block w-10"></div>
+              <div className="bg-black/40 rounded-3xl p-8 border border-zinc-800">
+                <div className="h-8 w-48 bg-zinc-800 rounded mb-8"></div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <div key={i} className="aspect-[3/4] bg-zinc-900 rounded-xl"></div>)}
+                </div>
+              </div>
             </div>
           ) : isError ? (
             <div className="flex-1 flex items-center justify-center flex-col gap-4 text-center">
@@ -206,49 +206,46 @@ export default function PlayPage() {
               <button onClick={() => window.location.reload()} className="mt-4 px-6 py-2 bg-red-900 text-white rounded hover:bg-red-800 font-bold uppercase transition-colors">Reintentar</button>
             </div>
           ) : (
-            <>
-              <motion.div 
-              initial={{ opacity: 0, y: 30 }} 
-              animate={{ opacity: 1, y: 0 }} 
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] gap-6 xl:gap-10 items-start flex-1 w-full"
             >
-              
+
               {/* SUPERVIVIENTES */}
               <div className="relative bg-black/40 backdrop-blur-sm border border-zinc-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden group/container">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-600/50 to-transparent"></div>
-                
-                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-200 mb-8 flex items-center gap-3 border-b border-blue-900/30 pb-4 tracking-widest uppercase">
-                  <span className="text-3xl drop-shadow-[0_0_15px_rgba(59,130,246,0.6)]">🏃</span> Supervivientes
+
+                <h3 className="text-3xl font-normal text-zinc-400 mb-8 flex items-center gap-3 border-b border-zinc-800/80 pb-4 tracking-widest uppercase font-[family-name:var(--font-horroroid)]">
+                  <span className="text-3xl drop-shadow-[0_0_15px_rgba(156,163,175,0.3)]"></span> Supervivientes
                 </h3>
-                
+
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
                   {availableSurvs.map((s) => {
                     const isSelected = selectedSurvs.includes(s.id);
                     return (
-                      <button 
+                      <button
                         key={s.id}
                         onClick={() => toggleSurv(s.id)}
-                        className={`relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer transition-all duration-500 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-zinc-900 ${
-                          isSelected 
-                            ? 'ring-2 ring-blue-500 ring-offset-4 ring-offset-zinc-950 shadow-[0_0_30px_rgba(59,130,246,0.5)] scale-105 z-10' 
-                            : 'border border-zinc-800 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.6)] hover:scale-105 hover:z-10'
-                        }`}
+                        className={`relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer transition-all duration-500 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-zinc-900 ${isSelected
+                          ? 'ring-2 ring-blue-500 ring-offset-4 ring-offset-zinc-950 shadow-[0_0_30px_rgba(59,130,246,0.5)] scale-105 z-10'
+                          : 'border border-zinc-800 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.6)] hover:scale-105 hover:z-10'
+                          }`}
                       >
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10 opacity-90 transition-opacity duration-300 group-hover:opacity-40"></div>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                          src={s.image} 
-                          alt={s.name} 
+                        <img
+                          src={s.image}
+                          alt={s.name}
                           className={`object-cover w-full h-full transition-all duration-500 ease-out 
                             ${s.id === 'AdaWong' ? 'object-center scale-[1.5]' : 'object-top scale-100'} 
-                            ${isSelected ? 'saturate-100 opacity-100 brightness-110' : 'saturate-0 opacity-70 group-hover:scale-110 group-hover:saturate-100 group-hover:opacity-100'}`} 
+                            ${isSelected ? 'saturate-100 opacity-100 brightness-110' : 'saturate-0 opacity-70 group-hover:scale-110 group-hover:saturate-100 group-hover:opacity-100'}`}
                         />
-                        
+
                         <div className="absolute bottom-0 left-0 w-full p-3 sm:p-5 z-20 transform transition-transform duration-300 bg-gradient-to-t from-black via-black/80 to-transparent">
-                          <p className={`text-sm md:text-base lg:text-lg font-black text-center uppercase tracking-wider ${
-                            isSelected ? 'text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,1)]' : 'text-zinc-300 group-hover:text-white'
-                          }`}>
+                          <p className={`text-sm md:text-base lg:text-lg font-normal text-center uppercase tracking-wider font-[family-name:var(--font-special-elite)] ${isSelected ? 'text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,1)]' : 'text-zinc-300 group-hover:text-white'
+                            }`}>
                             {s.name}
                           </p>
                         </div>
@@ -279,40 +276,38 @@ export default function PlayPage() {
               {/* ASESINOS */}
               <div className="relative bg-black/40 backdrop-blur-sm border border-zinc-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden group/container">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-600/50 to-transparent"></div>
-                
-                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-300 mb-8 flex items-center gap-3 border-b border-red-900/30 pb-4 tracking-widest uppercase">
-                  <span className="text-3xl drop-shadow-[0_0_15px_rgba(220,38,38,0.6)]">🔪</span> Asesinos
+
+                <h3 className="text-3xl font-normal text-zinc-400 mb-8 flex items-center gap-3 border-b border-zinc-800/80 pb-4 tracking-widest uppercase font-[family-name:var(--font-horroroid)]">
+                  <span className="text-3xl drop-shadow-[0_0_15px_rgba(156,163,175,0.3)]"></span> Asesinos
                 </h3>
-                
+
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
                   {availableKillers.map((k) => {
                     const isSelected = selectedKillers.includes(k.id);
                     return (
-                      <button 
+                      <button
                         key={k.id}
                         onClick={() => toggleKiller(k.id)}
-                        className={`relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer transition-all duration-500 group focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-zinc-900 ${
-                          isSelected 
-                            ? 'ring-2 ring-red-600 ring-offset-4 ring-offset-zinc-950 shadow-[0_0_30px_rgba(220,38,38,0.5)] scale-105 z-10' 
-                            : 'border border-zinc-800 hover:border-red-500/50 hover:shadow-[0_0_20px_rgba(220,38,38,0.6)] hover:scale-105 hover:z-10'
-                        }`}
+                        className={`relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer transition-all duration-500 group focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-zinc-900 ${isSelected
+                          ? 'ring-2 ring-red-600 ring-offset-4 ring-offset-zinc-950 shadow-[0_0_30px_rgba(220,38,38,0.5)] scale-105 z-10'
+                          : 'border border-zinc-800 hover:border-red-500/50 hover:shadow-[0_0_20px_rgba(220,38,38,0.6)] hover:scale-105 hover:z-10'
+                          }`}
                       >
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10 opacity-90 transition-opacity duration-300 group-hover:opacity-40"></div>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                          src={k.image} 
-                          alt={k.name} 
+                        <img
+                          src={k.image}
+                          alt={k.name}
                           className={`object-cover w-full h-full transition-all duration-500 ease-out 
-                            ${k.id === 'Onryo' ? 'object-bottom scale-[1.2] -translate-y-10' : 
-                              k.id === 'Animatronico' ? 'object-center scale-[1.3] -translate-y-6' : 
-                              'object-top scale-100'} 
-                            ${isSelected ? 'saturate-100 opacity-100 brightness-110' : 'saturate-0 opacity-70 group-hover:scale-110 group-hover:saturate-100 group-hover:opacity-100'}`} 
+                            ${k.id === 'Onryo' ? 'object-bottom scale-[1.2] -translate-y-10' :
+                              k.id === 'Animatronico' ? 'object-center scale-[1.3] -translate-y-6' :
+                                'object-top scale-100'} 
+                            ${isSelected ? 'saturate-100 opacity-100 brightness-110' : 'saturate-0 opacity-70 group-hover:scale-110 group-hover:saturate-100 group-hover:opacity-100'}`}
                         />
-                        
+
                         <div className="absolute bottom-0 left-0 w-full p-3 sm:p-5 z-20 transform transition-transform duration-300 bg-gradient-to-t from-black via-black/80 to-transparent">
-                          <p className={`text-sm md:text-base lg:text-lg font-black text-center uppercase tracking-wider ${
-                            isSelected ? 'text-red-400 drop-shadow-[0_0_8px_rgba(220,38,38,1)]' : 'text-zinc-300 group-hover:text-white'
-                          }`}>
+                          <p className={`text-sm md:text-base lg:text-lg font-normal text-center uppercase tracking-wider font-[family-name:var(--font-special-elite)] ${isSelected ? 'text-red-400 drop-shadow-[0_0_8px_rgba(220,38,38,1)]' : 'text-zinc-300 group-hover:text-white'
+                            }`}>
                             {k.name}
                           </p>
                         </div>
@@ -383,21 +378,20 @@ export default function PlayPage() {
             {isReady && (
               <div className="absolute inset-0 bg-white blur-[60px] opacity-5 rounded-full animate-pulse"></div>
             )}
-            
-            <button 
+
+            <button
               onClick={handleStart}
               disabled={!isReady}
-              className={`relative px-16 py-4 rounded-sm font-bold text-xl md:text-2xl tracking-[0.4em] uppercase overflow-hidden transition-all duration-700 ${
-                isReady 
-                ? 'bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-900 text-zinc-300 shadow-[0_0_50px_rgba(0,0,0,0.8)] cursor-pointer hover:brightness-125 group border-y border-zinc-500/30' 
+              className={`relative px-16 py-4 rounded-sm font-[family-name:var(--font-special-elite)] text-xl md:text-2xl tracking-[0.4em] uppercase overflow-hidden transition-all duration-700 ${isReady
+                ? 'bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-900 text-zinc-300 shadow-[0_0_50px_rgba(0,0,0,0.8)] cursor-pointer hover:brightness-125 group border-y border-zinc-500/30'
                 : 'bg-zinc-900/50 text-zinc-600 border border-zinc-800 cursor-not-allowed backdrop-blur-sm'
-              }`}
+                }`}
             >
               {/* Weathered Texture Overlay */}
               {isReady && (
                 <div className="absolute inset-0 opacity-30 pointer-events-none mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')]"></div>
               )}
-              
+
               <span className="relative z-10 flex items-center justify-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                 {isReady ? 'Entrar a la Niebla' : 'Selecciona 3 y 3'}
               </span>
@@ -408,8 +402,9 @@ export default function PlayPage() {
               )}
             </button>
           </div>
-          
-          <style dangerouslySetInnerHTML={{__html: `
+
+          <style dangerouslySetInnerHTML={{
+            __html: `
             @keyframes shimmer {
               100% { transform: translateX(100%); }
             }
