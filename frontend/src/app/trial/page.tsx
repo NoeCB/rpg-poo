@@ -170,10 +170,19 @@ export default function TrialPage() {
     
     setIsAnimating(true);
     setActiveMode('NONE');
-    setPreviewTarget(null);
 
     const globalAtacanteIdx = isSurviTurn ? currentIdx : (gameState.supervivientes.length + currentIdx);
     const safeObjetivoIndex = objetivoIndex === -1 ? 0 : objetivoIndex;
+
+    // Preserve target info for the animation
+    const rivales = isSurviTurn ? gameState.killers : gameState.supervivientes;
+    const rivalKeys = isSurviTurn ? killerKeys : survKeys;
+    if (safeObjetivoIndex < rivales.length) {
+      setPreviewTarget({
+        charKey: rivalKeys[safeObjetivoIndex],
+        name: rivales[safeObjetivoIndex].nombrePersonaje
+      });
+    }
 
     // Mini animation logic before API call
     if (tipoAccion === 'ATACAR' || tipoAccion === 'PERK') {
@@ -187,6 +196,9 @@ export default function TrialPage() {
       await new Promise(r => setTimeout(r, 800));
       setAnimState('IDLE');
     }
+
+    // Clear preview target after animations
+    setPreviewTarget(null);
 
     try {
       const baseUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:8080` : 'http://localhost:8080';
@@ -236,7 +248,7 @@ export default function TrialPage() {
       <div className="relative z-10 h-screen flex flex-col">
         {/* HEADER */}
         <header className="py-4 px-8 border-b border-zinc-800 bg-black/40 backdrop-blur-sm flex justify-between items-center shadow-lg">
-          <h1 className="text-2xl font-black tracking-[0.2em] text-red-600 drop-shadow-[0_0_10px_rgba(220,38,38,0.5)]">LA PRUEBA</h1>
+          <h1 className="text-2xl tracking-[0.1em] text-white font-[family-name:var(--font-rock-salt)] drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">DEAD BY DAYLIGHT</h1>
           <button onClick={() => router.push('/dashboard')} className="text-zinc-400 hover:text-white transition-colors text-sm font-bold tracking-wider uppercase border border-zinc-700 px-4 py-1 rounded">
             Abandonar
           </button>
@@ -277,7 +289,15 @@ export default function TrialPage() {
                 <div className={`relative flex flex-col items-center transition-all duration-500 ease-in-out ${animState === 'ATTACK' ? 'translate-x-8 md:translate-x-24 scale-125 z-50' : ''} ${animState === 'DEFEND' ? 'scale-95 opacity-80 brightness-150 drop-shadow-[0_0_30px_rgba(59,130,246,1)]' : ''}`}>
                   <div className={`w-48 h-64 md:w-64 md:h-96 rounded-xl overflow-hidden border-4 ${isSurviTurn ? 'border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.6)]' : 'border-red-600 shadow-[0_0_40px_rgba(220,38,38,0.6)]'}`}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={actorImg} alt="Actor" className="w-full h-full object-cover object-top" />
+                    <img 
+                      src={actorImg} 
+                      alt="Actor" 
+                      className={`w-full h-full object-cover 
+                        ${actorKey === 'AdaWong' ? 'object-center scale-[1.5]' : 
+                          actorKey === 'Onryo' ? 'object-bottom scale-[1.2] -translate-y-10' : 
+                          actorKey === 'Animatronico' ? 'object-center scale-[1.3] -translate-y-6' : 
+                          'object-top'}`} 
+                    />
                   </div>
                   <div className="mt-6 bg-black/90 px-6 py-2 rounded-lg border-2 border-zinc-700 text-lg md:text-xl font-black shadow-2xl tracking-wider">
                     {actor.nombrePersonaje}
@@ -291,7 +311,15 @@ export default function TrialPage() {
                     <div className={`relative flex flex-col items-center transition-all duration-300 ease-out ${animState === 'DAMAGE' ? 'translate-x-4 sepia contrast-[1.8] animate-[shake_0.4s_ease-in-out_infinite] scale-110 z-40' : ''}`}>
                       <div className={`w-48 h-64 md:w-64 md:h-96 rounded-xl overflow-hidden border-4 border-zinc-500 opacity-90 ${animState === 'DAMAGE' ? 'border-red-600 shadow-[0_0_50px_rgba(220,38,38,1)]' : ''}`}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={previewTarget ? portraitMap[previewTarget.charKey] : portraitMap['DEFAULT']} alt="Target" className="w-full h-full object-cover object-top" />
+                        <img 
+                          src={previewTarget ? portraitMap[previewTarget.charKey] : portraitMap['DEFAULT']} 
+                          alt="Target" 
+                          className={`w-full h-full object-cover 
+                            ${previewTarget?.charKey === 'AdaWong' ? 'object-center scale-[1.5]' : 
+                              previewTarget?.charKey === 'Onryo' ? 'object-bottom scale-[1.2] -translate-y-10' : 
+                              previewTarget?.charKey === 'Animatronico' ? 'object-center scale-[1.3] -translate-y-6' : 
+                              'object-top'}`} 
+                        />
                       </div>
                       <div className="mt-6 bg-black/90 px-6 py-2 rounded-lg border-2 border-zinc-700 text-lg md:text-xl font-black shadow-2xl tracking-wider">
                         {previewTarget?.name || 'Objetivo'}
@@ -323,7 +351,7 @@ export default function TrialPage() {
             </div>
 
             {/* Combat Log */}
-            <div className="h-48 md:h-64 bg-black/80 border-t border-zinc-800 p-4 overflow-y-auto font-mono text-sm leading-relaxed shadow-inner">
+            <div className="h-48 md:h-64 bg-black/80 border-t border-zinc-800 p-4 overflow-y-auto font-[family-name:var(--font-special-elite)] text-sm md:text-base leading-relaxed shadow-inner tracking-tight">
               <div className="space-y-1">
                 {combatLogs.map((log, i) => {
                   let colorClass = 'text-zinc-400';

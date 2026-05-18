@@ -103,7 +103,7 @@ export default function PlayPage() {
   const isReady = selectedSurvs.length === 3 && selectedKillers.length === 3;
 
   return (
-    <div className="min-h-screen bg-zinc-950 bg-[url('https://c4.wallpaperflare.com/wallpaper/132/511/309/dead-by-daylight-dark-wood-video-games-wallpaper-preview.jpg')] bg-cover bg-center bg-fixed relative text-white selection:bg-red-600/30 font-sans">
+    <div className="min-h-screen bg-zinc-950 bg-[url('/maxresdefault.jpg')] bg-cover bg-center bg-fixed relative text-white selection:bg-red-600/30 font-sans">
       <div className="absolute inset-0 bg-black/85 z-0 backdrop-blur-[3px]"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-red-950/20 via-transparent to-blue-950/20 z-0 mix-blend-overlay animate-pulse"></div>
 
@@ -188,7 +188,13 @@ export default function PlayPage() {
                       >
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10 opacity-90 transition-opacity duration-300 group-hover:opacity-40"></div>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={s.image} alt={s.name} className={`object-cover object-top w-full h-full transition-all duration-500 ease-out ${isSelected ? 'scale-110 saturate-100' : 'saturate-0 opacity-70 group-hover:scale-110 group-hover:saturate-100 group-hover:opacity-100'}`} />
+                        <img 
+                          src={s.image} 
+                          alt={s.name} 
+                          className={`object-cover w-full h-full transition-all duration-500 ease-out 
+                            ${s.id === 'AdaWong' ? 'object-center scale-[1.5]' : 'object-top scale-100'} 
+                            ${isSelected ? 'saturate-100 opacity-100 brightness-110' : 'saturate-0 opacity-70 group-hover:scale-110 group-hover:saturate-100 group-hover:opacity-100'}`} 
+                        />
                         
                         <div className="absolute bottom-0 left-0 w-full p-3 sm:p-5 z-20 transform transition-transform duration-300 bg-gradient-to-t from-black via-black/80 to-transparent">
                           <p className={`text-sm md:text-base lg:text-lg font-black text-center uppercase tracking-wider ${
@@ -244,7 +250,15 @@ export default function PlayPage() {
                       >
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10 opacity-90 transition-opacity duration-300 group-hover:opacity-40"></div>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={k.image} alt={k.name} className={`object-cover object-top w-full h-full transition-all duration-500 ease-out ${isSelected ? 'scale-110 saturate-100' : 'saturate-0 opacity-70 group-hover:scale-110 group-hover:saturate-100 group-hover:opacity-100'}`} />
+                        <img 
+                          src={k.image} 
+                          alt={k.name} 
+                          className={`object-cover w-full h-full transition-all duration-500 ease-out 
+                            ${k.id === 'Onryo' ? 'object-bottom scale-[1.2] -translate-y-10' : 
+                              k.id === 'Animatronico' ? 'object-center scale-[1.3] -translate-y-6' : 
+                              'object-top scale-100'} 
+                            ${isSelected ? 'saturate-100 opacity-100 brightness-110' : 'saturate-0 opacity-70 group-hover:scale-110 group-hover:saturate-100 group-hover:opacity-100'}`} 
+                        />
                         
                         <div className="absolute bottom-0 left-0 w-full p-3 sm:p-5 z-20 transform transition-transform duration-300 bg-gradient-to-t from-black via-black/80 to-transparent">
                           <p className={`text-sm md:text-base lg:text-lg font-black text-center uppercase tracking-wider ${
@@ -270,32 +284,31 @@ export default function PlayPage() {
           {/* ACTION BUTTON */}
           <div className="mt-12 mb-6 flex justify-center relative">
             {isReady && (
-              <div className="absolute inset-0 bg-red-600 blur-[50px] opacity-20 rounded-full animate-pulse"></div>
+              <div className="absolute inset-0 bg-white blur-[60px] opacity-5 rounded-full animate-pulse"></div>
             )}
             
             <button 
               onClick={handleStart}
               disabled={!isReady}
-              className={`relative px-12 py-5 rounded-2xl font-black text-xl md:text-2xl tracking-[0.2em] uppercase overflow-hidden transition-all duration-500 ${
+              className={`relative px-16 py-4 rounded-sm font-bold text-xl md:text-2xl tracking-[0.4em] uppercase overflow-hidden transition-all duration-700 ${
                 isReady 
-                ? 'bg-gradient-to-b from-red-600 to-red-900 text-white shadow-[0_10px_40px_rgba(220,38,38,0.5)] cursor-pointer hover:-translate-y-2 hover:shadow-[0_15px_50px_rgba(220,38,38,0.7)] group border border-red-500/50' 
+                ? 'bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-900 text-zinc-300 shadow-[0_0_50px_rgba(0,0,0,0.8)] cursor-pointer hover:brightness-125 group border-y border-zinc-500/30' 
                 : 'bg-zinc-900/50 text-zinc-600 border border-zinc-800 cursor-not-allowed backdrop-blur-sm'
               }`}
             >
+              {/* Weathered Texture Overlay */}
               {isReady && (
-                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                <div className="absolute inset-0 opacity-30 pointer-events-none mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')]"></div>
               )}
-              <span className="relative z-10 flex items-center gap-3">
-                {isReady ? (
-                  <>
-                    <span className="animate-pulse">🔥</span> 
-                    Entrar a la Niebla 
-                    <span className="animate-pulse">🔥</span>
-                  </>
-                ) : (
-                  'Selecciona 3 y 3'
-                )}
+              
+              <span className="relative z-10 flex items-center justify-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                {isReady ? 'Entrar a la Niebla' : 'Selecciona 3 y 3'}
               </span>
+
+              {/* Subtle metallic shine on hover */}
+              {isReady && (
+                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]"></div>
+              )}
             </button>
           </div>
           
