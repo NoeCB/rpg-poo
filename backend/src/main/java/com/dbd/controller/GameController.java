@@ -46,6 +46,19 @@ public class GameController {
         }
     }
 
+    @PostMapping("/delete/{id}")
+    public ResponseEntity<Map<String, String>> deleteSave(@PathVariable int id) {
+        System.out.println(">>> [GameController] POST /delete/" + id + " : Borrando partida...");
+        try {
+            String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+            trialService.borrarPartida(id, username);
+            return ResponseEntity.ok(Map.of("message", "Ranura " + id + " vaciada con éxito"));
+        } catch (Exception e) {
+            System.err.println("Error al borrar la partida " + id + ": " + e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PostMapping("/save")
     public ResponseEntity<GameStateResponse> saveGame(@RequestBody Map<String, Integer> payload) {
         try {

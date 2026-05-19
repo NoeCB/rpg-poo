@@ -97,6 +97,11 @@ public class TrialService {
         return construirRespuesta("Partida guardada exitosamente en la ranura " + ranura);
     }
 
+    public void borrarPartida(int ranura, String username) {
+        Usuario user = usuarioRepository.findByUsername(username).orElseThrow(() -> new IllegalStateException("Usuario no encontrado"));
+        gestorPersistencia.borrarPartida(ranura, user.getId());
+    }
+
     public GameStateResponse iniciarPartidaAleatoria() {
         motor = new MotorTrial();
         motor.configurarPartida();

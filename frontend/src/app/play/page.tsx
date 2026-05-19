@@ -67,7 +67,7 @@ export default function PlayPage() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-        const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
+        const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1] || localStorage.getItem('jwt_token');
         const res = await fetch('/api/game/characters', {
           headers: token ? { 'Authorization': `Bearer ${token}` } : {},
           signal: controller.signal
