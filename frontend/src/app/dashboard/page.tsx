@@ -290,7 +290,7 @@ export default function DashboardPage() {
                 <div className="px-6 py-4 bg-zinc-900/30 border-b border-zinc-900/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex-grow w-full">
                     <div className="flex justify-between text-xs font-normal tracking-wider uppercase mb-2">
-                      <span className="text-amber-500 text-sm font-[family-name:var(--font-horroroid-bold)]">Progreso del Superviviente</span>
+                      <span className="text-amber-500 text-lg font-[family-name:var(--font-special-elite)]">Progreso del Superviviente</span>
                       <span className="text-zinc-300 font-[family-name:var(--font-special-elite)]">{unlockedCount} / {totalCount} DESBLOQUEADOS</span>
                     </div>
                     <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden border border-zinc-700/50 shadow-inner">

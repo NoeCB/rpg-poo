@@ -301,7 +301,7 @@ export default function PlayPage() {
                             alt={k.name}
                             className={`object-cover w-full h-full transition-all duration-500 ease-out 
                             ${k.id === 'Onryo' ? 'object-bottom scale-[1.2] -translate-y-10' :
-                                k.id === 'Animatronico' ? 'object-center scale-[1.3] -translate-y-6' :
+                                (k.id === 'Animatronico' || k.id === 'Animatrónico') ? 'object-[42%_30%] scale-[1.25]' :
                                   'object-top scale-100'} 
                             ${isSelected ? 'saturate-100 opacity-100 brightness-110' : 'saturate-0 opacity-70 group-hover:scale-110 group-hover:saturate-100 group-hover:opacity-100'}`}
                           />
@@ -326,21 +326,20 @@ export default function PlayPage() {
               </motion.div>
               {/* GAME MODE SELECTOR */}
               <div className="mt-12 max-w-2xl mx-auto w-full">
-                <h4 className="text-zinc-500 font-bold tracking-widest text-xs uppercase text-center mb-4">Selecciona el Modo de Juego</h4>
+                <h4 className="text-zinc-300 tracking-wider text-xl uppercase text-center mb-4 font-[family-name:var(--font-horroroid-bold)]">Selecciona el Modo de Juego</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* MODO MANUAL */}
                   <button
                     onClick={() => setGameMode('manual')}
                     className={`p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group ${gameMode === 'manual'
-                        ? 'bg-blue-950/20 border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)]'
-                        : 'bg-black/40 border-zinc-800 hover:border-zinc-700'
+                      ? 'bg-blue-950/20 border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)]'
+                      : 'bg-black/40 border-zinc-800 hover:border-zinc-700'
                       }`}
                   >
                     <div className="flex items-center gap-3 mb-1">
-                      <span className={`text-xl ${gameMode === 'manual' ? 'text-blue-400' : 'text-zinc-500'}`}>🎮</span>
-                      <span className={`font-black tracking-wider uppercase text-sm ${gameMode === 'manual' ? 'text-white' : 'text-zinc-400'}`}>Modo Manual</span>
+                      <span className={`font-normal tracking-wider uppercase text-base font-[family-name:var(--font-another-danger)] ${gameMode === 'manual' ? 'text-blue-400' : 'text-zinc-400'}`}>Modo Manual</span>
                     </div>
-                    <p className="text-zinc-500 text-xs leading-relaxed">
+                    <p className="text-zinc-400 text-xs leading-relaxed font-[family-name:var(--font-special-elite)]">
                       Control absoluto sobre las acciones, perks y posturas defensivas de cada combatiente.
                     </p>
                     {gameMode === 'manual' && (
@@ -352,15 +351,14 @@ export default function PlayPage() {
                   <button
                     onClick={() => setGameMode('automatico')}
                     className={`p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group ${gameMode === 'automatico'
-                        ? 'bg-amber-950/20 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]'
-                        : 'bg-black/40 border-zinc-800 hover:border-zinc-700'
+                      ? 'bg-amber-950/20 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]'
+                      : 'bg-black/40 border-zinc-800 hover:border-zinc-700'
                       }`}
                   >
                     <div className="flex items-center gap-3 mb-1">
-                      <span className={`text-xl ${gameMode === 'automatico' ? 'text-amber-400 animate-pulse' : 'text-zinc-500'}`}>🤖</span>
-                      <span className={`font-black tracking-wider uppercase text-sm ${gameMode === 'automatico' ? 'text-white' : 'text-zinc-400'}`}>Modo Automático</span>
+                      <span className={`font-normal tracking-wider uppercase text-base font-[family-name:var(--font-another-danger)] ${gameMode === 'automatico' ? 'text-amber-500' : 'text-zinc-400'}`}>Modo Automatico</span>
                     </div>
-                    <p className="text-zinc-500 text-xs leading-relaxed">
+                    <p className="text-zinc-400 text-xs leading-relaxed font-[family-name:var(--font-special-elite)]">
                       La IA decide las mejores jugadas de supervivientes y asesinos de forma autónoma.
                     </p>
                     {gameMode === 'automatico' && (

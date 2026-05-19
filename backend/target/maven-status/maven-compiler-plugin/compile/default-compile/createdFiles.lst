@@ -37,7 +37,6 @@ com\dbd\entidades\Chucky.class
 com\dbd\security\JwtUtil.class
 com\dbd\arma\Conjuro.class
 com\dbd\arma\TentaculoUroboros.class
-com\dbd\security\SecurityConfig.class
 com\dbd\habilidades\survis\Clarividencia.class
 com\dbd\arma\Gancho.class
 com\dbd\controller\AuthController.class
