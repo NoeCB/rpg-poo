@@ -65,6 +65,10 @@ public class TrialService {
         motor = new MotorTrial();
         motor.configurarPartida();
         motor.setIdRanuraActual(idRanura, (String) meta[1]);
+        if (meta.length > 3) {
+            motor.setBandoActual((String) meta[2]);
+            motor.setDificultadActual((String) meta[3]);
+        }
         motor.iniciarWeb(survis, killers);
         
         return construirRespuesta("Partida reanudada desde la ranura " + idRanura);
@@ -83,7 +87,9 @@ public class TrialService {
         }
         Usuario user = usuarioRepository.findByUsername(username).orElseThrow(() -> new IllegalStateException("Usuario no encontrado"));
         String modo = (motor.getModoActual() != null) ? motor.getModoActual() : "manual";
-        boolean exito = gestorPersistencia.guardarPartida(ranura, user.getId(), 1, modo, false, motor.getSupervivientes(), motor.getKillers());
+        String bando = (motor.getBandoActual() != null) ? motor.getBandoActual() : "survivientes";
+        String dificultad = (motor.getDificultadActual() != null) ? motor.getDificultadActual() : "normal";
+        boolean exito = gestorPersistencia.guardarPartida(ranura, user.getId(), 1, modo, bando, dificultad, false, motor.getSupervivientes(), motor.getKillers());
         if (!exito) {
             throw new IllegalStateException("Fallo al guardar en BD");
         }
@@ -102,7 +108,12 @@ public class TrialService {
         motor = new MotorTrial();
         motor.configurarPartida();
         String modo = (request.getModo() != null && !request.getModo().isEmpty()) ? request.getModo() : "manual";
+        String bando = (request.getBando() != null && !request.getBando().isEmpty()) ? request.getBando() : "survivientes";
+        String dificultad = (request.getDificultad() != null && !request.getDificultad().isEmpty()) ? request.getDificultad() : "normal";
+        
         motor.setIdRanuraActual(-1, modo);
+        motor.setBandoActual(bando);
+        motor.setDificultadActual(dificultad);
         
         ArrayList<Personaje> survis = new ArrayList<>();
         ArrayList<Personaje> killers = new ArrayList<>();
@@ -114,8 +125,45 @@ public class TrialService {
             killers.add(instanciarPersonaje(k));
         }
 
+        applyDifficultyScaling(survis, killers, bando, dificultad);
+
         motor.iniciarWeb(survis, killers);
         return construirRespuesta(null);
+    }
+
+    private void applyDifficultyScaling(List<Personaje> survis, List<Personaje> killers, String bando, String dificultad) {
+        if ("normal".equalsIgnoreCase(dificultad)) {
+            return;
+        }
+
+        double multiplier = 1.0;
+        if ("facil".equalsIgnoreCase(dificultad)) {
+            multiplier = 0.7;
+        } else if ("extremo".equalsIgnoreCase(dificultad)) {
+            multiplier = 1.4;
+        }
+
+        if ("survivientes".equalsIgnoreCase(bando)) {
+            for (Personaje k : killers) {
+                k.setVidaMax((int)(k.getVidaMax() * multiplier));
+                k.setVidaActual(k.getVidaMax());
+                k.setDefensaBase((int)(k.getDefensaBase() * multiplier));
+                if (k.getArma() != null) {
+                    double weaponMultiplier = "extremo".equalsIgnoreCase(dificultad) ? 1.3 : multiplier;
+                    k.getArma().setDanioBase((int)(k.getArma().getDanioBase() * weaponMultiplier));
+                }
+            }
+        } else if ("killers".equalsIgnoreCase(bando)) {
+            for (Personaje s : survis) {
+                s.setVidaMax((int)(s.getVidaMax() * multiplier));
+                s.setVidaActual(s.getVidaMax());
+                s.setDefensaBase((int)(s.getDefensaBase() * multiplier));
+                if (s.getArma() != null) {
+                    double weaponMultiplier = "extremo".equalsIgnoreCase(dificultad) ? 1.3 : multiplier;
+                    s.getArma().setDanioBase((int)(s.getArma().getDanioBase() * weaponMultiplier));
+                }
+            }
+        }
     }
 
     private Personaje instanciarPersonaje(String nombreClase) {
