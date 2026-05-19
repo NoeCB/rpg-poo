@@ -140,6 +140,44 @@ export default function TrialPage() {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [saves, setSaves] = useState<SaveSlot[]>([]);
   const [isLoadingSaves, setIsLoadingSaves] = useState(false);
+  const [isAutosaving, setIsAutosaving] = useState(false);
+
+  const triggerAutosave = async () => {
+    const activeSlotStr = localStorage.getItem('activeSaveSlot');
+    if (!activeSlotStr) return;
+    const activeSlot = parseInt(activeSlotStr, 10);
+    if (isNaN(activeSlot)) return;
+
+    setIsAutosaving(true);
+    try {
+      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
+      const res = await fetch('/api/game/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ slot: activeSlot })
+      });
+      if (res.ok) {
+        toast.success(`💾 Auto-guardado en Ranura ${activeSlot}`, {
+          duration: 2000,
+          style: {
+            background: '#1c1917',
+            color: '#f87171',
+            border: '1px solid #7f1d1d',
+            fontFamily: 'var(--font-special-elite)',
+            fontSize: '11px',
+            letterSpacing: '0.05em'
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error en auto-guardado automático", error);
+    } finally {
+      setIsAutosaving(false);
+    }
+  };
 
   const logsEndRef = useRef<HTMLDivElement>(null);
 
@@ -300,7 +338,15 @@ export default function TrialPage() {
         const endpoint = isResume ? '/api/game/state' : '/api/game/start-manual';
         const method = isResume ? 'GET' : 'POST';
         const gameMode = localStorage.getItem('selectedMode') || 'manual';
-        const body = isResume ? undefined : JSON.stringify({ supervivientes: sKeys, killers: kKeys, modo: gameMode });
+        const bando = localStorage.getItem('selectedBando') || 'survivientes';
+        const dificultad = localStorage.getItem('selectedDifficulty') || 'normal';
+        const body = isResume ? undefined : JSON.stringify({ 
+          supervivientes: sKeys, 
+          killers: kKeys, 
+          modo: gameMode,
+          bando,
+          dificultad
+        });
 
         const res = await fetch(endpoint, {
           method,
@@ -323,6 +369,11 @@ export default function TrialPage() {
             setSurvKeys(sKeysLoaded);
             setKillerKeys(kKeysLoaded);
             localStorage.removeItem('resumeGame');
+          } else {
+            // Guardar partida al iniciar
+            setTimeout(() => {
+              triggerAutosave();
+            }, 1000);
           }
         } else {
           setGameState(null);
@@ -354,6 +405,9 @@ export default function TrialPage() {
     if (newIdx >= equipoActual.length) {
       setIsSurviTurn(!isSurviTurn);
       setCurrentIdx(0);
+      if (!isSurviTurn) {
+        triggerAutosave();
+      }
     } else if (newIdx !== currentIdx) {
       setCurrentIdx(newIdx);
     }

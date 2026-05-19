@@ -8,12 +8,45 @@ import toast, { Toaster } from 'react-hot-toast';
 export default function DashboardPage() {
   const router = useRouter();
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
+  const [isNewGameModalOpen, setIsNewGameModalOpen] = useState(false);
   const [saves, setSaves] = useState<any[]>([]);
   const [isLoadingSaves, setIsLoadingSaves] = useState(false);
 
   const [isAchievementsOpen, setIsAchievementsOpen] = useState(false);
   const [achievements, setAchievements] = useState<any[]>([]);
   const [isLoadingAchievements, setIsLoadingAchievements] = useState(false);
+
+  const openNewGameModal = async () => {
+    setIsNewGameModalOpen(true);
+    setIsLoadingSaves(true);
+    try {
+      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
+      const res = await fetch('/api/game/saves', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSaves(data);
+      } else {
+        toast.error("Error al obtener partidas guardadas.");
+      }
+    } catch (error) {
+      toast.error("Error de red al conectar.");
+    } finally {
+      setIsLoadingSaves(false);
+    }
+  };
+
+  const startNewGame = (slotId: number, isVacia: boolean) => {
+    if (!isVacia) {
+      const confirmOverwrite = window.confirm("¡Atención! Esta ranura tiene una partida en curso. Al iniciar una nueva partida se borrará todo el progreso anterior en esta ranura. ¿Quieres continuar?");
+      if (!confirmOverwrite) return;
+    }
+    localStorage.setItem('activeSaveSlot', String(slotId));
+    localStorage.removeItem('resumeGame');
+    toast.success(`Ranura de Auto-guardado ${slotId} seleccionada.`);
+    setTimeout(() => router.push('/play'), 800);
+  };
 
   const handleLogout = () => {
     document.cookie = 'jwt_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
@@ -110,7 +143,7 @@ export default function DashboardPage() {
           {/* Card Nueva Partida */}
           <div
             className="group relative h-[480px] rounded-2xl overflow-hidden border border-zinc-800/85 hover:border-red-600/85 shadow-lg hover:shadow-[0_0_35px_rgba(220,38,38,0.25)] transition-all duration-500 cursor-pointer transform hover:-translate-y-2 flex flex-col justify-end p-6"
-            onClick={() => router.push('/play')}
+            onClick={openNewGameModal}
           >
             {/* Card Background Image (occupies the whole card) */}
             <div className="absolute inset-0 z-0">
@@ -329,6 +362,73 @@ export default function DashboardPage() {
                             </span>
                           )}
                         </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+        {/* MODAL DE NUEVA PARTIDA (SELECCIÓN DE RANURA DE AUTOSAVE) */}
+        {isNewGameModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="bg-stone-950 border-[3px] border-double border-red-950 rounded-none w-full max-w-2xl shadow-[inset_0_0_25px_rgba(0,0,0,0.95),0_0_40px_rgba(185,28,28,0.25)] overflow-hidden">
+              <div className="p-6 border-b border-red-950/60 flex justify-between items-center bg-black/50">
+                <div>
+                  <h3 className="text-2xl font-normal text-red-500 tracking-widest uppercase font-[family-name:var(--font-horroroid)] drop-shadow-[0_0_10px_rgba(239,68,68,0.4)]">
+                    Nueva Partida
+                  </h3>
+                  <p className="text-zinc-500 text-[10px] uppercase tracking-widest mt-1 font-[family-name:var(--font-special-elite)]">Escoge una ranura para el guardado automático</p>
+                </div>
+                <button onClick={() => setIsNewGameModalOpen(false)} className="text-zinc-500 hover:text-red-500 transition-colors">
+                  <span className="text-2xl font-normal">×</span>
+                </button>
+              </div>
+
+              <div className="p-6 max-h-[60vh] overflow-y-auto">
+                {isLoadingSaves ? (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <div className="w-10 h-10 border-2 border-red-900 border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p className="text-red-800 text-xs font-[family-name:var(--font-special-elite)] tracking-widest uppercase animate-pulse">Contactando con la Niebla...</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    {saves.map(save => (
+                      <div 
+                        key={save.id} 
+                        onClick={() => startNewGame(save.id, save.vacia)}
+                        className={`group bg-stone-950/90 border cursor-pointer p-5 rounded-none flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300 ${
+                          save.vacia 
+                            ? 'border-zinc-800 hover:border-red-800 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)]' 
+                            : 'border-amber-950/60 hover:border-red-700 hover:shadow-[0_0_15px_rgba(239,68,68,0.2)]'
+                        }`}
+                      >
+                        <div>
+                          <div className="flex items-center gap-3 mb-1">
+                            <p className="text-zinc-100 group-hover:text-red-400 font-normal text-xl tracking-wider font-[family-name:var(--font-horroroid)] transition-colors">Ranura {save.id}</p>
+                            {save.vacia ? (
+                              <span className="text-[10px] bg-zinc-900 text-zinc-500 border border-zinc-800 px-2 py-0.5 font-[family-name:var(--font-special-elite)]">
+                                Vacía - Recomendado
+                              </span>
+                            ) : (
+                              <span className="text-[10px] bg-amber-950/60 text-amber-500 border border-amber-900/30 px-2 py-0.5 font-[family-name:var(--font-special-elite)]">
+                                Ocupada - Se sobrescribirá
+                              </span>
+                            )}
+                          </div>
+                          {!save.vacia && (
+                            <p className="text-zinc-500 text-xs font-[family-name:var(--font-special-elite)]">
+                              Modo: <span className="text-zinc-400">{save.modoJuego.toUpperCase()}</span> | Ronda: <span className="text-zinc-400">{save.ronda}</span> | Vivos: <span className="text-zinc-400">S:{save.survsVivos} K:{save.killersVivos}</span>
+                            </p>
+                          )}
+                        </div>
+
+                        <button
+                          className="px-6 py-2 rounded-none font-normal uppercase tracking-widest text-xs transition-all duration-300 font-[family-name:var(--font-special-elite)] bg-red-950/40 group-hover:bg-red-900 text-red-400 group-hover:text-white border border-red-900/60 group-hover:border-red-600 active:scale-95"
+                        >
+                          Seleccionar
+                        </button>
                       </div>
                     ))}
                   </div>

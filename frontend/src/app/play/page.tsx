@@ -47,9 +47,19 @@ export default function PlayPage() {
   const [selectedSurvs, setSelectedSurvs] = useState<string[]>([]);
   const [selectedKillers, setSelectedKillers] = useState<string[]>([]);
 
+  const [userBando, setUserBando] = useState<'survivientes' | 'killers'>('survivientes');
+  const [dificultad, setDificultad] = useState<'facil' | 'normal' | 'extremo'>('normal');
+
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const savedBando = localStorage.getItem('selectedBando') as 'survivientes' | 'killers';
+    const savedDiff = localStorage.getItem('selectedDifficulty') as 'facil' | 'normal' | 'extremo';
+    if (savedBando) setUserBando(savedBando);
+    if (savedDiff) setDificultad(savedDiff);
+  }, []);
 
   useEffect(() => {
     const fetchCharacters = async () => {
@@ -138,6 +148,8 @@ export default function PlayPage() {
         localStorage.setItem('selectedSurvs', JSON.stringify(selectedSurvs));
         localStorage.setItem('selectedKillers', JSON.stringify(selectedKillers));
         localStorage.setItem('selectedMode', mode);
+        localStorage.setItem('selectedBando', userBando);
+        localStorage.setItem('selectedDifficulty', dificultad);
         await new Promise(r => setTimeout(r, 600));
         router.push('/trial');
       } catch (error) {
@@ -235,6 +247,97 @@ export default function PlayPage() {
             </div>
           ) : (
             <>
+            {/* PANEL DE CONFIGURACIÓN DE PARTIDA */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="bg-black/60 border border-zinc-900/60 p-3 mb-3 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4 shadow-lg backdrop-blur-md w-full"
+            >
+              {/* Bando Selector */}
+              <div className="flex items-center gap-3 w-full md:w-auto">
+                <span className="text-[11px] text-zinc-500 font-bold uppercase tracking-wider font-[family-name:var(--font-special-elite)]">
+                  Bando que controlas:
+                </span>
+                <div className="flex bg-zinc-950 p-1 rounded-lg border border-zinc-900 w-full sm:w-auto">
+                  <button
+                    onClick={() => {
+                      setUserBando('survivientes');
+                      localStorage.setItem('selectedBando', 'survivientes');
+                    }}
+                    className={`flex-1 sm:flex-none px-4 py-1.5 rounded-md text-xs font-semibold tracking-wider transition-all duration-300 ${
+                      userBando === 'survivientes'
+                        ? 'bg-blue-900/35 text-blue-400 border border-blue-800 shadow-[0_0_15px_rgba(59,130,246,0.2)]'
+                        : 'text-zinc-500 hover:text-zinc-300 border border-transparent'
+                    }`}
+                  >
+                    🩸 Supervivientes
+                  </button>
+                  <button
+                    onClick={() => {
+                      setUserBando('killers');
+                      localStorage.setItem('selectedBando', 'killers');
+                    }}
+                    className={`flex-1 sm:flex-none px-4 py-1.5 rounded-md text-xs font-semibold tracking-wider transition-all duration-300 ${
+                      userBando === 'killers'
+                        ? 'bg-red-950/35 text-red-500 border border-red-900 shadow-[0_0_15px_rgba(239,68,68,0.2)]'
+                        : 'text-zinc-500 hover:text-zinc-300 border border-transparent'
+                    }`}
+                  >
+                    💀 Asesinos
+                  </button>
+                </div>
+              </div>
+
+              {/* Dificultad Selector */}
+              <div className="flex items-center gap-3 w-full md:w-auto">
+                <span className="text-[11px] text-zinc-500 font-bold uppercase tracking-wider font-[family-name:var(--font-special-elite)]">
+                  Dificultad de la Niebla:
+                </span>
+                <div className="flex bg-zinc-950 p-1 rounded-lg border border-zinc-900 w-full sm:w-auto">
+                  <button
+                    onClick={() => {
+                      setDificultad('facil');
+                      localStorage.setItem('selectedDifficulty', 'facil');
+                    }}
+                    className={`flex-grow sm:flex-none px-4 py-1.5 rounded-md text-xs font-semibold tracking-wider transition-all duration-300 ${
+                      dificultad === 'facil'
+                        ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-800 shadow-[0_0_15px_rgba(52,211,153,0.15)]'
+                        : 'text-zinc-500 hover:text-zinc-300 border border-transparent'
+                    }`}
+                  >
+                    Fácil 🟢
+                  </button>
+                  <button
+                    onClick={() => {
+                      setDificultad('normal');
+                      localStorage.setItem('selectedDifficulty', 'normal');
+                    }}
+                    className={`flex-grow sm:flex-none px-4 py-1.5 rounded-md text-xs font-semibold tracking-wider transition-all duration-300 ${
+                      dificultad === 'normal'
+                        ? 'bg-amber-950/40 text-amber-400 border border-amber-800 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
+                        : 'text-zinc-500 hover:text-zinc-300 border border-transparent'
+                    }`}
+                  >
+                    Normal 🟡
+                  </button>
+                  <button
+                    onClick={() => {
+                      setDificultad('extremo');
+                      localStorage.setItem('selectedDifficulty', 'extremo');
+                    }}
+                    className={`flex-grow sm:flex-none px-4 py-1.5 rounded-md text-xs font-semibold tracking-wider transition-all duration-300 ${
+                      dificultad === 'extremo'
+                        ? 'bg-red-950/40 text-red-500 border border-red-900 shadow-[0_0_20px_rgba(239,68,68,0.25)]'
+                        : 'text-zinc-500 hover:text-zinc-300 border border-transparent'
+                    }`}
+                  >
+                    Extremo 🔴
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}

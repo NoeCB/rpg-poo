@@ -21,6 +21,8 @@ public class MotorTrial {
     
     private int idRanuraActual = -1;
     private String modoActual = "manual";
+    private String bandoActual = "survivientes";
+    private String dificultadActual = "normal";
 
     public ArrayList<Personaje> getSupervivientes() {
         return supervivientes;
@@ -37,6 +39,22 @@ public class MotorTrial {
 
     public String getModoActual() {
         return modoActual;
+    }
+
+    public String getBandoActual() {
+        return bandoActual;
+    }
+
+    public void setBandoActual(String bandoActual) {
+        this.bandoActual = bandoActual;
+    }
+
+    public String getDificultadActual() {
+        return dificultadActual;
+    }
+
+    public void setDificultadActual(String dificultadActual) {
+        this.dificultadActual = dificultadActual;
     }
 
     public void setSupervivientes(ArrayList<Personaje> s) {
@@ -99,7 +117,7 @@ public class MotorTrial {
             mostrarEstadoEquipos();
             
             if (idRanuraActual != -1) {
-                boolean guardado = com.dbd.core.SpringContextHolder.getBean(com.dbd.dao.GestorPersistencia.class).guardarPartida(idRanuraActual, 1L, ronda, modoActual, false, supervivientes, killers);
+                boolean guardado = com.dbd.core.SpringContextHolder.getBean(com.dbd.dao.GestorPersistencia.class).guardarPartida(idRanuraActual, 1L, ronda, modoActual, bandoActual, dificultadActual, false, supervivientes, killers);
                 if(guardado) {
                     System.out.println(MORADO + "--> [BD] Progreso guardado automáticamente (Ranura " + idRanuraActual + ")." + RESET);
                 }
@@ -207,7 +225,7 @@ public class MotorTrial {
             int slot = errorNumero(sc);
             if (slot >= 1 && slot <= 3) {
                 this.idRanuraActual = slot;
-                boolean exito = gestor.guardarPartida(slot, 1L, ronda, modoActual, false, supervivientes, killers);
+                boolean exito = gestor.guardarPartida(slot, 1L, ronda, modoActual, bandoActual, dificultadActual, false, supervivientes, killers);
                 if (exito) {
                     System.out.println(VERDE + "Partida guardada exitosamente en la Ranura " + slot + RESET);
                 }
@@ -429,7 +447,7 @@ public class MotorTrial {
             mostrarEstadoEquipos();
             
             if (idRanuraActual != -1) {
-                boolean guardado = com.dbd.core.SpringContextHolder.getBean(com.dbd.dao.GestorPersistencia.class).guardarPartida(idRanuraActual, 1L, ronda, modoActual, false, supervivientes, killers);
+                boolean guardado = com.dbd.core.SpringContextHolder.getBean(com.dbd.dao.GestorPersistencia.class).guardarPartida(idRanuraActual, 1L, ronda, modoActual, bandoActual, dificultadActual, false, supervivientes, killers);
                 if(guardado) {
                     System.out.println(MORADO + "--> [BD] Progreso de ronda guardado automáticamente (Ranura " + idRanuraActual + ")." + RESET);
                 }

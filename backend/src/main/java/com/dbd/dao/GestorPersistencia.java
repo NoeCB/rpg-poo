@@ -36,8 +36,13 @@ public class GestorPersistencia {
      */
     public boolean guardarPartida(int idRanura, Long usuarioId, int ronda, String modoJuego, boolean terminada,
             ArrayList<Personaje> survis, ArrayList<Personaje> killers) {
+        return guardarPartida(idRanura, usuarioId, ronda, modoJuego, "survivientes", "normal", terminada, survis, killers);
+    }
+
+    public boolean guardarPartida(int idRanura, Long usuarioId, int ronda, String modoJuego, String bando, String dificultad, boolean terminada,
+            ArrayList<Personaje> survis, ArrayList<Personaje> killers) {
         String sqlBorrarViejos = "DELETE FROM PERSONAJE_PARTIDA WHERE id_ranura = ? AND usuario_id = ?";
-        String sqlUpdatePartida = "UPDATE RANURA SET ronda_actual = ?, modo_juego = ?, terminada = ?, vacia = FALSE WHERE id_ranura = ? AND usuario_id = ?";
+        String sqlUpdatePartida = "UPDATE RANURA SET ronda_actual = ?, modo_juego = ?, bando = ?, dificultad = ?, terminada = ?, vacia = FALSE WHERE id_ranura = ? AND usuario_id = ?";
 
         try (Connection con = dataSource.getConnection()) {
             con.setAutoCommit(false); // Transacción para integridad total (Implementación 4)
@@ -71,9 +76,11 @@ public class GestorPersistencia {
             try (PreparedStatement pstUpd = con.prepareStatement(sqlUpdatePartida)) {
                 pstUpd.setInt(1, ronda);
                 pstUpd.setString(2, modoJuego);
-                pstUpd.setBoolean(3, terminada);
-                pstUpd.setInt(4, idRanura);
-                pstUpd.setLong(5, usuarioId);
+                pstUpd.setString(3, bando);
+                pstUpd.setString(4, dificultad);
+                pstUpd.setBoolean(5, terminada);
+                pstUpd.setInt(6, idRanura);
+                pstUpd.setLong(7, usuarioId);
                 pstUpd.executeUpdate();
             }
 
@@ -322,11 +329,13 @@ public class GestorPersistencia {
      */
     public Object[] cargarPartidaCompleta(int idRanura, Long usuarioId, ArrayList<Personaje> survisRef,
             ArrayList<Personaje> killersRef) {
-        String sqlPartida = "SELECT ronda_actual, modo_juego, vacia FROM RANURA WHERE id_ranura = ? AND usuario_id = ?";
+        String sqlPartida = "SELECT ronda_actual, modo_juego, bando, dificultad, vacia FROM RANURA WHERE id_ranura = ? AND usuario_id = ?";
         try (Connection con = dataSource.getConnection()) {
 
             int ronda = 1;
             String modoJuego = "";
+            String bando = "survivientes";
+            String dificultad = "normal";
             boolean vacia = true;
 
             try (PreparedStatement pst = con.prepareStatement(sqlPartida)) {
@@ -338,6 +347,8 @@ public class GestorPersistencia {
                         if (!vacia) {
                             ronda = rs.getInt("ronda_actual");
                             modoJuego = rs.getString("modo_juego");
+                            bando = rs.getString("bando") != null ? rs.getString("bando") : "survivientes";
+                            dificultad = rs.getString("dificultad") != null ? rs.getString("dificultad") : "normal";
                         }
                     }
                 }
@@ -437,7 +448,7 @@ public class GestorPersistencia {
             }
 
             System.out.println(VERDE + "¡La partida ha sido reconstruida en memoria con éxito!" + RESET);
-            return new Object[] { ronda, modoJuego };
+            return new Object[] { ronda, modoJuego, bando, dificultad };
 
         } catch (Exception e) {
             System.out.println(ROJO + "Error cargando la partida, puede que falten clases o no existan." + RESET);
