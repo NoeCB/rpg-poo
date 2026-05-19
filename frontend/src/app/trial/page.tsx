@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -55,6 +56,15 @@ interface GameState {
   decidedPerkIndex?: number;
 }
 
+interface SaveSlot {
+  id: number;
+  vacia: boolean;
+  modoJuego: string;
+  ronda: number;
+  survsVivos: number;
+  killersVivos: number;
+}
+
 function HealthBar({ value, max }: { value: number, max: number }) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
   const isLow = pct <= 30;
@@ -68,7 +78,7 @@ function HealthBar({ value, max }: { value: number, max: number }) {
 function CharacterCard({ char, isMyTurn, isKiller }: { char: CharacterState, isMyTurn: boolean, isKiller: boolean }) {
   const [prevHp, setPrevHp] = useState(char.vidaActual);
   const [isTakingDamage, setIsTakingDamage] = useState(false);
-  
+
   useEffect(() => {
     if (char.vidaActual < prevHp) {
       setIsTakingDamage(true);
@@ -81,11 +91,11 @@ function CharacterCard({ char, isMyTurn, isKiller }: { char: CharacterState, isM
   }, [char.vidaActual, prevHp]);
 
   const isDead = char.vidaActual <= 0;
-  
-  const baseClasses = isKiller 
+
+  const baseClasses = isKiller
     ? 'border-red-900/50 bg-red-950/20 hover:shadow-[0_0_15px_rgba(220,38,38,0.3)]'
     : 'border-blue-900/50 bg-blue-950/20 hover:shadow-[0_0_15px_rgba(34,197,94,0.3)]';
-    
+
   const turnClasses = isKiller
     ? 'border-red-500 shadow-[0_0_15px_rgba(220,38,38,0.6)] animate-pulse'
     : 'border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.5)] animate-pulse';
@@ -114,21 +124,21 @@ function CharacterCard({ char, isMyTurn, isKiller }: { char: CharacterState, isM
 
 export default function TrialPage() {
   const router = useRouter();
-  
+
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [combatLogs, setCombatLogs] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [isSurviTurn, setIsSurviTurn] = useState(true);
   const [currentIdx, setCurrentIdx] = useState(0);
-  
+
   const [activeMode, setActiveMode] = useState<'NONE' | 'ATACAR' | 'PERK'>('NONE');
   const [previewTarget, setPreviewTarget] = useState<{ charKey: string; name: string; image: string } | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [animState, setAnimState] = useState<'IDLE' | 'ATTACK' | 'DAMAGE' | 'DEFEND'>('IDLE');
+  const [animState, setAnimState] = useState<'IDLE' | 'ATTACK' | 'PERK' | 'DAMAGE' | 'DEFEND'>('IDLE');
 
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const [saves, setSaves] = useState<any[]>([]);
+  const [saves, setSaves] = useState<SaveSlot[]>([]);
   const [isLoadingSaves, setIsLoadingSaves] = useState(false);
 
   const logsEndRef = useRef<HTMLDivElement>(null);
@@ -136,6 +146,132 @@ export default function TrialPage() {
   // Original keys from localStorage to match portraits
   const [survKeys, setSurvKeys] = useState<string[]>([]);
   const [killerKeys, setKillerKeys] = useState<string[]>([]);
+
+  const sendAction = async (tipoAccion: string, objetivoIndex = -1, perkIndex = -1) => {
+    if (isAnimating || !gameState || gameState.partidaTerminada) return;
+
+    setIsAnimating(true);
+    setActiveMode('NONE');
+
+    const globalAtacanteIdx = isSurviTurn ? currentIdx : (gameState.supervivientes.length + currentIdx);
+    const safeObjetivoIndex = objetivoIndex === -1 ? 0 : objetivoIndex;
+
+    const rivales = isSurviTurn ? gameState.killers : gameState.supervivientes;
+
+    if (tipoAccion !== 'AUTO') {
+      // Manual action: trigger pre-animations
+      if (safeObjetivoIndex < rivales.length) {
+        const targetChar = rivales[safeObjetivoIndex];
+        const fixedKey = targetChar.nombrePersonaje.replace(/\s+/g, '');
+        setPreviewTarget({
+          charKey: fixedKey,
+          name: targetChar.nombrePersonaje,
+          image: portraitMap[fixedKey] || portraitMap['DEFAULT']
+        });
+      }
+
+      if (tipoAccion === 'ATACAR') {
+        setAnimState('ATTACK');
+        await new Promise(r => setTimeout(r, 600));
+        setAnimState('DAMAGE');
+        await new Promise(r => setTimeout(r, 800));
+        setAnimState('IDLE');
+      } else if (tipoAccion === 'PERK') {
+        setAnimState('PERK');
+        await new Promise(r => setTimeout(r, 700));
+        setAnimState('DAMAGE');
+        await new Promise(r => setTimeout(r, 800));
+        setAnimState('IDLE');
+      } else if (tipoAccion === 'DEFENDER') {
+        setAnimState('DEFEND');
+        await new Promise(r => setTimeout(r, 800));
+        setAnimState('IDLE');
+      }
+      setPreviewTarget(null);
+    }
+
+    try {
+      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
+      const res = await fetch('/api/game/action', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({
+          tipoAccion,
+          atacanteIndex: globalAtacanteIdx,
+          objetivoIndex: safeObjetivoIndex,
+          perkIndex
+        })
+      });
+
+      const data: GameState = await res.json();
+
+      if (tipoAccion === 'AUTO' && data) {
+        const decAction = data.decidedAction;
+        const decTargetIdx = data.decidedTargetIndex ?? -1;
+
+        if (decAction === 'ATACAR') {
+          const safeDecTarget = decTargetIdx >= 0 && decTargetIdx < rivales.length ? decTargetIdx : 0;
+          const targetChar = rivales[safeDecTarget];
+          if (targetChar) {
+            const fixedKey = targetChar.nombrePersonaje.replace(/\s+/g, '');
+            setPreviewTarget({
+              charKey: fixedKey,
+              name: targetChar.nombrePersonaje,
+              image: portraitMap[fixedKey] || portraitMap['DEFAULT']
+            });
+          }
+          setAnimState('ATTACK');
+          await new Promise(r => setTimeout(r, 600));
+          setAnimState('DAMAGE');
+          await new Promise(r => setTimeout(r, 800));
+          setAnimState('IDLE');
+          setPreviewTarget(null);
+        } else if (decAction === 'PERK') {
+          const safeDecTarget = decTargetIdx >= 0 && decTargetIdx < rivales.length ? decTargetIdx : 0;
+          const targetChar = rivales[safeDecTarget];
+          if (targetChar) {
+            const fixedKey = targetChar.nombrePersonaje.replace(/\s+/g, '');
+            setPreviewTarget({
+              charKey: fixedKey,
+              name: targetChar.nombrePersonaje,
+              image: portraitMap[fixedKey] || portraitMap['DEFAULT']
+            });
+          }
+          setAnimState('PERK');
+          await new Promise(r => setTimeout(r, 700));
+          setAnimState('DAMAGE');
+          await new Promise(r => setTimeout(r, 800));
+          setAnimState('IDLE');
+          setPreviewTarget(null);
+        } else if (decAction === 'DEFENDER') {
+          setAnimState('DEFEND');
+          await new Promise(r => setTimeout(r, 800));
+          setAnimState('IDLE');
+        } else {
+          setAnimState('ATTACK');
+          await new Promise(r => setTimeout(r, 450));
+          setAnimState('IDLE');
+        }
+      }
+
+      setGameState(data);
+      if (data.logs && data.logs.length > 0) {
+        setCombatLogs(prev => [...prev, ...data.logs]);
+      }
+
+      if (!data.partidaTerminada) {
+        setCurrentIdx(prev => prev + 1);
+      }
+    } catch (e) {
+      console.error(e);
+      setCombatLogs(prev => [...prev, '> Error conectando con el servidor.']);
+    } finally {
+      setIsAnimating(false);
+    }
+  };
 
   useEffect(() => {
     // Scroll to bottom of logs
@@ -146,7 +282,7 @@ export default function TrialPage() {
     const isResume = localStorage.getItem('resumeGame') === 'true';
     const sKeys = JSON.parse(localStorage.getItem('selectedSurvs') || '[]');
     const kKeys = JSON.parse(localStorage.getItem('selectedKillers') || '[]');
-    
+
     if (!isResume && (sKeys.length !== 3 || kKeys.length !== 3)) {
       router.push('/play');
       return;
@@ -160,7 +296,7 @@ export default function TrialPage() {
     const initTrial = async () => {
       try {
         const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
-        
+
         const endpoint = isResume ? '/api/game/state' : '/api/game/start-manual';
         const method = isResume ? 'GET' : 'POST';
         const gameMode = localStorage.getItem('selectedMode') || 'manual';
@@ -175,15 +311,15 @@ export default function TrialPage() {
           body
         });
         const data: GameState = await res.json();
-        
+
         if (data && data.supervivientes) {
           setGameState(data);
           if (data.logs) setCombatLogs(data.logs);
-          
+
           if (isResume) {
             // Reconstruir las keys a partir de los nombres
-            const sKeysLoaded = data.supervivientes.map((s: any) => s.nombrePersonaje.replace(/\s+/g, ''));
-            const kKeysLoaded = data.killers.map((k: any) => k.nombrePersonaje.replace(/\s+/g, ''));
+            const sKeysLoaded = data.supervivientes.map((s) => s.nombrePersonaje.replace(/\s+/g, ''));
+            const kKeysLoaded = data.killers.map((k) => k.nombrePersonaje.replace(/\s+/g, ''));
             setSurvKeys(sKeysLoaded);
             setKillerKeys(kKeysLoaded);
             localStorage.removeItem('resumeGame');
@@ -208,7 +344,7 @@ export default function TrialPage() {
   useEffect(() => {
     if (!gameState || gameState.partidaTerminada) return;
 
-    let equipoActual = isSurviTurn ? gameState.supervivientes : gameState.killers;
+    const equipoActual = isSurviTurn ? gameState.supervivientes : gameState.killers;
     let newIdx = currentIdx;
 
     while (newIdx < equipoActual.length && equipoActual[newIdx].vidaActual <= 0) {
@@ -255,115 +391,10 @@ export default function TrialPage() {
   }
 
   const equipoActual = isSurviTurn ? gameState.supervivientes : gameState.killers;
-  const actor = equipoActual[currentIdx];
-  // Safeguard just in case
-  if (!actor) return null;
+  const actor = (currentIdx >= 0 && currentIdx < equipoActual.length ? equipoActual[currentIdx] : null) || equipoActual[0] || gameState.supervivientes[0];
 
-  const actorKey = actor.nombrePersonaje.replace(/\s+/g, '');
+  const actorKey = actor?.nombrePersonaje?.replace(/\s+/g, '') || 'DEFAULT';
   const actorImg = portraitMap[actorKey] || portraitMap['DEFAULT'];
-
-  const sendAction = async (tipoAccion: string, objetivoIndex = -1, perkIndex = -1) => {
-    if (isAnimating || gameState.partidaTerminada) return;
-    
-    setIsAnimating(true);
-    setActiveMode('NONE');
-
-    const globalAtacanteIdx = isSurviTurn ? currentIdx : (gameState.supervivientes.length + currentIdx);
-    const safeObjetivoIndex = objetivoIndex === -1 ? 0 : objetivoIndex;
-
-    const rivales = isSurviTurn ? gameState.killers : gameState.supervivientes;
-
-    if (tipoAccion !== 'AUTO') {
-      // Manual action: trigger pre-animations
-      if (safeObjetivoIndex < rivales.length) {
-        const targetChar = rivales[safeObjetivoIndex];
-        const fixedKey = targetChar.nombrePersonaje.replace(/\s+/g, '');
-        setPreviewTarget({
-          charKey: fixedKey,
-          name: targetChar.nombrePersonaje,
-          image: portraitMap[fixedKey] || portraitMap['DEFAULT']
-        });
-      }
-
-      if (tipoAccion === 'ATACAR' || tipoAccion === 'PERK') {
-        setAnimState('ATTACK');
-        await new Promise(r => setTimeout(r, 600));
-        setAnimState('DAMAGE');
-        await new Promise(r => setTimeout(r, 800));
-        setAnimState('IDLE');
-      } else if (tipoAccion === 'DEFENDER') {
-        setAnimState('DEFEND');
-        await new Promise(r => setTimeout(r, 800));
-        setAnimState('IDLE');
-      }
-      setPreviewTarget(null);
-    }
-
-    try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
-      const res = await fetch('/api/game/action', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify({
-          tipoAccion,
-          atacanteIndex: globalAtacanteIdx,
-          objetivoIndex: safeObjetivoIndex,
-          perkIndex
-        })
-      });
-      
-      const data: GameState = await res.json();
-      
-      if (tipoAccion === 'AUTO' && data) {
-        const decAction = data.decidedAction;
-        const decTargetIdx = data.decidedTargetIndex ?? -1;
-
-        if (decAction === 'ATACAR' || decAction === 'PERK') {
-          const safeDecTarget = decTargetIdx >= 0 && decTargetIdx < rivales.length ? decTargetIdx : 0;
-          const targetChar = rivales[safeDecTarget];
-          if (targetChar) {
-            const fixedKey = targetChar.nombrePersonaje.replace(/\s+/g, '');
-            setPreviewTarget({
-              charKey: fixedKey,
-              name: targetChar.nombrePersonaje,
-              image: portraitMap[fixedKey] || portraitMap['DEFAULT']
-            });
-          }
-          setAnimState('ATTACK');
-          await new Promise(r => setTimeout(r, 600));
-          setAnimState('DAMAGE');
-          await new Promise(r => setTimeout(r, 800));
-          setAnimState('IDLE');
-          setPreviewTarget(null);
-        } else if (decAction === 'DEFENDER') {
-          setAnimState('DEFEND');
-          await new Promise(r => setTimeout(r, 800));
-          setAnimState('IDLE');
-        } else {
-          setAnimState('ATTACK');
-          await new Promise(r => setTimeout(r, 450));
-          setAnimState('IDLE');
-        }
-      }
-
-      setGameState(data);
-      if (data.logs && data.logs.length > 0) {
-        setCombatLogs(prev => [...prev, ...data.logs]);
-      }
-      
-      if (!data.partidaTerminada) {
-        setCurrentIdx(prev => prev + 1);
-      }
-    } catch (e) {
-      console.error(e);
-      setCombatLogs(prev => [...prev, '> Error conectando con el servidor.']);
-    } finally {
-      setIsAnimating(false);
-    }
-  };
 
   const handleModeAction = (targetIdx: number, perkIdx: number = -1) => {
     sendAction(activeMode, targetIdx, perkIdx);
@@ -404,11 +435,12 @@ export default function TrialPage() {
       if (res.ok) {
         toast.success(`El progreso ha sido sellado en la Ranura ${slotId}.`);
         setIsSaveModalOpen(false);
+        setTimeout(() => router.push('/dashboard'), 1500);
       } else {
         console.error(`Error al guardar. Status: ${res.status}`);
         toast.error('Error al guardar la partida.');
       }
-    } catch(e) {
+    } catch (e) {
       console.error('Catch error en handleSaveGame:', e);
       toast.error('Fallo de red al conectar con el servidor.');
     }
@@ -421,11 +453,11 @@ export default function TrialPage() {
     <div className="h-screen w-screen flex flex-col bg-zinc-950 font-sans text-white overflow-hidden relative selection:bg-red-900/30">
       <Toaster position="top-right" />
       <div className="absolute inset-0 bg-[url('https://c4.wallpaperflare.com/wallpaper/528/773/953/dead-by-daylight-logo-4k-wallpaper-preview.jpg')] bg-cover bg-center opacity-10"></div>
-      
+
       <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
 
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-          
+
           {/* LEFT SIDEBAR - SURVIVORS */}
           <aside className="w-full md:w-64 bg-black/60 border-r border-zinc-800 p-4 overflow-y-auto hidden md:block">
             <h4 className="text-2xl font-normal text-blue-500 tracking-widest mb-4 border-b border-blue-900/50 pb-2 font-[family-name:var(--font-horroroid)]">SUPERVIVIENTES</h4>
@@ -444,20 +476,20 @@ export default function TrialPage() {
           <main className="flex-1 flex flex-col bg-zinc-950/50 backdrop-blur-sm relative">
             {/* Stage */}
             <div className="flex-1 relative flex items-center justify-center min-h-[300px]">
-              
+
               <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full px-4 md:px-10 h-full">
                 {/* ACTOR (Attacker) */}
-                <div className={`relative flex flex-col items-center transition-all duration-500 ease-in-out ${animState === 'ATTACK' ? 'translate-x-4 scale-110 z-50' : ''} ${animState === 'DEFEND' ? 'scale-95 opacity-80 brightness-150 drop-shadow-[0_0_30px_rgba(59,130,246,1)]' : ''}`}>
-                  <div className={`w-40 h-56 md:w-56 md:h-72 rounded-xl overflow-hidden border-4 ${isSurviTurn ? 'border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.6)]' : 'border-red-600 shadow-[0_0_40px_rgba(220,38,38,0.6)]'}`}>
+                <div className={`relative flex flex-col items-center transition-all duration-500 ease-in-out ${animState === 'ATTACK' ? 'translate-x-4 scale-110 z-50 drop-shadow-[0_0_30px_rgba(220,38,38,0.7)]' : ''} ${animState === 'PERK' ? '-translate-y-4 scale-110 z-50 drop-shadow-[0_0_35px_rgba(168,85,247,0.9)] animate-pulse' : ''} ${animState === 'DEFEND' ? 'scale-95 opacity-80 brightness-150 drop-shadow-[0_0_30px_rgba(59,130,246,1)]' : ''}`}>
+                  <div className={`w-40 h-56 md:w-56 md:h-72 rounded-xl overflow-hidden border-4 ${animState === 'PERK' ? 'border-purple-500 shadow-[0_0_45px_rgba(168,85,247,0.9)]' : isSurviTurn ? 'border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.6)]' : 'border-red-600 shadow-[0_0_40px_rgba(220,38,38,0.6)]'}`}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
-                      src={actorImg} 
-                      alt="Actor" 
+                    <img
+                      src={actorImg}
+                      alt="Actor"
                       className={`w-full h-full object-cover 
-                        ${actorKey === 'AdaWong' ? 'object-center scale-[1.5]' : 
-                          actorKey === 'Onryo' ? 'object-bottom scale-[1.2] -translate-y-10' : 
-                          actorKey === 'Animatronico' ? 'object-center scale-[1.3] -translate-y-6' : 
-                          'object-top'}`} 
+                        ${actorKey === 'AdaWong' ? 'object-center scale-[1.5]' :
+                          actorKey === 'Onryo' ? 'object-bottom scale-[1.2] -translate-y-10' :
+                            (actorKey === 'Animatronico' || actorKey === 'Animatrónico') ? 'object-[42%_30%] scale-[1.25]' :
+                              'object-top'}`}
                     />
                   </div>
                   <div className="mt-4 text-white bg-transparent font-normal tracking-wide text-xl md:text-2xl drop-shadow-md font-[family-name:var(--font-special-elite)]">
@@ -468,18 +500,18 @@ export default function TrialPage() {
 
                 {/* VS or TARGET */}
                 <div className="relative flex flex-col items-center mt-10 md:mt-0">
-                  {(previewTarget || animState === 'DAMAGE') && (
+                  {(previewTarget || animState === 'DAMAGE') ? (
                     <div className={`relative flex flex-col items-center transition-all duration-300 ease-out ${animState === 'DAMAGE' ? 'translate-x-4 sepia contrast-[1.8] animate-[shake_0.4s_ease-in-out_infinite] scale-110 z-40' : ''}`}>
                       <div className={`w-40 h-56 md:w-56 md:h-72 rounded-xl overflow-hidden border-4 border-zinc-500 opacity-90 ${animState === 'DAMAGE' ? 'border-red-600 shadow-[0_0_50px_rgba(220,38,38,1)]' : ''}`}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                          src={previewTarget ? previewTarget.image : portraitMap['DEFAULT']} 
-                          alt="Target" 
+                        <img
+                          src={previewTarget ? previewTarget.image : portraitMap['DEFAULT']}
+                          alt="Target"
                           className={`w-full h-full object-cover 
-                            ${previewTarget?.charKey === 'AdaWong' ? 'object-center scale-[1.5]' : 
-                              previewTarget?.charKey === 'Onryo' ? 'object-bottom scale-[1.2] -translate-y-10' : 
-                              previewTarget?.charKey === 'Animatronico' ? 'object-center scale-[1.3] -translate-y-6' : 
-                              'object-top'}`} 
+                            ${previewTarget?.charKey === 'AdaWong' ? 'object-center scale-[1.5]' :
+                              previewTarget?.charKey === 'Onryo' ? 'object-bottom scale-[1.2] -translate-y-10' :
+                                (previewTarget?.charKey === 'Animatronico' || previewTarget?.charKey === 'Animatrónico') ? 'object-[42%_30%] scale-[1.25]' :
+                                  'object-top'}`}
                         />
                       </div>
                       <div className="mt-4 text-white bg-transparent font-normal tracking-wide text-xl md:text-2xl drop-shadow-md font-[family-name:var(--font-special-elite)]">
@@ -487,7 +519,7 @@ export default function TrialPage() {
                       </div>
                       {animState === 'DAMAGE' && (
                         <div className="absolute inset-0 flex items-center justify-center animate-[scratch_0.5s_ease-out_forwards]">
-                          <span className="text-8xl md:text-9xl text-red-600 font-black drop-shadow-[0_0_20px_rgba(220,38,38,1)] -rotate-[20deg] tracking-tighter">///</span>
+                          <span className="text-8xl md:text-9xl text-red-600 font-black drop-shadow-[0_0_20px_rgba(220,38,38,1)] -rotate-[20deg] tracking-tighter">{"///"}</span>
                         </div>
                       )}
                     </div>
@@ -508,8 +540,8 @@ export default function TrialPage() {
                   <h3 className={`text-2xl md:text-4xl font-normal tracking-[0.08em] font-[family-name:var(--font-horroroid)] text-center ${gameState.ganador === 'supervivientes' ? 'text-blue-500 drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]' : 'text-red-600 drop-shadow-[0_0_12px_rgba(220,38,38,0.8)]'}`}>
                     GANAN LOS {gameState.ganador?.toUpperCase()}
                   </h3>
-                  <button 
-                    onClick={() => router.push('/dashboard')} 
+                  <button
+                    onClick={() => router.push('/dashboard')}
                     className="mt-12 px-8 py-3.5 bg-stone-950 border border-stone-850 hover:border-red-900/60 text-stone-400 hover:text-white font-normal rounded-none tracking-widest transition-all shadow-xl font-[family-name:var(--font-special-elite)] text-sm active:scale-95 uppercase"
                   >
                     VOLVER AL DASHBOARD
@@ -555,7 +587,7 @@ export default function TrialPage() {
                     else if (log.includes('Perk') || log.includes('usó')) colorClass = 'text-purple-400';
                     else if (log.includes('defensiva') || log.includes('bloqueo')) colorClass = 'text-blue-400';
                     else if (log.includes('turno')) colorClass = 'text-white font-black bg-white/10 px-2 py-0.5 rounded inline-block mt-2 mb-1';
-                    
+
                     return <p key={i} className={`${colorClass} transition-all`}>{log}</p>;
                   })}
                   <div ref={logsEndRef} />
@@ -589,13 +621,13 @@ export default function TrialPage() {
                 </div>
               </div>
               <div className="mb-4">
-                 <HealthBar value={actor.vidaActual} max={actor.vidaMax} />
-                 <p className="text-center text-[10px] font-normal text-zinc-400 mt-1 uppercase">{actor.vidaActual} / {actor.vidaMax} HP</p>
+                <HealthBar value={actor.vidaActual} max={actor.vidaMax} />
+                <p className="text-center text-[10px] font-normal text-zinc-400 mt-1 uppercase">{actor.vidaActual} / {actor.vidaMax} HP</p>
               </div>
 
               {!gameState.partidaTerminada && (
                 <div className="flex-1 flex flex-col gap-2 justify-end">
-                  
+
                   {/* Action Panel */}
                   <div className="bg-zinc-900 border border-zinc-700 p-4 rounded-xl flex flex-col gap-3 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
                     <p className="text-xs font-black text-zinc-500 tracking-widest text-center border-b border-zinc-800 pb-2 mb-1">PANEL DE ACCIONES</p>
@@ -604,7 +636,7 @@ export default function TrialPage() {
                         <div className="w-12 h-12 bg-amber-500/20 border border-amber-500/50 rounded-full flex items-center justify-center animate-pulse mb-3">
                           <span className="text-2xl">🤖</span>
                         </div>
-                        <p className="text-amber-500 font-black tracking-widest text-sm uppercase">Modo Automático</p>
+                        <p className="text-amber-500 font-black tracking-widest text-sm uppercase">Modo Automatico</p>
                         <p className="text-zinc-500 text-xs mt-1 max-w-[200px]">La Entidad está guiando las acciones de los combatientes.</p>
                       </div>
                     ) : activeMode === 'NONE' ? (
@@ -621,7 +653,7 @@ export default function TrialPage() {
                             if (r.vidaActual <= 0) return null;
                             const fixedKey = r.nombrePersonaje.replace(/\s+/g, '');
                             return (
-                              <button 
+                              <button
                                 key={`${r.nombrePersonaje}-${idx}`}
                                 onMouseEnter={() => setPreviewTarget({ charKey: fixedKey, name: r.nombrePersonaje, image: portraitMap[fixedKey] || portraitMap['DEFAULT'] })}
                                 onMouseLeave={() => setPreviewTarget(null)}
@@ -642,10 +674,10 @@ export default function TrialPage() {
                           {actor.perks?.map((p, idx) => {
                             if (p.usos <= 0) return null;
                             return (
-                              <button 
+                              <button
                                 key={idx}
                                 onClick={() => {
-                                  sendAction('PERK', 0, idx); 
+                                  sendAction('PERK', 0, idx);
                                 }}
                                 className="w-full text-left px-4 py-2 bg-stone-950 hover:bg-[#27153a]/40 border border-stone-900 hover:border-[#4a2472] rounded-none text-sm font-normal transition-all text-[#f3e8ff] hover:text-white"
                               >
@@ -659,12 +691,20 @@ export default function TrialPage() {
                     ) : null}
                   </div>
 
-                  <button 
-                    onClick={openSaveModal} 
-                    className="mt-2 w-full bg-zinc-950 border-2 border-green-600 text-green-500 font-black py-4 rounded-xl tracking-[0.2em] uppercase shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.6)] hover:bg-green-950/30 transition-all active:scale-95"
-                  >
-                    GUARDAR Y ABANDONAR
-                  </button>
+                  <div className="flex gap-2 mt-2 w-full">
+                    <button
+                      onClick={openSaveModal}
+                      className="flex-1 bg-zinc-950 border-2 border-green-600 text-green-500 hover:text-green-400 font-black py-4 rounded-xl tracking-[0.1em] text-xs uppercase shadow-[0_0_12px_rgba(34,197,94,0.25)] hover:shadow-[0_0_20px_rgba(34,197,94,0.5)] hover:bg-green-950/30 transition-all active:scale-95 text-center"
+                    >
+                      GUARDAR
+                    </button>
+                    <button
+                      onClick={() => router.push('/dashboard')}
+                      className="flex-1 bg-zinc-950 border-2 border-red-600 text-red-500 hover:text-red-400 font-black py-4 rounded-xl tracking-[0.1em] text-xs uppercase shadow-[0_0_12px_rgba(220,38,38,0.25)] hover:shadow-[0_0_20px_rgba(220,38,38,0.5)] hover:bg-red-950/30 transition-all active:scale-95 text-center"
+                    >
+                      ABANDONAR
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -684,12 +724,12 @@ export default function TrialPage() {
                 <span className="text-2xl font-bold">×</span>
               </button>
             </div>
-            
+
             <div className="p-6">
               <p className="text-zinc-400 text-sm mb-6">
                 Elige una ranura del destino para resguardar tu estado actual de supervivencia o masacre. Si la ranura ya tiene una partida, se sobrescribirá.
               </p>
-              
+
               {isLoadingSaves ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -698,8 +738,8 @@ export default function TrialPage() {
               ) : (
                 <div className="flex flex-col gap-4">
                   {saves.map(save => (
-                    <div 
-                      key={save.id} 
+                    <div
+                      key={save.id}
                       onClick={() => handleSaveGame(save.id)}
                       className="group bg-zinc-900/60 hover:bg-green-950/20 border border-zinc-800 hover:border-green-600 p-5 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,197,94,0.15)] cursor-pointer"
                     >
@@ -722,8 +762,8 @@ export default function TrialPage() {
                           </>
                         )}
                       </div>
-                      
-                      <button 
+
+                      <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleSaveGame(save.id);
@@ -741,7 +781,8 @@ export default function TrialPage() {
         </div>
       )}
 
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes shake {
           0%, 100% { transform: translateX(0) rotate(0deg); }
           25% { transform: translateX(-8px) rotate(-2deg); }
