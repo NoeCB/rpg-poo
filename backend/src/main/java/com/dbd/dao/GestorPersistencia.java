@@ -370,10 +370,10 @@ public class GestorPersistencia {
                     while (rsP.next()) {
                         int idPersDB = rsP.getInt("id_personaje");
                         String clasePers = rsP.getString("clase_personaje");
-                        String bando = rsP.getString("bando");
+                        String bandoPersonaje = rsP.getString("bando");
 
                         // Reflection!
-                        String paquete = bando.equals("superviviente") ? "com.dbd.entidades.survis."
+                        String paquete = bandoPersonaje.equals("superviviente") ? "com.dbd.entidades.survis."
                                 : "com.dbd.entidades.killers.";
                         // Para simplificar ya que están todos en entidades:
                         // Nota: si están en subpaquetes distintos habría que saberlo, asumimos

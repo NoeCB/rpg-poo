@@ -177,6 +177,10 @@ public abstract class Personaje {
         return this.vidaMax;
     }
 
+    public void setVidaMax(int vidaMax) {
+        this.vidaMax = vidaMax;
+    }
+
     /**
      * Obtiene el arma equipada actualmente.
      *
