@@ -118,7 +118,7 @@ export default function DashboardPage() {
           </div>
           <button
             onClick={handleLogout}
-            className="px-6 py-2 border border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800 hover:border-zinc-500 rounded font-medium transition-all duration-300 active:scale-95"
+            className="px-6 py-2 border border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800 hover:border-zinc-500 rounded transition-all duration-300 active:scale-95 font-[family-name:var(--font-special-elite)] tracking-wider uppercase text-sm"
           >
             Escapar
           </button>
@@ -191,7 +191,7 @@ export default function DashboardPage() {
 
             {/* Overlaid themed box with text */}
             <div className="relative z-10 bg-purple-950/75 hover:bg-purple-900/85 border border-purple-900/40 backdrop-blur-[6px] p-5 rounded-xl text-center shadow-[0_4px_20px_rgba(168,85,247,0.2)] transition-all duration-300">
-              <h2 className="text-2xl font-black text-zinc-100 mb-2 group-hover:text-purple-400 transition-colors duration-300 tracking-wide">Tus Logros</h2>
+              <h2 className="text-3xl font-normal text-zinc-100 mb-2 group-hover:text-purple-400 transition-colors duration-300 tracking-wider font-[family-name:var(--font-horroroid-bold)] uppercase drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]">Tus Logros</h2>
               <p className="text-zinc-200 text-xs leading-relaxed font-[family-name:var(--font-special-elite)] tracking-wide">
                 Consulta tus hazañas grabadas en la niebla. Comprueba los desafíos que has desbloqueado.
               </p>
