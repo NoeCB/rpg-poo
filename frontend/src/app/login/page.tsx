@@ -31,6 +31,7 @@ export default function LoginPage() {
 
       if (res.ok && data?.token) {
         document.cookie = `jwt_token=${data.token}; path=/;`;
+        localStorage.setItem('jwt_token', data.token);
         router.push('/dashboard');
       } else if (data && data.error) {
         setErrorMessage(data.error);

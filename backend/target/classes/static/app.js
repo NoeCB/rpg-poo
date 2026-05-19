@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8080/api/game';
+const API_BASE = '/api/game';
 
 // --- IMAGENES REALES DE DBD ---
 const portraitMap = {

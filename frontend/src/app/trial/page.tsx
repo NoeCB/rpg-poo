@@ -150,7 +150,7 @@ export default function TrialPage() {
 
     setIsAutosaving(true);
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
+      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1] || localStorage.getItem('jwt_token');
       const res = await fetch('/api/game/save', {
         method: 'POST',
         headers: {
@@ -229,7 +229,7 @@ export default function TrialPage() {
     }
 
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
+      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1] || localStorage.getItem('jwt_token');
       const res = await fetch('/api/game/action', {
         method: 'POST',
         headers: {
@@ -333,8 +333,7 @@ export default function TrialPage() {
 
     const initTrial = async () => {
       try {
-        const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
-
+        const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1] || localStorage.getItem('jwt_token');
         const endpoint = isResume ? '/api/game/state' : '/api/game/start-manual';
         const method = isResume ? 'GET' : 'POST';
         const gameMode = localStorage.getItem('selectedMode') || 'manual';
@@ -458,7 +457,7 @@ export default function TrialPage() {
     setIsSaveModalOpen(true);
     setIsLoadingSaves(true);
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
+      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1] || localStorage.getItem('jwt_token');
       const res = await fetch('/api/game/saves', {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
@@ -477,7 +476,7 @@ export default function TrialPage() {
 
   const handleSaveGame = async (slotId: number) => {
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
+      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1] || localStorage.getItem('jwt_token');
       const res = await fetch('/api/game/save', {
         method: 'POST',
         headers: {
@@ -547,7 +546,7 @@ export default function TrialPage() {
                     />
                   </div>
                   <div className="mt-4 text-white bg-transparent font-normal tracking-wide text-xl md:text-2xl drop-shadow-md font-[family-name:var(--font-special-elite)]">
-                    {actor.nombrePersonaje}
+                    {actor?.nombrePersonaje || 'Preparando...'}
                   </div>
                   <div className="absolute -top-12 font-[family-name:var(--font-special-elite)] text-sm tracking-[0.2em] text-white animate-bounce bg-zinc-850/90 px-5 py-2 rounded-full border-2 border-zinc-700 shadow-xl">TURNO ACTUAL</div>
                 </div>

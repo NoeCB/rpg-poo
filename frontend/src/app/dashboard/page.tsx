@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -35,14 +35,39 @@ export default function DashboardPage() {
   const [achievements, setAchievements] = useState<any[]>([]);
   const [isLoadingAchievements, setIsLoadingAchievements] = useState(false);
 
+  const getAuthToken = () => {
+    if (typeof window === 'undefined') return null;
+    const cookieToken = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
+    return cookieToken || localStorage.getItem('jwt_token');
+  };
+
+  useEffect(() => {
+    const token = getAuthToken();
+    if (!token) {
+      router.push('/login');
+    }
+  }, []);
+
+  const handleLogout = () => {
+    document.cookie = 'jwt_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    localStorage.removeItem('jwt_token');
+    router.push('/login');
+  };
+
   const openNewGameModal = async () => {
     setIsNewGameModalOpen(true);
     setIsLoadingSaves(true);
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
-      const res = await fetch('/api/game/saves', {
+      const token = getAuthToken();
+      const res = await fetch(`/api/game/saves?t=${Date.now()}`, {
+        cache: 'no-store',
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
+      if (res.status === 401 || res.status === 403) {
+        handleLogout();
+        toast.error("Sesión expirada. Por favor, inicia sesión de nuevo.");
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setSaves(data);
@@ -67,19 +92,19 @@ export default function DashboardPage() {
     setTimeout(() => router.push('/play'), 800);
   };
 
-  const handleLogout = () => {
-    document.cookie = 'jwt_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    router.push('/login');
-  };
-
   const openAchievementsModal = async () => {
     setIsAchievementsOpen(true);
     setIsLoadingAchievements(true);
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
+      const token = getAuthToken();
       const res = await fetch('/api/game/achievements', {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
+      if (res.status === 401 || res.status === 403) {
+        handleLogout();
+        toast.error("Sesión expirada. Por favor, inicia sesión de nuevo.");
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setAchievements(data);
@@ -97,10 +122,16 @@ export default function DashboardPage() {
     setIsLoadModalOpen(true);
     setIsLoadingSaves(true);
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
-      const res = await fetch('/api/game/saves', {
+      const token = getAuthToken();
+      const res = await fetch(`/api/game/saves?t=${Date.now()}`, {
+        cache: 'no-store',
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
+      if (res.status === 401 || res.status === 403) {
+        handleLogout();
+        toast.error("Sesión expirada. Por favor, inicia sesión de nuevo.");
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setSaves(data);
@@ -116,7 +147,7 @@ export default function DashboardPage() {
 
   const loadGame = async (id: number) => {
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
+      const token = getAuthToken();
       const res = await fetch(`/api/game/load/${id}`, {
         method: 'POST',
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
@@ -130,6 +161,51 @@ export default function DashboardPage() {
       }
     } catch (error) {
       toast.error("Error de red al cargar.");
+    }
+  };
+
+  const deleteSlot = async (id: number) => {
+    if (!confirm(`¿Estás seguro de que deseas eliminar permanentemente los datos de la Ranura ${id}? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    try {
+      const token = getAuthToken();
+      const res = await fetch(`/api/game/delete/${id}`, {
+        method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        // Limpiar almacenamiento local si era la partida activa
+        localStorage.removeItem('resumeGame');
+        localStorage.removeItem('activeSaveSlot');
+        
+        toast.success(`Ranura ${id} formateada con éxito.`, {
+          icon: '🗑️',
+          duration: 3000,
+          style: {
+            background: '#1c1917',
+            color: '#f87171',
+            border: '1px solid #7f1d1d',
+            fontFamily: 'var(--font-special-elite)',
+            fontSize: '11px',
+            letterSpacing: '0.05em'
+          }
+        });
+        // Refrescar lista de partidas sin caché
+        const resSaves = await fetch(`/api/game/saves?t=${Date.now()}`, {
+          cache: 'no-store',
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+        if (resSaves.ok) {
+          const data = await resSaves.json();
+          setSaves(data);
+        }
+      } else {
+        toast.error("Error al eliminar los datos de la ranura.");
+      }
+    } catch (error) {
+      toast.error("Error de conexión al eliminar.");
     }
   };
 
@@ -284,16 +360,24 @@ export default function DashboardPage() {
                             </p>
                           </div>
 
-                          <button
-                            onClick={() => loadGame(save.id)}
-                            disabled={save.terminada}
-                            className={`px-8 py-3 rounded-none font-normal uppercase tracking-widest text-sm transition-all font-[family-name:var(--font-special-elite)] ${save.terminada
-                              ? 'bg-zinc-900 text-zinc-600 border border-zinc-800 cursor-not-allowed'
-                              : 'bg-[#3a0909] hover:bg-[#520f0f] text-[#fca5a5] border border-[#6b1414] hover:text-white active:scale-95'
-                              }`}
-                          >
-                            {save.terminada ? 'Completada' : 'Cargar'}
-                          </button>
+                          <div className="flex flex-row gap-2">
+                            <button
+                              onClick={() => loadGame(save.id)}
+                              disabled={save.terminada}
+                              className={`px-4 py-2 rounded-none font-normal uppercase tracking-widest text-xs transition-all font-[family-name:var(--font-special-elite)] ${save.terminada
+                                ? 'bg-zinc-900 text-zinc-600 border border-zinc-800 cursor-not-allowed'
+                                : 'bg-[#3a0909] hover:bg-[#520f0f] text-[#fca5a5] border border-[#6b1414] hover:text-white'
+                                }`}
+                            >
+                              {save.terminada ? 'Completada' : 'Cargar'}
+                            </button>
+                            <button
+                              onClick={() => deleteSlot(save.id)}
+                              className="px-4 py-2 rounded-none font-normal uppercase tracking-widest text-xs transition-all font-[family-name:var(--font-special-elite)] bg-zinc-950 hover:bg-red-950/80 text-zinc-500 hover:text-red-400 border border-zinc-800 hover:border-red-900 active:scale-95"
+                            >
+                              Eliminar
+                            </button>
+                          </div>
                         </div>
                       )
                     ))}
@@ -423,8 +507,7 @@ export default function DashboardPage() {
                     {saves.map(save => (
                       <div 
                         key={save.id} 
-                        onClick={() => startNewGame(save.id, save.vacia)}
-                        className={`group bg-stone-950/90 border cursor-pointer p-5 rounded-none flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300 ${
+                        className={`group bg-stone-950/90 border p-5 rounded-none flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300 ${
                           save.vacia 
                             ? 'border-zinc-800 hover:border-red-800 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)]' 
                             : 'border-amber-950/60 hover:border-red-700 hover:shadow-[0_0_15px_rgba(239,68,68,0.2)]'
@@ -450,11 +533,22 @@ export default function DashboardPage() {
                           )}
                         </div>
 
-                        <button
-                          className="px-6 py-2 rounded-none font-normal uppercase tracking-widest text-xs transition-all duration-300 font-[family-name:var(--font-special-elite)] bg-red-950/40 group-hover:bg-red-900 text-red-400 group-hover:text-white border border-red-900/60 group-hover:border-red-600 active:scale-95"
-                        >
-                          Seleccionar
-                        </button>
+                        <div className="flex flex-row gap-2">
+                          <button
+                            onClick={() => startNewGame(save.id, save.vacia)}
+                            className="px-4 py-2 rounded-none font-normal uppercase tracking-widest text-xs transition-all duration-300 font-[family-name:var(--font-special-elite)] bg-red-950/40 hover:bg-red-900 text-red-400 hover:text-white border border-red-900/60 hover:border-red-600 active:scale-95"
+                          >
+                            Seleccionar
+                          </button>
+                          {!save.vacia && (
+                            <button
+                              onClick={() => deleteSlot(save.id)}
+                              className="px-4 py-2 rounded-none font-normal uppercase tracking-widest text-xs transition-all font-[family-name:var(--font-special-elite)] bg-zinc-950 hover:bg-red-950/80 text-zinc-500 hover:text-red-400 border border-zinc-800 hover:border-red-900 active:scale-95"
+                            >
+                              Eliminar 🗑️
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
