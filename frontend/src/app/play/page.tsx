@@ -67,9 +67,7 @@ export default function PlayPage() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-        const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1] || localStorage.getItem('jwt_token');
         const res = await fetch('/api/game/characters', {
-          headers: token ? { 'Authorization': `Bearer ${token}` } : {},
           signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -162,9 +160,9 @@ export default function PlayPage() {
   const isReady = selectedSurvs.length === 3 && selectedKillers.length === 3;
 
   return (
-    <div className="min-h-screen bg-zinc-950 bg-[url('/maxresdefault.jpg')] bg-cover bg-center bg-fixed relative text-white selection:bg-red-600/30 font-sans">
+    <div className="min-h-screen bg-zinc-950 bg-[url('/maxresdefault.jpg')] bg-cover bg-center relative text-white selection:bg-red-600/30 font-sans">
       <div className="absolute inset-0 bg-black/85 z-0 backdrop-blur-[2px]"></div>
-      <div className="absolute inset-0 bg-gradient-to-tr from-red-950/20 via-transparent to-blue-950/20 z-0 mix-blend-overlay animate-pulse"></div>
+      <div className="absolute inset-0 bg-gradient-to-tr from-red-950/20 via-transparent to-blue-950/20 z-0 mix-blend-overlay animate-pulse will-change-opacity transform-gpu"></div>
 
       <div className="relative z-10 p-3 md:p-5 w-full max-w-[1700px] mx-auto flex flex-col min-h-screen">
 
@@ -353,7 +351,7 @@ export default function PlayPage() {
                         <button
                           key={s.id}
                           onClick={() => toggleSurv(s.id)}
-                          className={`relative aspect-[3.2/4] rounded-lg overflow-hidden cursor-pointer transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-zinc-900 ${isSelected
+                          className={`relative aspect-[3.2/4] rounded-lg overflow-hidden cursor-pointer transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-zinc-900 will-change-transform ${isSelected
                             ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-zinc-950 shadow-[0_0_20px_rgba(59,130,246,0.4)] scale-[1.03] z-10'
                             : 'border border-zinc-850 hover:border-blue-500/40 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:scale-[1.03] hover:z-10'
                             }`}
@@ -375,11 +373,7 @@ export default function PlayPage() {
                             </p>
                           </div>
 
-                          {isSelected && (
-                            <div className="absolute top-1.5 right-1.5 z-20 w-5.5 h-5.5 bg-blue-500 rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(59,130,246,0.8)] animate-bounce">
-                              <span className="text-white text-xs font-black">{selectedSurvs.indexOf(s.id) + 1}</span>
-                            </div>
-                          )}
+
                         </button>
                       )
                     })}
@@ -400,7 +394,7 @@ export default function PlayPage() {
                     onClick={selectRandomCharacters}
                     className="px-4 py-2 border border-amber-600/50 bg-amber-950/20 hover:bg-amber-950/40 text-amber-500 hover:text-amber-400 rounded-lg text-xs font-black tracking-widest uppercase transition-all duration-300 active:scale-95 flex items-center gap-2 font-[family-name:var(--font-special-elite)] shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_25px_rgba(245,158,11,0.3)]"
                   >
-                    🎲 Azar
+                    Azar
                   </button>
                   <div className="w-[1px] h-full bg-gradient-to-t from-transparent via-zinc-800 to-transparent"></div>
                 </div>
@@ -420,7 +414,7 @@ export default function PlayPage() {
                         <button
                           key={k.id}
                           onClick={() => toggleKiller(k.id)}
-                          className={`relative aspect-[3.2/4] rounded-lg overflow-hidden cursor-pointer transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-zinc-900 ${isSelected
+                          className={`relative aspect-[3.2/4] rounded-lg overflow-hidden cursor-pointer transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-zinc-900 will-change-transform ${isSelected
                             ? 'ring-2 ring-red-600 ring-offset-2 ring-offset-zinc-950 shadow-[0_0_20px_rgba(220,38,38,0.4)] scale-[1.03] z-10'
                             : 'border border-zinc-850 hover:border-red-500/40 hover:shadow-[0_0_15px_rgba(220,38,38,0.4)] hover:scale-[1.03] hover:z-10'
                             }`}
@@ -444,11 +438,7 @@ export default function PlayPage() {
                             </p>
                           </div>
 
-                          {isSelected && (
-                            <div className="absolute top-1.5 right-1.5 z-20 w-5.5 h-5.5 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(220,38,38,0.8)] animate-bounce">
-                              <span className="text-white text-xs font-black">{selectedKillers.indexOf(k.id) + 1}</span>
-                            </div>
-                          )}
+
                         </button>
                       )
                     })}

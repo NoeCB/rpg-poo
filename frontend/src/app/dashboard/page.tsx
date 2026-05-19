@@ -35,22 +35,22 @@ export default function DashboardPage() {
   const [achievements, setAchievements] = useState<any[]>([]);
   const [isLoadingAchievements, setIsLoadingAchievements] = useState(false);
 
-  const getAuthToken = () => {
-    if (typeof window === 'undefined') return null;
-    const cookieToken = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
-    return cookieToken || localStorage.getItem('jwt_token');
-  };
-
   useEffect(() => {
-    const token = getAuthToken();
-    if (!token) {
+    const loggedIn = localStorage.getItem('logged_in') === 'true';
+    if (!loggedIn) {
       router.push('/login');
     }
   }, []);
 
-  const handleLogout = () => {
-    document.cookie = 'jwt_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    localStorage.removeItem('jwt_token');
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) {
+      console.error("Fallo al cerrar sesión en servidor", e);
+    }
+    localStorage.removeItem('logged_in');
+    localStorage.removeItem('activeSaveSlot');
+    localStorage.removeItem('resumeGame');
     router.push('/login');
   };
 
@@ -58,10 +58,8 @@ export default function DashboardPage() {
     setIsNewGameModalOpen(true);
     setIsLoadingSaves(true);
     try {
-      const token = getAuthToken();
       const res = await fetch(`/api/game/saves?t=${Date.now()}`, {
-        cache: 'no-store',
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        cache: 'no-store'
       });
       if (res.status === 401 || res.status === 403) {
         handleLogout();
@@ -96,10 +94,7 @@ export default function DashboardPage() {
     setIsAchievementsOpen(true);
     setIsLoadingAchievements(true);
     try {
-      const token = getAuthToken();
-      const res = await fetch('/api/game/achievements', {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-      });
+      const res = await fetch('/api/game/achievements');
       if (res.status === 401 || res.status === 403) {
         handleLogout();
         toast.error("Sesión expirada. Por favor, inicia sesión de nuevo.");
@@ -122,10 +117,8 @@ export default function DashboardPage() {
     setIsLoadModalOpen(true);
     setIsLoadingSaves(true);
     try {
-      const token = getAuthToken();
       const res = await fetch(`/api/game/saves?t=${Date.now()}`, {
-        cache: 'no-store',
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        cache: 'no-store'
       });
       if (res.status === 401 || res.status === 403) {
         handleLogout();
@@ -147,10 +140,8 @@ export default function DashboardPage() {
 
   const loadGame = async (id: number) => {
     try {
-      const token = getAuthToken();
       const res = await fetch(`/api/game/load/${id}`, {
-        method: 'POST',
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        method: 'POST'
       });
       if (res.ok) {
         toast.success("Partida cargada con éxito.");
@@ -170,13 +161,10 @@ export default function DashboardPage() {
     }
 
     try {
-      const token = getAuthToken();
       const res = await fetch(`/api/game/delete/${id}`, {
-        method: 'POST',
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        method: 'POST'
       });
       if (res.ok) {
-        // Limpiar almacenamiento local si era la partida activa
         localStorage.removeItem('resumeGame');
         localStorage.removeItem('activeSaveSlot');
         
@@ -192,10 +180,9 @@ export default function DashboardPage() {
             letterSpacing: '0.05em'
           }
         });
-        // Refrescar lista de partidas sin caché
+        
         const resSaves = await fetch(`/api/game/saves?t=${Date.now()}`, {
-          cache: 'no-store',
-          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+          cache: 'no-store'
         });
         if (resSaves.ok) {
           const data = await resSaves.json();

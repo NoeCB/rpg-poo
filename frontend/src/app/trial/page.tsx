@@ -111,7 +111,7 @@ function CharacterCard({ char, isMyTurn, isKiller }: { char: CharacterState, isM
     <motion.div
       animate={isTakingDamage ? { x: [-5, 5, -5, 5, 0], transition: { duration: 0.4 } } : { x: 0 }}
       whileHover={{ scale: 1.05, y: -5 }}
-      className={`p-3 rounded-lg border transition-all cursor-default ${currentClasses}`}
+      className={`p-3 rounded-lg border transition-all cursor-default will-change-transform ${currentClasses}`}
     >
       <div className="flex justify-between items-center mb-2 font-[family-name:var(--font-special-elite)]">
         <span className={`text-sm font-bold ${isDead ? 'text-zinc-600 line-through' : (isKiller ? 'text-red-200' : 'text-blue-200')}`}>{char.nombrePersonaje}</span>
@@ -150,12 +150,10 @@ export default function TrialPage() {
 
     setIsAutosaving(true);
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1] || localStorage.getItem('jwt_token');
       const res = await fetch('/api/game/save', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ slot: activeSlot })
       });
@@ -229,12 +227,10 @@ export default function TrialPage() {
     }
 
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1] || localStorage.getItem('jwt_token');
       const res = await fetch('/api/game/action', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           tipoAccion,
@@ -333,7 +329,7 @@ export default function TrialPage() {
 
     const initTrial = async () => {
       try {
-        const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1] || localStorage.getItem('jwt_token');
+
         const endpoint = isResume ? '/api/game/state' : '/api/game/start-manual';
         const method = isResume ? 'GET' : 'POST';
         const gameMode = localStorage.getItem('selectedMode') || 'manual';
@@ -350,8 +346,7 @@ export default function TrialPage() {
         const res = await fetch(endpoint, {
           method,
           headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            'Content-Type': 'application/json'
           },
           body
         });
@@ -457,10 +452,7 @@ export default function TrialPage() {
     setIsSaveModalOpen(true);
     setIsLoadingSaves(true);
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1] || localStorage.getItem('jwt_token');
-      const res = await fetch('/api/game/saves', {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-      });
+      const res = await fetch('/api/game/saves');
       if (res.ok) {
         const data = await res.json();
         setSaves(data);
@@ -476,12 +468,10 @@ export default function TrialPage() {
 
   const handleSaveGame = async (slotId: number) => {
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1] || localStorage.getItem('jwt_token');
       const res = await fetch('/api/game/save', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ slot: slotId })
       });
@@ -686,9 +676,6 @@ export default function TrialPage() {
                     <p className="text-xs font-black text-zinc-500 tracking-widest text-center border-b border-zinc-800 pb-2 mb-1">PANEL DE ACCIONES</p>
                     {gameState.modoJuego === 'automatico' ? (
                       <div className="py-6 flex flex-col items-center justify-center text-center">
-                        <div className="w-12 h-12 bg-amber-500/20 border border-amber-500/50 rounded-full flex items-center justify-center animate-pulse mb-3">
-                          <span className="text-2xl">🤖</span>
-                        </div>
                         <p className="text-amber-500 font-black tracking-widest text-sm uppercase">Modo Automatico</p>
                         <p className="text-zinc-500 text-xs mt-1 max-w-[200px]">La Entidad está guiando las acciones de los combatientes.</p>
                       </div>

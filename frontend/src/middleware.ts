@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const token = request.cookies.get('jwt_token')?.value;
 
-  // Si intentamos ir al dashboard o play sin token, redirigimos al login
-  if (!token && (request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/play'))) {
+  // Si intentamos ir al dashboard, play o trial sin token, redirigimos al login
+  if (!token && (
+    request.nextUrl.pathname.startsWith('/dashboard') || 
+    request.nextUrl.pathname.startsWith('/play') || 
+    request.nextUrl.pathname.startsWith('/trial')
+  )) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
@@ -18,5 +22,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/play/:path*', '/login'],
+  matcher: ['/dashboard/:path*', '/play/:path*', '/trial/:path*', '/login'],
 };

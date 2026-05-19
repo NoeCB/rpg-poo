@@ -29,9 +29,8 @@ export default function LoginPage() {
 
       const data = await res.json().catch(() => null);
 
-      if (res.ok && data?.token) {
-        document.cookie = `jwt_token=${data.token}; path=/;`;
-        localStorage.setItem('jwt_token', data.token);
+      if (res.ok) {
+        localStorage.setItem('logged_in', 'true');
         router.push('/dashboard');
       } else if (data && data.error) {
         setErrorMessage(data.error);

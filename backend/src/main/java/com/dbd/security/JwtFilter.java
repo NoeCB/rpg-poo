@@ -24,12 +24,23 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        String jwt = null;
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && !authHeader.isBlank() && authHeader.startsWith("Bearer ")) {
-            String jwt = authHeader.substring(7);
-            if (jwt.isBlank()) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid JWT Token in Bearer Header");
+            jwt = authHeader.substring(7);
+        } else if (request.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if ("jwt_token".equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (jwt != null && !jwt.isBlank()) {
+            if (jwt.isBlank()) { // Mantener control de blanco
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid JWT Token");
             } else {
                 try {
                     String username = jwtUtil.validateTokenAndRetrieveSubject(jwt);
