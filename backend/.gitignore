@@ -24,5 +24,6 @@ replay_pid*
 
 #Archivos de texto
 *.txt
+inputfiles.lst 
 
     

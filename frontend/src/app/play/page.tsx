@@ -202,13 +202,6 @@ export default function PlayPage() {
 
             <div className="flex gap-2 w-full sm:w-auto">
               <button
-                onClick={selectRandomCharacters}
-                className="group relative px-4 py-2.5 bg-amber-950/20 border border-amber-600/50 hover:bg-amber-950/40 text-amber-500 hover:text-amber-400 rounded-lg overflow-hidden font-[family-name:var(--font-special-elite)] tracking-wider uppercase text-xs transition-all duration-300 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] active:scale-95 flex-1 sm:flex-none flex items-center justify-center gap-2"
-              >
-                <span>🎲 Selección al Azar</span>
-              </button>
-
-              <button
                 onClick={() => router.push('/dashboard')}
                 className="group relative px-4 py-2.5 bg-zinc-900 hover:bg-zinc-850 text-zinc-400 hover:text-zinc-300 rounded-lg overflow-hidden font-[family-name:var(--font-special-elite)] tracking-wider uppercase text-xs border border-zinc-800 hover:border-zinc-700 transition-all duration-300 hover:shadow-[0_0_10px_rgba(255,255,255,0.05)] active:scale-95 flex-1 sm:flex-none"
               >
@@ -373,126 +366,124 @@ export default function PlayPage() {
                           className={`object-cover w-full h-full transition-all duration-300 ease-out 
                             ${s.id === 'AdaWong' ? 'object-center scale-[1.5]' : 'object-top scale-100'} 
                             ${isSelected ? 'saturate-100 opacity-100 brightness-110' : 'saturate-0 opacity-70 group-hover:scale-105 group-hover:saturate-100 group-hover:opacity-100'}`}
-                        />
+                          />
 
-                        <div className="absolute bottom-0 left-0 w-full p-2 sm:p-3 z-20 transform transition-transform duration-300 bg-gradient-to-t from-black via-black/90 to-transparent">
-                          <p className={`text-xs sm:text-sm font-normal text-center uppercase tracking-wider font-[family-name:var(--font-special-elite)] ${isSelected ? 'text-blue-300 drop-shadow-[0_0_6px_rgba(59,130,246,0.8)]' : 'text-zinc-400 group-hover:text-white'
-                            }`}>
-                            {s.name}
-                          </p>
-                        </div>
-
-                        {isSelected && (
-                          <div className="absolute top-1.5 right-1.5 z-20 w-5.5 h-5.5 bg-blue-500 rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(59,130,246,0.8)] animate-bounce">
-                            <span className="text-white text-xs font-black">{selectedSurvs.indexOf(s.id) + 1}</span>
+                          <div className="absolute bottom-0 left-0 w-full p-2 sm:p-3 z-20 transform transition-transform duration-300 bg-gradient-to-t from-black via-black/90 to-transparent">
+                            <p className={`text-xs sm:text-sm font-normal text-center uppercase tracking-wider font-[family-name:var(--font-special-elite)] ${isSelected ? 'text-blue-300 drop-shadow-[0_0_6px_rgba(59,130,246,0.8)]' : 'text-zinc-400 group-hover:text-white'
+                              }`}>
+                              {s.name}
+                            </p>
                           </div>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
 
-              {/* VS Divider & Random Button */}
-              <div className="hidden xl:flex flex-col items-center justify-center self-stretch opacity-90 py-2 gap-4">
-                <div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent"></div>
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-red-600 rounded-full blur-md opacity-35 animate-pulse"></div>
-                  <div className="relative bg-zinc-950 border border-zinc-850 text-red-500 font-[family-name:var(--font-horroroid)] text-2xl w-14 h-14 flex items-center justify-center rounded-full shadow-[0_0_20px_rgba(220,38,38,0.3)] tracking-tighter">
-                    VS
+                          {isSelected && (
+                            <div className="absolute top-1.5 right-1.5 z-20 w-5.5 h-5.5 bg-blue-500 rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(59,130,246,0.8)] animate-bounce">
+                              <span className="text-white text-xs font-black">{selectedSurvs.indexOf(s.id) + 1}</span>
+                            </div>
+                          )}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
-                
-                <button
-                  onClick={selectRandomCharacters}
-                  className="px-4 py-2 border border-amber-600/50 bg-amber-950/20 hover:bg-amber-950/40 text-amber-500 hover:text-amber-400 rounded-lg text-xs font-black tracking-widest uppercase transition-all duration-300 active:scale-95 flex items-center gap-2 font-[family-name:var(--font-special-elite)] shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_25px_rgba(245,158,11,0.3)]"
-                >
-                  🎲 Azar
-                </button>
-                <div className="w-[1px] h-full bg-gradient-to-t from-transparent via-zinc-800 to-transparent"></div>
-              </div>
 
-              {/* ASESINOS */}
-              <div className="relative bg-black/40 backdrop-blur-sm border border-zinc-800/80 rounded-2xl p-4 shadow-xl overflow-hidden group/container">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-600/50 to-transparent"></div>
+                {/* VS Divider & Random Button */}
+                <div className="hidden xl:flex flex-col items-center justify-center self-stretch opacity-90 py-2 gap-4">
+                  <div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent"></div>
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-red-600 rounded-full blur-md opacity-35 animate-pulse"></div>
+                    <div className="relative bg-zinc-950 border border-zinc-850 text-red-500 font-sans font-black text-xl w-14 h-14 flex items-center justify-center rounded-full shadow-[0_0_20px_rgba(220,38,38,0.3)] tracking-wider">
+                      VS
+                    </div>
+                  </div>
 
-                <h3 className="text-2xl font-normal text-zinc-400 mb-4 flex items-center gap-3 border-b border-zinc-850 pb-2 tracking-widest uppercase font-[family-name:var(--font-horroroid)]">
-                  Asesinos
-                </h3>
+                  <button
+                    onClick={selectRandomCharacters}
+                    className="px-4 py-2 border border-amber-600/50 bg-amber-950/20 hover:bg-amber-950/40 text-amber-500 hover:text-amber-400 rounded-lg text-xs font-black tracking-widest uppercase transition-all duration-300 active:scale-95 flex items-center gap-2 font-[family-name:var(--font-special-elite)] shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_25px_rgba(245,158,11,0.3)]"
+                  >
+                    🎲 Azar
+                  </button>
+                  <div className="w-[1px] h-full bg-gradient-to-t from-transparent via-zinc-800 to-transparent"></div>
+                </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                  {availableKillers.map((k) => {
-                    const isSelected = selectedKillers.includes(k.id);
-                    return (
-                      <button
-                        key={k.id}
-                        onClick={() => toggleKiller(k.id)}
-                        className={`relative aspect-[3.2/4] rounded-lg overflow-hidden cursor-pointer transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-zinc-900 ${isSelected
-                          ? 'ring-2 ring-red-600 ring-offset-2 ring-offset-zinc-950 shadow-[0_0_20px_rgba(220,38,38,0.4)] scale-[1.03] z-10'
-                          : 'border border-zinc-850 hover:border-red-500/40 hover:shadow-[0_0_15px_rgba(220,38,38,0.4)] hover:scale-[1.03] hover:z-10'
-                          }`}
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10 opacity-90 transition-opacity duration-300 group-hover:opacity-40"></div>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={k.image}
-                          alt={k.name}
-                          className={`object-cover w-full h-full transition-all duration-300 ease-out 
+                {/* ASESINOS */}
+                <div className="relative bg-black/40 backdrop-blur-sm border border-zinc-800/80 rounded-2xl p-4 shadow-xl overflow-hidden group/container">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-600/50 to-transparent"></div>
+
+                  <h3 className="text-2xl font-normal text-zinc-400 mb-4 flex items-center gap-3 border-b border-zinc-850 pb-2 tracking-widest uppercase font-[family-name:var(--font-horroroid)]">
+                    Asesinos
+                  </h3>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                    {availableKillers.map((k) => {
+                      const isSelected = selectedKillers.includes(k.id);
+                      return (
+                        <button
+                          key={k.id}
+                          onClick={() => toggleKiller(k.id)}
+                          className={`relative aspect-[3.2/4] rounded-lg overflow-hidden cursor-pointer transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-zinc-900 ${isSelected
+                            ? 'ring-2 ring-red-600 ring-offset-2 ring-offset-zinc-950 shadow-[0_0_20px_rgba(220,38,38,0.4)] scale-[1.03] z-10'
+                            : 'border border-zinc-850 hover:border-red-500/40 hover:shadow-[0_0_15px_rgba(220,38,38,0.4)] hover:scale-[1.03] hover:z-10'
+                            }`}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10 opacity-90 transition-opacity duration-300 group-hover:opacity-40"></div>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={k.image}
+                            alt={k.name}
+                            className={`object-cover w-full h-full transition-all duration-300 ease-out 
                             ${k.id === 'Onryo' ? 'object-bottom scale-[1.2] -translate-y-10' :
-                              k.id === 'Animatronico' ? 'object-center scale-[1.3] -translate-y-6' :
+                              (k.id === 'Animatronico' || k.id === 'Animatrónico') ? 'object-[42%_30%] scale-[1.25]' :
                                 'object-top scale-100'} 
                             ${isSelected ? 'saturate-100 opacity-100 brightness-110' : 'saturate-0 opacity-70 group-hover:scale-105 group-hover:saturate-100 group-hover:opacity-100'}`}
-                        />
+                          />
 
-                        <div className="absolute bottom-0 left-0 w-full p-2 sm:p-3 z-20 transform transition-transform duration-300 bg-gradient-to-t from-black via-black/90 to-transparent">
-                          <p className={`text-xs sm:text-sm font-normal text-center uppercase tracking-wider font-[family-name:var(--font-special-elite)] ${isSelected ? 'text-red-400 drop-shadow-[0_0_6px_rgba(220,38,38,0.8)]' : 'text-zinc-400 group-hover:text-white'
-                            }`}>
-                            {k.name}
-                          </p>
-                        </div>
-
-                        {isSelected && (
-                          <div className="absolute top-1.5 right-1.5 z-20 w-5.5 h-5.5 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(220,38,38,0.8)] animate-bounce">
-                            <span className="text-white text-xs font-black">{selectedKillers.indexOf(k.id) + 1}</span>
+                          <div className="absolute bottom-0 left-0 w-full p-2 sm:p-3 z-20 transform transition-transform duration-300 bg-gradient-to-t from-black via-black/90 to-transparent">
+                            <p className={`text-xs sm:text-sm font-normal text-center uppercase tracking-wider font-[family-name:var(--font-special-elite)] ${isSelected ? 'text-red-400 drop-shadow-[0_0_6px_rgba(220,38,38,0.8)]' : 'text-zinc-400 group-hover:text-white'
+                              }`}>
+                              {k.name}
+                            </p>
                           </div>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            </motion.div>
-            {/* ACTION START BUTTONS */}
-            <div className="mt-6 mb-2 max-w-4xl mx-auto w-full flex flex-col items-center">
-              {isReady ? (
-                <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-                  <button
-                    onClick={() => handleStart('manual')}
-                    disabled={isSubmitting}
-                    className="flex-1 max-w-md relative px-8 py-3.5 bg-zinc-950/80 border-2 border-blue-500 hover:border-blue-400 text-blue-400 hover:text-blue-300 rounded-xl font-[family-name:var(--font-special-elite)] tracking-widest uppercase text-sm md:text-base shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:shadow-[0_0_30px_rgba(59,130,246,0.55)] transition-all duration-300 active:scale-98 flex items-center justify-center gap-3"
-                  >
-                    <span className="text-xl">🎮</span>
-                    <span>Jugar Modo Manual</span>
-                  </button>
 
-                  <button
-                    onClick={() => handleStart('automatico')}
-                    disabled={isSubmitting}
-                    className="flex-1 max-w-md relative px-8 py-3.5 bg-zinc-950/80 border-2 border-amber-600 hover:border-amber-500 text-amber-500 hover:text-amber-400 rounded-xl font-[family-name:var(--font-special-elite)] tracking-widest uppercase text-sm md:text-base shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.55)] transition-all duration-300 active:scale-98 flex items-center justify-center gap-3"
-                  >
-                    <span className="text-xl animate-pulse">🤖</span>
-                    <span>Jugar Modo Automático</span>
-                  </button>
+                          {isSelected && (
+                            <div className="absolute top-1.5 right-1.5 z-20 w-5.5 h-5.5 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(220,38,38,0.8)] animate-bounce">
+                              <span className="text-white text-xs font-black">{selectedKillers.indexOf(k.id) + 1}</span>
+                            </div>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
-              ) : (
-                <button
-                  disabled
-                  className="w-full max-w-2xl px-8 py-3.5 bg-zinc-900/50 text-zinc-500 border border-zinc-800 rounded-xl font-[family-name:var(--font-special-elite)] tracking-widest uppercase text-xs md:text-sm cursor-not-allowed backdrop-blur-sm"
-                >
-                  SELECCIONA 3 SUPERVIVIENTES Y 3 ASESINOS EN LA NIEBLA
-                </button>
-              )}
-            </div>
+              </motion.div>
+              {/* ACTION START BUTTONS */}
+              <div className="mt-6 mb-2 max-w-4xl mx-auto w-full flex flex-col items-center">
+                {isReady ? (
+                  <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                    <button
+                      onClick={() => handleStart('manual')}
+                      disabled={isSubmitting}
+                      className="flex-1 max-w-md relative px-8 py-3.5 bg-zinc-950/80 border-2 border-blue-500 hover:border-blue-400 text-blue-400 hover:text-blue-300 rounded-xl font-[family-name:var(--font-special-elite)] tracking-widest uppercase text-sm md:text-base shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:shadow-[0_0_30px_rgba(59,130,246,0.55)] transition-all duration-300 active:scale-98 flex items-center justify-center"
+                    >
+                      <span>Jugar Modo Manual</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleStart('automatico')}
+                      disabled={isSubmitting}
+                      className="flex-1 max-w-md relative px-8 py-3.5 bg-zinc-950/80 border-2 border-amber-600 hover:border-amber-500 text-amber-500 hover:text-amber-400 rounded-xl font-[family-name:var(--font-special-elite)] tracking-widest uppercase text-sm md:text-base shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.55)] transition-all duration-300 active:scale-98 flex items-center justify-center"
+                    >
+                      <span>Jugar Modo Automatico</span>
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    disabled
+                    className="w-full max-w-2xl px-8 py-3.5 bg-zinc-900/50 text-zinc-500 border border-zinc-800 rounded-xl font-[family-name:var(--font-special-elite)] tracking-widest uppercase text-xs md:text-sm cursor-not-allowed backdrop-blur-sm"
+                  >
+                    SELECCIONA 3 SUPERVIVIENTES Y 3 ASESINOS EN LA NIEBLA
+                  </button>
+                )}
+              </div>
             </>
           )}
 
@@ -507,3 +498,7 @@ export default function PlayPage() {
     </div>
   );
 }
+
+// Tailwind JIT compiler scanning triggers:
+// object-[42%_30%] scale-[1.25]
+
