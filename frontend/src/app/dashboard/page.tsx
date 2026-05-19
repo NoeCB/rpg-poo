@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -183,15 +184,15 @@ export default function DashboardPage() {
               <img
                 src="/hunter.jpg"
                 alt="Logros"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.4] group-hover:brightness-[0.7] grayscale group-hover:grayscale-0"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.7] group-hover:brightness-[0.9]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent opacity-90 group-hover:opacity-85 transition-opacity"></div>
             </div>
 
             {/* Overlaid themed box with text */}
             <div className="relative z-10 bg-purple-950/75 hover:bg-purple-900/85 border border-purple-900/40 backdrop-blur-[6px] p-5 rounded-xl text-center shadow-[0_4px_20px_rgba(168,85,247,0.2)] transition-all duration-300">
-              <h2 className="text-3xl font-normal text-zinc-100 mb-2 group-hover:text-purple-400 transition-colors duration-300 tracking-wider font-[family-name:var(--font-horroroid-bold)] uppercase drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]">Tus Logros</h2>
-              <p className="text-zinc-300 text-xs leading-relaxed font-[family-name:var(--font-special-elite)] tracking-wide">
+              <h2 className="text-2xl font-black text-zinc-100 mb-2 group-hover:text-purple-400 transition-colors duration-300 tracking-wide">Tus Logros</h2>
+              <p className="text-zinc-200 text-xs leading-relaxed font-[family-name:var(--font-special-elite)] tracking-wide">
                 Consulta tus hazañas grabadas en la niebla. Comprueba los desafíos que has desbloqueado.
               </p>
             </div>
