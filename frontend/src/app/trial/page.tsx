@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -53,6 +54,15 @@ interface GameState {
   decidedAction?: string;
   decidedTargetIndex?: number;
   decidedPerkIndex?: number;
+}
+
+interface SaveSlot {
+  id: number;
+  vacia: boolean;
+  modoJuego: string;
+  ronda: number;
+  survsVivos: number;
+  killersVivos: number;
 }
 
 function HealthBar({ value, max }: { value: number, max: number }) {
@@ -125,10 +135,10 @@ export default function TrialPage() {
   const [activeMode, setActiveMode] = useState<'NONE' | 'ATACAR' | 'PERK'>('NONE');
   const [previewTarget, setPreviewTarget] = useState<{ charKey: string; name: string; image: string } | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [animState, setAnimState] = useState<'IDLE' | 'ATTACK' | 'DAMAGE' | 'DEFEND'>('IDLE');
+  const [animState, setAnimState] = useState<'IDLE' | 'ATTACK' | 'PERK' | 'DAMAGE' | 'DEFEND'>('IDLE');
 
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const [saves, setSaves] = useState<any[]>([]);
+  const [saves, setSaves] = useState<SaveSlot[]>([]);
   const [isLoadingSaves, setIsLoadingSaves] = useState(false);
 
   const logsEndRef = useRef<HTMLDivElement>(null);
@@ -136,6 +146,132 @@ export default function TrialPage() {
   // Original keys from localStorage to match portraits
   const [survKeys, setSurvKeys] = useState<string[]>([]);
   const [killerKeys, setKillerKeys] = useState<string[]>([]);
+
+  const sendAction = async (tipoAccion: string, objetivoIndex = -1, perkIndex = -1) => {
+    if (isAnimating || !gameState || gameState.partidaTerminada) return;
+    
+    setIsAnimating(true);
+    setActiveMode('NONE');
+
+    const globalAtacanteIdx = isSurviTurn ? currentIdx : (gameState.supervivientes.length + currentIdx);
+    const safeObjetivoIndex = objetivoIndex === -1 ? 0 : objetivoIndex;
+
+    const rivales = isSurviTurn ? gameState.killers : gameState.supervivientes;
+
+    if (tipoAccion !== 'AUTO') {
+      // Manual action: trigger pre-animations
+      if (safeObjetivoIndex < rivales.length) {
+        const targetChar = rivales[safeObjetivoIndex];
+        const fixedKey = targetChar.nombrePersonaje.replace(/\s+/g, '');
+        setPreviewTarget({
+          charKey: fixedKey,
+          name: targetChar.nombrePersonaje,
+          image: portraitMap[fixedKey] || portraitMap['DEFAULT']
+        });
+      }
+
+      if (tipoAccion === 'ATACAR') {
+        setAnimState('ATTACK');
+        await new Promise(r => setTimeout(r, 600));
+        setAnimState('DAMAGE');
+        await new Promise(r => setTimeout(r, 800));
+        setAnimState('IDLE');
+      } else if (tipoAccion === 'PERK') {
+        setAnimState('PERK');
+        await new Promise(r => setTimeout(r, 700));
+        setAnimState('DAMAGE');
+        await new Promise(r => setTimeout(r, 800));
+        setAnimState('IDLE');
+      } else if (tipoAccion === 'DEFENDER') {
+        setAnimState('DEFEND');
+        await new Promise(r => setTimeout(r, 800));
+        setAnimState('IDLE');
+      }
+      setPreviewTarget(null);
+    }
+
+    try {
+      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
+      const res = await fetch('/api/game/action', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({
+          tipoAccion,
+          atacanteIndex: globalAtacanteIdx,
+          objetivoIndex: safeObjetivoIndex,
+          perkIndex
+        })
+      });
+      
+      const data: GameState = await res.json();
+      
+      if (tipoAccion === 'AUTO' && data) {
+        const decAction = data.decidedAction;
+        const decTargetIdx = data.decidedTargetIndex ?? -1;
+
+        if (decAction === 'ATACAR') {
+          const safeDecTarget = decTargetIdx >= 0 && decTargetIdx < rivales.length ? decTargetIdx : 0;
+          const targetChar = rivales[safeDecTarget];
+          if (targetChar) {
+            const fixedKey = targetChar.nombrePersonaje.replace(/\s+/g, '');
+            setPreviewTarget({
+              charKey: fixedKey,
+              name: targetChar.nombrePersonaje,
+              image: portraitMap[fixedKey] || portraitMap['DEFAULT']
+            });
+          }
+          setAnimState('ATTACK');
+          await new Promise(r => setTimeout(r, 600));
+          setAnimState('DAMAGE');
+          await new Promise(r => setTimeout(r, 800));
+          setAnimState('IDLE');
+          setPreviewTarget(null);
+        } else if (decAction === 'PERK') {
+          const safeDecTarget = decTargetIdx >= 0 && decTargetIdx < rivales.length ? decTargetIdx : 0;
+          const targetChar = rivales[safeDecTarget];
+          if (targetChar) {
+            const fixedKey = targetChar.nombrePersonaje.replace(/\s+/g, '');
+            setPreviewTarget({
+              charKey: fixedKey,
+              name: targetChar.nombrePersonaje,
+              image: portraitMap[fixedKey] || portraitMap['DEFAULT']
+            });
+          }
+          setAnimState('PERK');
+          await new Promise(r => setTimeout(r, 700));
+          setAnimState('DAMAGE');
+          await new Promise(r => setTimeout(r, 800));
+          setAnimState('IDLE');
+          setPreviewTarget(null);
+        } else if (decAction === 'DEFENDER') {
+          setAnimState('DEFEND');
+          await new Promise(r => setTimeout(r, 800));
+          setAnimState('IDLE');
+        } else {
+          setAnimState('ATTACK');
+          await new Promise(r => setTimeout(r, 450));
+          setAnimState('IDLE');
+        }
+      }
+
+      setGameState(data);
+      if (data.logs && data.logs.length > 0) {
+        setCombatLogs(prev => [...prev, ...data.logs]);
+      }
+      
+      if (!data.partidaTerminada) {
+        setCurrentIdx(prev => prev + 1);
+      }
+    } catch (e) {
+      console.error(e);
+      setCombatLogs(prev => [...prev, '> Error conectando con el servidor.']);
+    } finally {
+      setIsAnimating(false);
+    }
+  };
 
   useEffect(() => {
     // Scroll to bottom of logs
@@ -182,8 +318,8 @@ export default function TrialPage() {
           
           if (isResume) {
             // Reconstruir las keys a partir de los nombres
-            const sKeysLoaded = data.supervivientes.map((s: any) => s.nombrePersonaje.replace(/\s+/g, ''));
-            const kKeysLoaded = data.killers.map((k: any) => k.nombrePersonaje.replace(/\s+/g, ''));
+            const sKeysLoaded = data.supervivientes.map((s) => s.nombrePersonaje.replace(/\s+/g, ''));
+            const kKeysLoaded = data.killers.map((k) => k.nombrePersonaje.replace(/\s+/g, ''));
             setSurvKeys(sKeysLoaded);
             setKillerKeys(kKeysLoaded);
             localStorage.removeItem('resumeGame');
@@ -208,7 +344,7 @@ export default function TrialPage() {
   useEffect(() => {
     if (!gameState || gameState.partidaTerminada) return;
 
-    let equipoActual = isSurviTurn ? gameState.supervivientes : gameState.killers;
+    const equipoActual = isSurviTurn ? gameState.supervivientes : gameState.killers;
     let newIdx = currentIdx;
 
     while (newIdx < equipoActual.length && equipoActual[newIdx].vidaActual <= 0) {
@@ -255,115 +391,10 @@ export default function TrialPage() {
   }
 
   const equipoActual = isSurviTurn ? gameState.supervivientes : gameState.killers;
-  const actor = equipoActual[currentIdx];
-  // Safeguard just in case
-  if (!actor) return null;
+  const actor = (currentIdx >= 0 && currentIdx < equipoActual.length ? equipoActual[currentIdx] : null) || equipoActual[0] || gameState.supervivientes[0];
 
-  const actorKey = actor.nombrePersonaje.replace(/\s+/g, '');
+  const actorKey = actor?.nombrePersonaje?.replace(/\s+/g, '') || 'DEFAULT';
   const actorImg = portraitMap[actorKey] || portraitMap['DEFAULT'];
-
-  const sendAction = async (tipoAccion: string, objetivoIndex = -1, perkIndex = -1) => {
-    if (isAnimating || gameState.partidaTerminada) return;
-    
-    setIsAnimating(true);
-    setActiveMode('NONE');
-
-    const globalAtacanteIdx = isSurviTurn ? currentIdx : (gameState.supervivientes.length + currentIdx);
-    const safeObjetivoIndex = objetivoIndex === -1 ? 0 : objetivoIndex;
-
-    const rivales = isSurviTurn ? gameState.killers : gameState.supervivientes;
-
-    if (tipoAccion !== 'AUTO') {
-      // Manual action: trigger pre-animations
-      if (safeObjetivoIndex < rivales.length) {
-        const targetChar = rivales[safeObjetivoIndex];
-        const fixedKey = targetChar.nombrePersonaje.replace(/\s+/g, '');
-        setPreviewTarget({
-          charKey: fixedKey,
-          name: targetChar.nombrePersonaje,
-          image: portraitMap[fixedKey] || portraitMap['DEFAULT']
-        });
-      }
-
-      if (tipoAccion === 'ATACAR' || tipoAccion === 'PERK') {
-        setAnimState('ATTACK');
-        await new Promise(r => setTimeout(r, 600));
-        setAnimState('DAMAGE');
-        await new Promise(r => setTimeout(r, 800));
-        setAnimState('IDLE');
-      } else if (tipoAccion === 'DEFENDER') {
-        setAnimState('DEFEND');
-        await new Promise(r => setTimeout(r, 800));
-        setAnimState('IDLE');
-      }
-      setPreviewTarget(null);
-    }
-
-    try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('jwt_token='))?.split('=')[1];
-      const res = await fetch('/api/game/action', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify({
-          tipoAccion,
-          atacanteIndex: globalAtacanteIdx,
-          objetivoIndex: safeObjetivoIndex,
-          perkIndex
-        })
-      });
-      
-      const data: GameState = await res.json();
-      
-      if (tipoAccion === 'AUTO' && data) {
-        const decAction = data.decidedAction;
-        const decTargetIdx = data.decidedTargetIndex ?? -1;
-
-        if (decAction === 'ATACAR' || decAction === 'PERK') {
-          const safeDecTarget = decTargetIdx >= 0 && decTargetIdx < rivales.length ? decTargetIdx : 0;
-          const targetChar = rivales[safeDecTarget];
-          if (targetChar) {
-            const fixedKey = targetChar.nombrePersonaje.replace(/\s+/g, '');
-            setPreviewTarget({
-              charKey: fixedKey,
-              name: targetChar.nombrePersonaje,
-              image: portraitMap[fixedKey] || portraitMap['DEFAULT']
-            });
-          }
-          setAnimState('ATTACK');
-          await new Promise(r => setTimeout(r, 600));
-          setAnimState('DAMAGE');
-          await new Promise(r => setTimeout(r, 800));
-          setAnimState('IDLE');
-          setPreviewTarget(null);
-        } else if (decAction === 'DEFENDER') {
-          setAnimState('DEFEND');
-          await new Promise(r => setTimeout(r, 800));
-          setAnimState('IDLE');
-        } else {
-          setAnimState('ATTACK');
-          await new Promise(r => setTimeout(r, 450));
-          setAnimState('IDLE');
-        }
-      }
-
-      setGameState(data);
-      if (data.logs && data.logs.length > 0) {
-        setCombatLogs(prev => [...prev, ...data.logs]);
-      }
-      
-      if (!data.partidaTerminada) {
-        setCurrentIdx(prev => prev + 1);
-      }
-    } catch (e) {
-      console.error(e);
-      setCombatLogs(prev => [...prev, '> Error conectando con el servidor.']);
-    } finally {
-      setIsAnimating(false);
-    }
-  };
 
   const handleModeAction = (targetIdx: number, perkIdx: number = -1) => {
     sendAction(activeMode, targetIdx, perkIdx);
@@ -404,6 +435,7 @@ export default function TrialPage() {
       if (res.ok) {
         toast.success(`El progreso ha sido sellado en la Ranura ${slotId}.`);
         setIsSaveModalOpen(false);
+        setTimeout(() => router.push('/dashboard'), 1500);
       } else {
         console.error(`Error al guardar. Status: ${res.status}`);
         toast.error('Error al guardar la partida.');
@@ -447,8 +479,8 @@ export default function TrialPage() {
               
               <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full px-4 md:px-10 h-full">
                 {/* ACTOR (Attacker) */}
-                <div className={`relative flex flex-col items-center transition-all duration-500 ease-in-out ${animState === 'ATTACK' ? 'translate-x-4 scale-110 z-50' : ''} ${animState === 'DEFEND' ? 'scale-95 opacity-80 brightness-150 drop-shadow-[0_0_30px_rgba(59,130,246,1)]' : ''}`}>
-                  <div className={`w-40 h-56 md:w-56 md:h-72 rounded-xl overflow-hidden border-4 ${isSurviTurn ? 'border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.6)]' : 'border-red-600 shadow-[0_0_40px_rgba(220,38,38,0.6)]'}`}>
+                <div className={`relative flex flex-col items-center transition-all duration-500 ease-in-out ${animState === 'ATTACK' ? 'translate-x-4 scale-110 z-50 drop-shadow-[0_0_30px_rgba(220,38,38,0.7)]' : ''} ${animState === 'PERK' ? '-translate-y-4 scale-110 z-50 drop-shadow-[0_0_35px_rgba(168,85,247,0.9)] animate-pulse' : ''} ${animState === 'DEFEND' ? 'scale-95 opacity-80 brightness-150 drop-shadow-[0_0_30px_rgba(59,130,246,1)]' : ''}`}>
+                  <div className={`w-40 h-56 md:w-56 md:h-72 rounded-xl overflow-hidden border-4 ${animState === 'PERK' ? 'border-purple-500 shadow-[0_0_45px_rgba(168,85,247,0.9)]' : isSurviTurn ? 'border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.6)]' : 'border-red-600 shadow-[0_0_40px_rgba(220,38,38,0.6)]'}`}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
                       src={actorImg} 
@@ -468,7 +500,7 @@ export default function TrialPage() {
 
                 {/* VS or TARGET */}
                 <div className="relative flex flex-col items-center mt-10 md:mt-0">
-                  {(previewTarget || animState === 'DAMAGE') && (
+                  {(previewTarget || animState === 'DAMAGE') ? (
                     <div className={`relative flex flex-col items-center transition-all duration-300 ease-out ${animState === 'DAMAGE' ? 'translate-x-4 sepia contrast-[1.8] animate-[shake_0.4s_ease-in-out_infinite] scale-110 z-40' : ''}`}>
                       <div className={`w-40 h-56 md:w-56 md:h-72 rounded-xl overflow-hidden border-4 border-zinc-500 opacity-90 ${animState === 'DAMAGE' ? 'border-red-600 shadow-[0_0_50px_rgba(220,38,38,1)]' : ''}`}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -487,7 +519,7 @@ export default function TrialPage() {
                       </div>
                       {animState === 'DAMAGE' && (
                         <div className="absolute inset-0 flex items-center justify-center animate-[scratch_0.5s_ease-out_forwards]">
-                          <span className="text-8xl md:text-9xl text-red-600 font-black drop-shadow-[0_0_20px_rgba(220,38,38,1)] -rotate-[20deg] tracking-tighter">///</span>
+                          <span className="text-8xl md:text-9xl text-red-600 font-black drop-shadow-[0_0_20px_rgba(220,38,38,1)] -rotate-[20deg] tracking-tighter">{"///"}</span>
                         </div>
                       )}
                     </div>
@@ -659,12 +691,20 @@ export default function TrialPage() {
                     ) : null}
                   </div>
 
-                  <button 
-                    onClick={openSaveModal} 
-                    className="mt-2 w-full bg-zinc-950 border-2 border-green-600 text-green-500 font-black py-4 rounded-xl tracking-[0.2em] uppercase shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.6)] hover:bg-green-950/30 transition-all active:scale-95"
-                  >
-                    GUARDAR Y ABANDONAR
-                  </button>
+                  <div className="flex gap-2 mt-2 w-full">
+                    <button 
+                      onClick={openSaveModal} 
+                      className="flex-1 bg-zinc-950 border-2 border-green-600 text-green-500 hover:text-green-400 font-black py-4 rounded-xl tracking-[0.1em] text-xs uppercase shadow-[0_0_12px_rgba(34,197,94,0.25)] hover:shadow-[0_0_20px_rgba(34,197,94,0.5)] hover:bg-green-950/30 transition-all active:scale-95 text-center"
+                    >
+                      GUARDAR
+                    </button>
+                    <button 
+                      onClick={() => router.push('/dashboard')} 
+                      className="flex-1 bg-zinc-950 border-2 border-red-600 text-red-500 hover:text-red-400 font-black py-4 rounded-xl tracking-[0.1em] text-xs uppercase shadow-[0_0_12px_rgba(220,38,38,0.25)] hover:shadow-[0_0_20px_rgba(220,38,38,0.5)] hover:bg-red-950/30 transition-all active:scale-95 text-center"
+                    >
+                      ABANDONAR
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -156,40 +157,26 @@ export default function DashboardPage() {
 
           {/* Card Logros */}
           <div
-            className="group relative h-[480px] rounded-2xl overflow-hidden border border-zinc-800/85 hover:border-purple-600/85 shadow-lg hover:shadow-[0_0_35px_rgba(168,85,247,0.25)] transition-all duration-500 cursor-not-allowed transform flex flex-col justify-end p-6"
+            className="group relative h-[480px] rounded-2xl overflow-hidden border border-zinc-800/85 hover:border-purple-600/85 shadow-lg hover:shadow-[0_0_35px_rgba(168,85,247,0.25)] transition-all duration-500 cursor-pointer transform hover:-translate-y-2 flex flex-col justify-end p-6"
+            onClick={openAchievementsModal}
           >
             {/* Card Background Image (occupies the whole card) */}
             <div className="absolute inset-0 z-0">
               <img
                 src="/hunter.jpg"
                 alt="Logros"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.4] group-hover:brightness-[0.7] grayscale group-hover:grayscale-0"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.7] group-hover:brightness-[0.9]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent opacity-90 group-hover:opacity-85 transition-opacity"></div>
             </div>
 
             {/* Overlaid themed box with text */}
             <div className="relative z-10 bg-purple-950/75 hover:bg-purple-900/85 border border-purple-900/40 backdrop-blur-[6px] p-5 rounded-xl text-center shadow-[0_4px_20px_rgba(168,85,247,0.2)] transition-all duration-300">
-              <h2 className="text-2xl font-black text-zinc-100 mb-2 group-hover:text-purple-400 transition-colors duration-300 tracking-wide">Logros (unreleased)</h2>
-              <p className="text-zinc-300 text-xs leading-relaxed font-[family-name:var(--font-special-elite)] tracking-wide">
-                Próximamente. Registra tus hitos y descubre recompensas ocultas en la Niebla.
+              <h2 className="text-2xl font-black text-zinc-100 mb-2 group-hover:text-purple-400 transition-colors duration-300 tracking-wide">Tus Logros</h2>
+              <p className="text-zinc-200 text-xs leading-relaxed font-[family-name:var(--font-special-elite)] tracking-wide">
+                Consulta tus hazañas grabadas en la niebla. Comprueba los desafíos que has desbloqueado.
               </p>
             </div>
-          </div>
-
-          {/* Card Logros */}
-          <div 
-            className="group bg-zinc-900/50 border border-zinc-800 hover:border-amber-500 p-8 rounded-xl shadow-lg hover:shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-all duration-500 cursor-pointer transform hover:-translate-y-2 flex flex-col items-center text-center relative overflow-hidden"
-            onClick={openAchievementsModal}
-          >
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="w-20 h-20 rounded-full bg-amber-950/30 border border-amber-900/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
-              <span className="text-amber-500 text-3xl font-black drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]">🏆</span>
-            </div>
-            <h2 className="text-2xl font-bold text-zinc-300 mb-3 group-hover:text-amber-400 transition-colors duration-300 tracking-wide">Tus Logros</h2>
-            <p className="text-zinc-500 text-sm leading-relaxed group-hover:text-zinc-300 transition-colors">
-              Consulta tus hazañas grabadas en la niebla. Comprueba los desafíos que has desbloqueado.
-            </p>
           </div>
           
         </main>
