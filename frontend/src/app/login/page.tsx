@@ -71,7 +71,7 @@ export default function LoginPage() {
           <div className="group relative">
             <input 
               className="w-full p-4 bg-black/60 text-zinc-100 border border-zinc-850 rounded-lg focus:outline-none focus:border-zinc-700 focus:ring-1 focus:ring-zinc-700 transition-all duration-300 placeholder-zinc-700 text-lg font-[family-name:var(--font-special-elite)]"
-              type="text" placeholder="Sobreviviente o Asesino" value={username} onChange={e => setUsername(e.target.value)}
+              type="text" placeholder="Superviviente o Asesino" value={username} onChange={e => setUsername(e.target.value)}
             />
           </div>
           
