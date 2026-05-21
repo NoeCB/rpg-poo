@@ -1,0 +1,61 @@
+import type { Metadata } from "next";
+import { Geist, Geist_Mono, Rock_Salt, Special_Elite } from "next/font/google";
+import localFont from "next/font/local";
+import "./globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const rockSalt = Rock_Salt({
+  variable: "--font-rock-salt",
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const specialElite = Special_Elite({
+  variable: "--font-special-elite",
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const anotherDanger = localFont({
+  src: "./fonts/Another Danger - Demo.otf",
+  variable: "--font-another-danger",
+});
+
+const horroroid = localFont({
+  src: "./fonts/horroroid.ttf",
+  variable: "--font-horroroid",
+});
+
+const horroroidBold = localFont({
+  src: "./fonts/horroroidbold.ttf",
+  variable: "--font-horroroid-bold",
+});
+
+export const metadata: Metadata = {
+  title: "DBD: The RPG",
+  description: "A role-playing game based on Dead by Daylight.",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} ${rockSalt.variable} ${specialElite.variable} ${anotherDanger.variable} ${horroroid.variable} ${horroroidBold.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col">{children}</body>
+    </html>
+  );
+}
