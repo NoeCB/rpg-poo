@@ -1,3 +1,18 @@
 # Documentación TFG (Local Only)
 DOCUMENTACION_TFG.md
 DIAGRAMA_ER.md
+
+# Archivos temporales generados por la compilación de LaTeX
+*.aux
+*.log
+*.toc
+*.lof
+*.lot
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.pdf
+
+# Ignorar la memoria en formato LaTeX por petición explícita
+memoria.tex
