@@ -380,7 +380,7 @@ export default function PlayPage() {
                   </div>
                 </div>
 
-                {/* VS Divider & Random Button */}
+                {/* Desktop VS Divider & Random Button */}
                 <div className="hidden xl:flex flex-col items-center justify-center self-stretch opacity-90 py-2 gap-4">
                   <div className="w-[1px] h-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent"></div>
                   <div className="relative group">
@@ -397,6 +397,26 @@ export default function PlayPage() {
                     Azar
                   </button>
                   <div className="w-[1px] h-full bg-gradient-to-t from-transparent via-zinc-800 to-transparent"></div>
+                </div>
+
+                {/* Mobile VS Divider & Random Button */}
+                <div className="flex xl:hidden flex-col sm:flex-row items-center justify-center gap-4 py-4 w-full opacity-90">
+                  <div className="hidden sm:block h-[1px] flex-grow bg-gradient-to-r from-transparent to-zinc-800"></div>
+                  <div className="flex items-center gap-4">
+                    <div className="relative group">
+                      <div className="absolute inset-0 bg-red-600 rounded-full blur-md opacity-35 animate-pulse"></div>
+                      <div className="relative bg-zinc-950 border border-zinc-850 text-red-500 font-sans font-black text-sm w-10 h-10 flex items-center justify-center rounded-full shadow-[0_0_15px_rgba(220,38,38,0.3)] tracking-wider">
+                        VS
+                      </div>
+                    </div>
+                    <button
+                      onClick={selectRandomCharacters}
+                      className="px-4 py-2 border border-amber-600/50 bg-amber-950/20 hover:bg-amber-950/40 text-amber-500 hover:text-amber-400 rounded-lg text-2xs font-black tracking-widest uppercase transition-all duration-300 active:scale-95 flex items-center gap-2 font-[family-name:var(--font-special-elite)] shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_25px_rgba(245,158,11,0.3)]"
+                    >
+                      Aleatorio (Azar) 🎲
+                    </button>
+                  </div>
+                  <div className="hidden sm:block h-[1px] flex-grow bg-gradient-to-l from-transparent to-zinc-800"></div>
                 </div>
 
                 {/* ASESINOS */}
