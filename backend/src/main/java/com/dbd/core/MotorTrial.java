@@ -582,4 +582,16 @@ public class MotorTrial {
         killers.clear();
         idRanuraActual = -1;
     }
+
+    // Lógica de simulación para pruebas de credenciales (Selenium / Login)
+    private java.util.Map<String, String> usuariosSimulados = new java.util.HashMap<>();
+
+    public void registrarUsuario(String username, String password) {
+        usuariosSimulados.put(username, password);
+    }
+
+    public boolean autenticar(String username, String password) {
+        String passGuardada = usuariosSimulados.get(username);
+        return passGuardada != null && passGuardada.equals(password);
+    }
 }

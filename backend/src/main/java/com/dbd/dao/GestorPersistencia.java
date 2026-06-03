@@ -438,7 +438,7 @@ public class GestorPersistencia {
                         // Recuperar estados
                         // (Mismo patrón, puedes añadirlo si lo usáis)
 
-                        if (bando.equals("superviviente")) {
+                        if (bandoPersonaje.equals("superviviente")) {
                             survisRef.add(p);
                         } else {
                             killersRef.add(p);
