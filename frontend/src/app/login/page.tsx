@@ -51,7 +51,7 @@ export default function LoginPage() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-[url('/maxresdefault.jpg')] bg-cover bg-center bg-no-repeat bg-fixed relative">
       <div className="absolute inset-0 bg-black/55 z-0"></div>
       
-      <div className="z-10 p-10 sm:p-14 bg-black/30 border border-zinc-800/80 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.95)] max-w-xl w-full mx-4 backdrop-blur-md">
+      <div className="z-10 px-6 py-10 sm:p-14 bg-black/30 border border-zinc-800/80 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.95)] max-w-xl w-full mx-4 backdrop-blur-md">
         
         <h1 className="text-4xl md:text-5xl font-normal text-zinc-100 mb-2 text-center tracking-[0.05em] drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] font-[family-name:var(--font-another-danger)]">
           DEAD BY DAYLIGHT

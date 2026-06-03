@@ -299,8 +299,8 @@ export default function DashboardPage() {
         {/* MODAL DE CARGA */}
         {isLoadModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div className="bg-stone-950 border-[3px] border-double border-red-950 rounded-none w-full max-w-4xl shadow-[inset_0_0_20px_rgba(0,0,0,0.9),0_0_35px_rgba(100,20,20,0.3)] overflow-hidden animate-in fade-in duration-200">
-              <div className="p-6 border-b border-red-950/60 flex justify-between items-center bg-black/50">
+            <div className="bg-stone-950 border-[3px] border-double border-red-950 rounded-none w-full max-w-4xl shadow-[inset_0_0_20px_rgba(0,0,0,0.9),0_0_35px_rgba(100,20,20,0.3)] overflow-hidden animate-in fade-in duration-200 flex flex-col max-h-[85vh]">
+              <div className="p-6 border-b border-red-950/60 flex justify-between items-center bg-black/50 flex-shrink-0">
                 <h3 className="text-2xl md:text-3xl font-normal text-red-600 tracking-[0.08em] uppercase font-[family-name:var(--font-horroroid-bold)] drop-shadow-[0_0_12px_rgba(220,38,38,0.6)]">
                   Ranuras de Guardado
                 </h3>
@@ -309,7 +309,7 @@ export default function DashboardPage() {
                 </button>
               </div>
 
-              <div className="p-6 max-h-[60vh] overflow-y-auto">
+              <div className="p-6 overflow-y-auto flex-1">
                 {isLoadingSaves ? (
                   <div className="flex flex-col items-center justify-center py-12">
                     <div className="w-10 h-10 border-2 border-red-900 border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -470,8 +470,8 @@ export default function DashboardPage() {
         {/* MODAL DE NUEVA PARTIDA (SELECCIÓN DE RANURA DE AUTOSAVE) */}
         {isNewGameModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-stone-950 border-[3px] border-double border-red-950 rounded-none w-full max-w-2xl shadow-[inset_0_0_25px_rgba(0,0,0,0.95),0_0_40px_rgba(185,28,28,0.25)] overflow-hidden">
-              <div className="p-6 border-b border-red-950/60 flex justify-between items-center bg-black/50">
+            <div className="bg-stone-950 border-[3px] border-double border-red-950 rounded-none w-full max-w-2xl shadow-[inset_0_0_25px_rgba(0,0,0,0.95),0_0_40px_rgba(185,28,28,0.25)] overflow-hidden flex flex-col max-h-[85vh]">
+              <div className="p-6 border-b border-red-950/60 flex justify-between items-center bg-black/50 flex-shrink-0">
                 <div>
                   <h3 className="text-2xl font-normal text-red-500 tracking-widest uppercase font-[family-name:var(--font-horroroid)] drop-shadow-[0_0_10px_rgba(239,68,68,0.4)]">
                     Nueva Partida
@@ -483,7 +483,7 @@ export default function DashboardPage() {
                 </button>
               </div>
 
-              <div className="p-6 max-h-[60vh] overflow-y-auto">
+              <div className="p-6 overflow-y-auto flex-1">
                 {isLoadingSaves ? (
                   <div className="flex flex-col items-center justify-center py-12">
                     <div className="w-10 h-10 border-2 border-red-900 border-t-transparent rounded-full animate-spin mb-4"></div>

@@ -493,13 +493,13 @@ export default function TrialPage() {
   const rivalKeys = isSurviTurn ? killerKeys : survKeys;
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-zinc-950 font-sans text-white overflow-hidden relative selection:bg-red-900/30">
+    <div className="min-h-screen md:h-screen w-screen flex flex-col bg-zinc-950 font-sans text-white overflow-y-auto md:overflow-hidden relative selection:bg-red-900/30">
       <Toaster position="top-right" />
       <div className="absolute inset-0 bg-[url('https://c4.wallpaperflare.com/wallpaper/528/773/953/dead-by-daylight-logo-4k-wallpaper-preview.jpg')] bg-cover bg-center opacity-10"></div>
 
-      <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
+      <div className="relative z-10 flex-1 flex flex-col md:overflow-hidden">
 
-        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        <div className="flex-1 flex flex-col md:flex-row md:overflow-hidden">
 
           {/* LEFT SIDEBAR - SURVIVORS */}
           <aside className="w-full md:w-64 bg-black/60 border-r border-zinc-800 p-4 overflow-y-auto hidden md:block">
@@ -517,13 +517,69 @@ export default function TrialPage() {
 
           {/* CENTER BATTLE STAGE & LOGS */}
           <main className="flex-1 flex flex-col bg-zinc-950/50 backdrop-blur-sm relative">
+
+            {/* MOBILE TEAM STATUS PANEL (Visible only on mobile/tablet) */}
+            <div className="flex md:hidden flex-col gap-2 p-3 bg-black/40 border-b border-zinc-900 flex-shrink-0">
+              <div className="grid grid-cols-2 gap-4">
+                {/* Survivors mobile panel */}
+                <div>
+                  <p className="text-[10px] text-blue-500 font-bold tracking-widest uppercase mb-1.5 font-[family-name:var(--font-horroroid)]">🏃 Supervivientes</p>
+                  <div className="space-y-1">
+                    {gameState.supervivientes.slice(0, 3).map((s, idx) => {
+                      const isDead = s.vidaActual <= 0;
+                      const isMyTurn = isSurviTurn && currentIdx === idx && !isDead;
+                      const pct = Math.max(0, Math.min(100, (s.vidaActual / s.vidaMax) * 100));
+                      return (
+                        <div key={`mob-surv-${idx}`} className={`p-1 bg-blue-950/10 border ${isMyTurn ? 'border-green-500 shadow-[0_0_8px_rgba(34,197,94,0.3)]' : 'border-zinc-850'} rounded text-[10px] font-[family-name:var(--font-special-elite)]`}>
+                          <div className="flex justify-between text-[10px] mb-0.5 font-bold">
+                            <span className={isDead ? 'text-zinc-500 line-through' : 'text-blue-200'}>{s.nombrePersonaje}</span>
+                            <span className={isDead ? 'text-zinc-555' : 'text-green-400'}>{isDead ? '☠️' : `${s.vidaActual} HP`}</span>
+                          </div>
+                          {!isDead && (
+                            <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
+                              <div className="bg-green-500 h-full" style={{ width: `${pct}%` }}></div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Killers mobile panel */}
+                <div>
+                  <p className="text-[10px] text-red-500 font-bold tracking-widest uppercase mb-1.5 font-[family-name:var(--font-horroroid)]">🔪 Asesinos</p>
+                  <div className="space-y-1">
+                    {gameState.killers.slice(0, 3).map((k, idx) => {
+                      const isDead = k.vidaActual <= 0;
+                      const isMyTurn = !isSurviTurn && currentIdx === idx && !isDead;
+                      const pct = Math.max(0, Math.min(100, (k.vidaActual / k.vidaMax) * 100));
+                      return (
+                        <div key={`mob-kill-${idx}`} className={`p-1 bg-red-950/10 border ${isMyTurn ? 'border-red-500 shadow-[0_0_8px_rgba(220,38,38,0.3)]' : 'border-zinc-850'} rounded text-[10px] font-[family-name:var(--font-special-elite)]`}>
+                          <div className="flex justify-between text-[10px] mb-0.5 font-bold">
+                            <span className={isDead ? 'text-zinc-500 line-through' : 'text-red-200'}>{k.nombrePersonaje}</span>
+                            <span className={isDead ? 'text-zinc-555' : 'text-red-400'}>{isDead ? '☠️' : `${k.vidaActual} HP`}</span>
+                          </div>
+                          {!isDead && (
+                            <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
+                              <div className="bg-red-600 h-full" style={{ width: `${pct}%` }}></div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Stage */}
             <div className="flex-1 relative flex items-center justify-center min-h-[300px]">
 
-              <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full px-4 md:px-10 h-full">
+              <div className="flex flex-row items-center justify-center gap-3 sm:gap-6 w-full px-2 sm:px-4 md:px-10 h-full">
                 {/* ACTOR (Attacker) */}
                 <div className={`relative flex flex-col items-center transition-all duration-500 ease-in-out ${animState === 'ATTACK' ? 'translate-x-4 scale-110 z-50 drop-shadow-[0_0_30px_rgba(220,38,38,0.7)]' : ''} ${animState === 'PERK' ? '-translate-y-4 scale-110 z-50 drop-shadow-[0_0_35px_rgba(168,85,247,0.9)] animate-pulse' : ''} ${animState === 'DEFEND' ? 'scale-95 opacity-80 brightness-150 drop-shadow-[0_0_30px_rgba(59,130,246,1)]' : ''}`}>
-                  <div className={`w-40 h-56 md:w-56 md:h-72 rounded-xl overflow-hidden border-4 ${animState === 'PERK' ? 'border-purple-500 shadow-[0_0_45px_rgba(168,85,247,0.9)]' : isSurviTurn ? 'border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.6)]' : 'border-red-600 shadow-[0_0_40px_rgba(220,38,38,0.6)]'}`}>
+                  <div className={`w-24 h-36 sm:w-40 sm:h-56 md:w-56 md:h-72 rounded-xl overflow-hidden border-4 ${animState === 'PERK' ? 'border-purple-500 shadow-[0_0_45px_rgba(168,85,247,0.9)]' : isSurviTurn ? 'border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.6)]' : 'border-red-600 shadow-[0_0_40px_rgba(220,38,38,0.6)]'}`}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={actorImg}
@@ -535,17 +591,17 @@ export default function TrialPage() {
                               'object-top'}`}
                     />
                   </div>
-                  <div className="mt-4 text-white bg-transparent font-normal tracking-wide text-xl md:text-2xl drop-shadow-md font-[family-name:var(--font-special-elite)]">
+                  <div className="mt-2 md:mt-4 text-white bg-transparent font-normal tracking-wide text-xs sm:text-xl md:text-2xl drop-shadow-md font-[family-name:var(--font-special-elite)] text-center">
                     {actor?.nombrePersonaje || 'Preparando...'}
                   </div>
-                  <div className="absolute -top-12 font-[family-name:var(--font-special-elite)] text-sm tracking-[0.2em] text-white animate-bounce bg-zinc-850/90 px-5 py-2 rounded-full border-2 border-zinc-700 shadow-xl">TURNO ACTUAL</div>
+                  <div className="absolute -top-8 sm:-top-12 font-[family-name:var(--font-special-elite)] text-[9px] sm:text-sm tracking-[0.1em] sm:tracking-[0.2em] text-white animate-bounce bg-zinc-850/90 px-3 py-1 sm:px-5 sm:py-2 rounded-full border-2 border-zinc-700 shadow-xl whitespace-nowrap">TURNO ACTUAL</div>
                 </div>
 
                 {/* VS or TARGET */}
-                <div className="relative flex flex-col items-center mt-10 md:mt-0">
+                <div className="relative flex flex-col items-center mt-0 md:mt-0">
                   {(previewTarget || animState === 'DAMAGE') ? (
                     <div className={`relative flex flex-col items-center transition-all duration-300 ease-out ${animState === 'DAMAGE' ? 'translate-x-4 sepia contrast-[1.8] animate-[shake_0.4s_ease-in-out_infinite] scale-110 z-40' : ''}`}>
-                      <div className={`w-40 h-56 md:w-56 md:h-72 rounded-xl overflow-hidden border-4 border-zinc-500 opacity-90 ${animState === 'DAMAGE' ? 'border-red-600 shadow-[0_0_50px_rgba(220,38,38,1)]' : ''}`}>
+                      <div className={`w-24 h-36 sm:w-40 sm:h-56 md:w-56 md:h-72 rounded-xl overflow-hidden border-4 border-zinc-500 opacity-90 ${animState === 'DAMAGE' ? 'border-red-600 shadow-[0_0_50px_rgba(220,38,38,1)]' : ''}`}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={previewTarget ? previewTarget.image : portraitMap['DEFAULT']}
@@ -557,18 +613,18 @@ export default function TrialPage() {
                                   'object-top'}`}
                         />
                       </div>
-                      <div className="mt-4 text-white bg-transparent font-normal tracking-wide text-xl md:text-2xl drop-shadow-md font-[family-name:var(--font-special-elite)]">
+                      <div className="mt-2 md:mt-4 text-white bg-transparent font-normal tracking-wide text-xs sm:text-xl md:text-2xl drop-shadow-md font-[family-name:var(--font-special-elite)] text-center">
                         {previewTarget?.name || 'Objetivo'}
                       </div>
                       {animState === 'DAMAGE' && (
                         <div className="absolute inset-0 flex items-center justify-center animate-[scratch_0.5s_ease-out_forwards]">
-                          <span className="text-8xl md:text-9xl text-red-600 font-black drop-shadow-[0_0_20px_rgba(220,38,38,1)] -rotate-[20deg] tracking-tighter">{"///"}</span>
+                          <span className="text-5xl sm:text-8xl md:text-9xl text-red-650 font-black drop-shadow-[0_0_20px_rgba(220,38,38,1)] -rotate-[20deg] tracking-tighter">{"///"}</span>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-zinc-950 border-4 border-red-900/60 flex items-center justify-center text-red-600 font-black text-4xl md:text-5xl shadow-[0_0_30px_rgba(220,38,38,0.4)] relative">
-                      <div className="absolute inset-0 bg-red-600/20 blur-xl rounded-full animate-pulse"></div>
+                    <div className="w-12 h-12 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-zinc-950 border-4 border-red-900/60 flex items-center justify-center text-red-650 font-black text-sm sm:text-4xl md:text-5xl shadow-[0_0_30px_rgba(220,38,38,0.4)] relative">
+                      <div className="absolute inset-0 bg-red-600/20 blur-lg sm:blur-xl rounded-full animate-pulse"></div>
                       VS
                     </div>
                   )}
